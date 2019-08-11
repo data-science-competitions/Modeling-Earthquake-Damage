@@ -3,8 +3,23 @@ ci_get_job_name <- function(){
 }
 
 show_error_log <- function(){
-    if(is_travis())
-        print("/home/travis/build/tidylab/boilerplate/boilerplate.Rcheck/00check.log")
+    `%+%` <- function(a,b) paste0(a, b)
+
+    install_package("desc")
+    install_package("stringr")
+    install_package("devtools")
+
+    desc_obj <- description$new()
+    package_url <- desc_obj$get_field("BugReports") %>% stringr::str_remove("/issues$")
+    package_name <- desc_obj$get_field("Package")
+    package_repo <- stringr::str_extract_all(package_url, "[^/]+(?://[^/]*)*")[[1]][2:3] %>% paste0(collapse ="/")
+
+    if(is_travis()){
+        error_log <- "/home/travis/build/" %+% package_repo %+% "/" %+% package_name %+% ".Rcheck/00check.log"
+        try(print(readLines(error_log)), silent = TRUE)
+    }
+
+    print(devtools::session_info())
 }
 
 is_travis <- function(){
