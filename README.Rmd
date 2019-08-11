@@ -1,0 +1,208 @@
+---
+output: github_document
+---
+
+```{r setup, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+source("README.R", TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", out.width = "100%")
+.install_package("desc")
+.install_package("devtools")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+#######################
+## Get Project Paths ##
+#######################
+path_project <- getwd()
+while (length(grep("test", path_project))>0) path_project <- dirname(path_project)
+devtools::load_all(path_project, quiet = TRUE)
+
+############################# 
+## Get Package DESCRIPTION ##
+#############################
+library(desc)
+target <- file.path(path_project, "DESCRIPTION")
+desc_obj <- description$new(target)
+
+##########################
+## Set System Variables ##
+##########################
+package_url <- desc_obj$get_field("BugReports") %>% stringr::str_remove("/issues$")
+package_name <- desc_obj$get_field("Package")
+package_repo <- stringr::str_extract_all(package_url, "[^/]+(?://[^/]*)*")[[1]][2:3] %>% paste0(collapse ="/")
+Sys.setenv(CI_PROJECT_NAME = package_name)
+Sys.setenv(CI_PROJECT_URL = package_url)
+
+####################
+## Construct URLs ##
+####################
+travis_url <- paste0("https://travis-ci.org/", package_repo)
+pipeline_url <- paste0(travis_url, ".svg?branch=master")
+mybinder_url <- "http://mybinder.org/badge.svg"
+
+codecov_url <- paste0("https://codecov.io/github/", package_repo, "/", "?branch=master")
+covr_url <- paste0("https://codecov.io/gh/", package_repo, "/branch/master/graph/badge.svg")
+binder_url <- paste0("https://mybinder.org/v2/gh/", package_repo, "/master?urlpath=rstudio")
+```
+
+# ``r package_name`` <img src='https://i.imgur.com/cLcAYfz.png' align="right" height="50"/>
+
+<!-- badges: start -->
+[![Travis build status](`r pipeline_url`)](`r travis_url`)
+[![Code coverage status](`r covr_url`)](`r codecov_url`)
+[![Launch Rstudio Binder](`r mybinder_url`)](`r binder_url`)
+<!-- badges: end -->
+
+<!-- Package Title -->
+`r desc_obj$get_field("Title")`
+
+---
+
+```{r, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("https://i.imgur.com/RLEQkhe.png")
+```
+
+<!-- Package Description -->
+## Description
+
+`r desc_obj$get_field("Description")`
+
+## Useage
+
+1. Create a new repo on GitHub.
+2. Use the [`git-flow`](https://blog.sourcetreeapp.com/2012/08/01/smart-branching-with-sourcetree-and-git-flow/) approach in your development cycle. 
+3. Create a new release named `inception`.
+4. Copy ``r package_name`` content to the new reposetory.
+5. Change the ``r paste0(package_name,".Rproj")`` file to `<package-name>.Rproj`.
+6. Open the `DESCRIPTION` file, and edit the following fields:
+1. **Package** modify the package name while using the `tidylab.` prefix.
+2. **Title** modify the package title; use uppercase words with no period ('.').
+3. **URL** modify the package URL such that it leads to its GitHub repo.
+4. **BugReports** edit the URL such that it leads to the package issue page.
+5. **Description** modify the package decription.
+7. In `README.Rmd` delete the **Useage** Section.
+8. Render `README.Rmd` by clicking the **Knit** button.
+9. Push changed on the `inception` branch.
+10. Go to [Travis website](https://travis-ci.org/account/repositories), add the
+project and enable its integration.
+
+
+## Installation
+
+``r package_name`` accommodates two stages in the project life-cycle:
+Development and Production.
+
+### Working in Pseudo-Package Mode (Advised During Development Stage)
+
+1. Download the project to local computer
+2. Launch the project via ``r paste0(package_name,".Rproj")``
+3. Optional: Install all package dependencies
+```{r, eval = FALSE}
+remotes::install_local(dependencies = TRUE, force = TRUE, upgrade = "always")
+devtools::uninstall()
+```
+4. Load the complete project as a package via `devtools::load_all()` or
+Ctrl+Shift+L
+
+### Working in Package Mode (Advised During Production Stage)
+
+```
+install.packages("devtools")
+devtools::install_github("`r package_repo`")
+```
+
+## Data Pipeline
+
+The template includes a database abstraction layer (DAL) that separates data
+sources and analytic applications. The DAL has three stages with the following
+functionality:
+
+1. `Ingest`
+* Pull data from external sources; and
+* Matching schema, organizing, indexing, encoding and compressing the data.
+2. `Prepare`
+* Type conversion of variables if necessary; and
+* Data cleansing;
+3. `Store`
+* Create a data model if relational tables exist;
+* Introduce new features and ready-for-modelling tables; and 
+* Make the data available for query.
+
+The template provides skeletons for `Ingest`, `Prepare` and `Store` interfaces.
+In addition, the template includes a toy example which demonstrates the data
+flow between all three interfaces.
+
+<!--
+### Ingest Layer Interface and its Implementation
+
+```{r ingest, message = FALSE, eval = FALSE}
+ingest_abstract <- Ingest$new(path = tempdir())
+class(ingest_abstract)
+
+ingest_concrete <- IngestDAO$new(path = tempdir())
+class(ingest_concrete)
+```
+
+### Prepare Layer Interface and its Implementation
+
+```{r prepare, message = FALSE, eval = FALSE}
+prepare_abstract <- Prepare$new()
+class(prepare_abstract)
+
+prepare_concrete <- PrepareDAO$new()
+class(prepare_concrete)
+```
+
+### DataStore Object
+
+```{r datastore, message = FALSE, eval = FALSE}
+ds <- DataStore$new()
+class(ds)
+```
+-->
+
+## Datasets
+
+### Accessing the Project Data
+
+```{r, eval=TRUE, message=FALSE, echo=TRUE}
+ds <- DataStore$new()
+ds$data_model %>% dm::cdm_get_tables() %>% str()
+```
+
+### Data Overview
+
+```{r project-data-overview, out.width = "100%", fig.height=0.5, echo = FALSE, message=FALSE}
+remove_all_keys <- function(.data_model){
+  for(table_name in names(.data_model))
+    try(.data_model <- dm::cdm_rm_pk(.data_model, !!table_name, rm_referencing_fks = TRUE), silent = TRUE)
+  return(.data_model)
+}
+
+ds$data_model %>% 
+  remove_all_keys() %>% 
+  dm::cdm_draw(
+    col_attr = c("column", "type")[1:2],
+    view_type = "all", columnArrows = FALSE, rankdir = "BT"
+  )
+```
+
+<!--
+### Data Model
+
+```{r project-data-model, out.width = "100%", fig.height=0.5, echo = FALSE, message=FALSE, eval = FALSE}
+ds$data_model %>% 
+  dm::cdm_draw(
+    col_attr = c("column", "type")[1],
+    view_type = "keys_only", columnArrows = TRUE, rankdir = "LR"
+  )
+```
+-->
+
+<!--
+## Function Dependencies
+
+```{r package-function-dependencies, echo = FALSE, out.width = "100%", eval = FALSE}
+plot_function_dependencies(package_name)
+```
+-->

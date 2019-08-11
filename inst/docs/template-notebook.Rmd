@@ -1,0 +1,50 @@
+---
+title: 'The Hobbit'
+subtitle: 'An Unexpected Journey'
+author: 'Bilbo Baggins'
+date: '`r Sys.Date()`'
+output: 
+  html_document: 
+    highlight: tango
+    theme: journal
+    toc: yes
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+devtools::document(rprojroot::find_package_root_file())
+devtools::load_all(rprojroot::find_package_root_file())
+knitr::opts_chunk$set(echo = FALSE,
+                      fig.align="center",
+                      out.width = "100%",
+                      fig.height = 5,
+                      fig.width = 7,
+                      dpi = 300,
+                      message = FALSE)
+```
+
+```{r helper-functions, include=FALSE}
+get_fig_path <- function(name) 
+  list.files(path = rprojroot::find_package_root_file(), 
+             pattern = name, 
+             full.names = TRUE, 
+             recursive = TRUE)[1]
+```
+
+```{r how-to-embed-an-image, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("https://www.heyuguys.com/images/2012/09/The-Hobbit-An-Unexpected-Journey-Character-Banner.jpg")
+```
+
+## Synopsis {.tabset .tabset-fade}
+
+### Introduction
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Gravida arcu ac tortor dignissim convallis aenean et tortor at. Id interdum velit laoreet id donec ultrices tincidunt arcu. Lobortis elementum nibh tellus molestie. Ipsum consequat nisl vel pretium lectus quam. Nibh ipsum consequat nisl vel pretium. Ultricies mi quis hendrerit dolor. Tortor consequat id porta nibh venenatis cras. Et pharetra pharetra massa massa ultricies mi quis. Pharetra diam sit amet nisl suscipit adipiscing bibendum. Risus quis varius quam quisque id diam vel. Ipsum consequat nisl vel pretium lectus.
+
+### Overview
+
+Cursus risus at ultrices mi. Amet consectetur adipiscing elit duis. Pharetra sit amet aliquam id diam maecenas ultricies mi eget. Elementum nisi quis eleifend quam adipiscing. Vulputate eu scelerisque felis imperdiet. Tristique et egestas quis ipsum suspendisse ultrices gravida. Scelerisque purus semper eget duis at tellus. Dignissim cras tincidunt lobortis feugiat vivamus at augue eget arcu. Vitae elementum curabitur vitae nunc sed velit. Proin fermentum leo vel orci porta non pulvinar neque laoreet. Et sollicitudin ac orci phasellus egestas tellus rutrum. Ut porttitor leo a diam sollicitudin tempor id eu nisl. Id neque aliquam vestibulum morbi blandit cursus risus. Mattis ullamcorper velit sed ullamcorper. Et egestas quis ipsum suspendisse ultrices gravida dictum fusce. Arcu felis bibendum ut tristique et egestas.
+
+```{r, echo=FALSE}
+plot(1:10,1:10)
+```
