@@ -29,27 +29,29 @@ DataStore <- R6::R6Class(
     lock_objects = TRUE,
     public = list(
         # Public Variables -----------------------------------------------------
-
+        initialize = function(){
+            private$.data_model <- private$generate_data_model()
+        }
         # Public Methods -------------------------------------------------------
     ),
     private = list(
         # Private Variables ----------------------------------------------------
-
+        .data_model = NULL,
         # Private Methods ------------------------------------------------------
         generate_data_model = function() .generate_data_model()
     ),
     active = list(
-        data_model = function() private$generate_data_model()
+        data_model = function() private$.data_model
     )
 )#end DataStore
 
 # Private Methods --------------------------------------------------------------
 .generate_data_model <- function(){
-    dm_object <- dplyr::src_df(env = PrepareDAO$new()) %>% dm::dm()
+    dm_object <- dplyr::src_df(env = PrepareData$new()) %>% dm::dm()
     dm_object <-
         dm_object %>%
-        dm::cdm_add_pk(table = "historical_data", column = "UID") %>%
-        dm::cdm_add_pk(table = "new_data", column = "UID") %>%
-        dm::cdm_add_fk(table = "submission_sample", column = "UID", "new_data")
+        dm::cdm_add_pk(table = "historical_data", column = "building_id") %>%
+        dm::cdm_add_pk(table = "new_data", column = "building_id") %>%
+        dm::cdm_add_fk(table = "submission_format", column = "building_id", "new_data")
 }
 

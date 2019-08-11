@@ -1,71 +1,41 @@
 
-# `template.project` <img src='https://i.imgur.com/cLcAYfz.png' align="right" height="50"/>
+# `modeling.earthquake.damage` <img src='https://i.imgur.com/m7lDBGD.png' align="right" height="45"/>
 
 <!-- badges: start -->
 
 [![Travis build
-status](https://travis-ci.org/data-science-competitions/template.project.svg?branch=master)](https://travis-ci.org/data-science-competitions/template.project)
+status](https://travis-ci.org/data-science-competitions/modeling.earthquake.damage.svg?branch=master)](https://travis-ci.org/data-science-competitions/modeling.earthquake.damage)
 [![Code coverage
-status](https://codecov.io/gh/data-science-competitions/template.project/branch/master/graph/badge.svg)](https://codecov.io/github/data-science-competitions/template.project/?branch=master)
+status](https://codecov.io/gh/data-science-competitions/modeling.earthquake.damage/branch/master/graph/badge.svg)](https://codecov.io/github/data-science-competitions/modeling.earthquake.damage/?branch=master)
 [![Launch Rstudio
-Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-science-competitions/template.project/master?urlpath=rstudio)
+Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-science-competitions/modeling.earthquake.damage/master?urlpath=rstudio)
 <!-- badges: end -->
 
 <!-- Package Title -->
 
-R Project Template for Analytic
-Applications
+Richter’s Predictor: Modeling Earthquake
+Damage
 
 -----
 
-<img src="https://i.imgur.com/RLEQkhe.png" width="100%" style="display: block; margin: auto;" />
+<img src="https://i.imgur.com/2sfOQSa.png" width="100%" style="display: block; margin: auto;" />
 
 <!-- Package Description -->
 
 ## Description
 
-Using this template reduces:  
-\* Unnecessary variance between projects configurations; and  
-\* Development time spent on making a barebone project working for the
-first time.  
-This is possible as the boilerplate comes with:  
-\* Fully configured test-suite, including code-coverage; and  
-\* Fully configured continuous-integration (CI) script for Travis.
-
-## Useage
-
-1.  Create a new repo on GitHub.
-2.  Use the
-    [`git-flow`](https://blog.sourcetreeapp.com/2012/08/01/smart-branching-with-sourcetree-and-git-flow/)
-    approach in your development cycle.
-3.  Create a new release named `inception`.
-4.  Copy `template.project` content to the new reposetory.
-5.  Change the `template.project.Rproj` file to `<package-name>.Rproj`.
-6.  Open the `DESCRIPTION` file, and edit the following fields:
-7.  **Package** modify the package name while using the `tidylab.`
-    prefix.
-8.  **Title** modify the package title; use uppercase words with no
-    period (‘.’).
-9.  **URL** modify the package URL such that it leads to its GitHub
-    repo.
-10. **BugReports** edit the URL such that it leads to the package issue
-    page.
-11. **Description** modify the package decription.
-12. In `README.Rmd` delete the **Useage** Section.
-13. Render `README.Rmd` by clicking the **Knit** button.
-14. Push changed on the `inception` branch.
-15. Go to [Travis website](https://travis-ci.org/account/repositories),
-    add the project and enable its integration.
+Predict the level of damage to buildings that were hit by the Gorkha
+earthquake.
 
 ## Installation
 
-`template.project` accommodates two stages in the project life-cycle:
-Development and Production.
+`modeling.earthquake.damage` accommodates two stages in the project
+life-cycle: Development and Production.
 
 ### Working in Pseudo-Package Mode (Advised During Development Stage)
 
 1.  Download the project to local computer
-2.  Launch the project via `template.project.Rproj`
+2.  Launch the project via `modeling.earthquake.damage.Rproj`
 3.  Optional: Install all package
 dependencies
 
@@ -82,7 +52,7 @@ devtools::uninstall()
 ### Working in Package Mode (Advised During Production Stage)
 
     install.packages("devtools")
-    devtools::install_github("data-science-competitions/template.project")
+    devtools::install_github("data-science-competitions/modeling.earthquake.damage")
 
 ## Data Pipeline
 
@@ -159,51 +129,68 @@ class(ds)
 
 ``` r
 ds <- DataStore$new()
-ds$data_model %>% dm::cdm_get_tables() %>% str()
+names(ds$data_model)
 ```
 
-    ## List of 3
-    ##  $ historical_data  :Classes 'tbl_df', 'tbl' and 'data.frame':   22 obs. of  12 variables:
-    ##   ..$ UID : chr [1:22] "Mazda RX4" "Mazda RX4 Wag" "Datsun 710" "Hornet 4 Drive" ...
-    ##   ..$ MPG : num [1:22] 21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...
-    ##   ..$ CYL : num [1:22] 6 6 4 6 8 6 8 4 4 6 ...
-    ##   ..$ DISP: num [1:22] 160 160 108 258 360 ...
-    ##   ..$ HP  : num [1:22] 110 110 93 110 175 105 245 62 95 123 ...
-    ##   ..$ DRAT: num [1:22] 3.9 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.92 ...
-    ##   ..$ WT  : num [1:22] 2.62 2.88 2.32 3.21 3.44 ...
-    ##   ..$ QSEC: num [1:22] 16.5 17 18.6 19.4 17 ...
-    ##   ..$ VS  : num [1:22] 0 0 1 1 0 1 0 1 1 1 ...
-    ##   ..$ AM  : num [1:22] 1 1 1 0 0 0 0 0 0 0 ...
-    ##   ..$ GEAR: num [1:22] 4 4 4 3 3 3 3 4 4 4 ...
-    ##   ..$ CARB: num [1:22] 4 4 1 1 2 1 4 2 2 4 ...
-    ##  $ new_data         :Classes 'tbl_df', 'tbl' and 'data.frame':   10 obs. of  12 variables:
-    ##   ..$ UID : chr [1:10] "AMC Javelin" "Camaro Z28" "Pontiac Firebird" "Fiat X1-9" ...
-    ##   ..$ MPG : num [1:10] 15.2 13.3 19.2 27.3 26 30.4 15.8 19.7 15 21.4
-    ##   ..$ CYL : num [1:10] 8 8 8 4 4 4 8 6 8 4
-    ##   ..$ DISP: num [1:10] 304 350 400 79 120 ...
-    ##   ..$ HP  : num [1:10] 150 245 175 66 91 113 264 175 335 109
-    ##   ..$ DRAT: num [1:10] 3.15 3.73 3.08 4.08 4.43 3.77 4.22 3.62 3.54 4.11
-    ##   ..$ WT  : num [1:10] 3.44 3.84 3.85 1.94 2.14 ...
-    ##   ..$ QSEC: num [1:10] 17.3 15.4 17.1 18.9 16.7 ...
-    ##   ..$ VS  : num [1:10] 0 0 0 1 0 1 0 0 0 1
-    ##   ..$ AM  : num [1:10] 0 0 0 1 1 1 1 1 1 1
-    ##   ..$ GEAR: num [1:10] 3 3 3 4 5 5 5 5 5 4
-    ##   ..$ CARB: num [1:10] 2 4 2 1 2 2 4 6 8 2
-    ##  $ submission_sample:Classes 'tbl_df', 'tbl' and 'data.frame':   10 obs. of  1 variable:
-    ##   ..$ UID: chr [1:10] "AMC Javelin" "Camaro Z28" "Pontiac Firebird" "Fiat X1-9" ...
+    ## [1] "historical_data"   "new_data"          "submission_format"
 
 ### Data Overview
 
+    ## -- Table source --------------------------------------------------------------------------------------------------
+    ## src:  <PrepareData>
+    ## -- Data model ----------------------------------------------------------------------------------------------------
+    ## Data model object:
+    ##   3 tables:  historical_data, new_data, submission_format 
+    ##   82 columns
+    ##   2 primary keys
+    ##   1 references
+    ## -- Rows ----------------------------------------------------------------------------------------------------------
+    ## Total: 434337
+    ## historical_data: 260601, new_data: 86868, submission_format: 86868
+
 <img src="README_files/figure-gfm/project-data-overview-1.png" width="100%" style="display: block; margin: auto;" />
 
-<!--
-### Data Model
+### Data Glimpse
 
-
--->
-
-<!--
-## Function Dependencies
-
-
--->
+    ## Observations: 260,601
+    ## Variables: 40
+    ## $ building_id                            <chr> "802906", "28830", "94947", "590882", "201944", ...
+    ## $ geo_level_1_id                         <int> 6, 8, 21, 22, 11, 8, 9, 20, 0, 26, 17, 17, 12, 1...
+    ## $ geo_level_2_id                         <int> 487, 900, 363, 418, 131, 558, 475, 323, 757, 886...
+    ## $ geo_level_3_id                         <int> 12198, 2812, 8973, 10694, 1488, 6089, 12066, 122...
+    ## $ count_floors_pre_eq                    <int> 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 2, 3, 2, 2, ...
+    ## $ age                                    <int> 30, 10, 10, 10, 30, 10, 25, 0, 15, 0, 20, 10, 15...
+    ## $ area_percentage                        <int> 6, 8, 5, 6, 8, 9, 3, 8, 8, 13, 9, 8, 6, 7, 7, 4,...
+    ## $ height_percentage                      <int> 5, 7, 5, 5, 9, 5, 4, 6, 6, 4, 6, 4, 5, 7, 6, 4, ...
+    ## $ land_surface_condition                 <fct> t, o, t, t, t, t, n, t, t, t, t, t, t, t, t, n, ...
+    ## $ foundation_type                        <fct> r, r, r, r, r, r, r, w, r, i, r, u, r, r, r, r, ...
+    ## $ roof_type                              <fct> n, n, n, n, n, n, n, q, q, n, q, n, n, q, n, n, ...
+    ## $ ground_floor_type                      <fct> f, x, f, f, f, f, x, v, f, v, f, v, x, f, f, f, ...
+    ## $ other_floor_type                       <fct> q, q, x, x, x, q, q, x, q, j, q, j, x, q, x, q, ...
+    ## $ position                               <fct> t, s, t, s, s, s, s, s, s, s, t, t, s, s, s, s, ...
+    ## $ plan_configuration                     <fct> d, d, d, d, d, d, d, u, d, d, d, d, d, d, d, d, ...
+    ## $ has_superstructure_adobe_mud           <lgl> TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, F...
+    ## $ has_superstructure_mud_mortar_stone    <lgl> TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE...
+    ## $ has_superstructure_stone_flag          <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_superstructure_cement_mortar_stone <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_superstructure_mud_mortar_brick    <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_superstructure_cement_mortar_brick <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_superstructure_timber              <lgl> FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, ...
+    ## $ has_superstructure_bamboo              <lgl> FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, ...
+    ## $ has_superstructure_rc_non_engineered   <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_superstructure_rc_engineered       <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_superstructure_other               <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ legal_ownership_status                 <fct> v, v, v, v, v, v, v, v, v, v, v, a, v, v, v, v, ...
+    ## $ count_families                         <int> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+    ## $ has_secondary_use                      <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, ...
+    ## $ has_secondary_use_agriculture          <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, ...
+    ## $ has_secondary_use_hotel                <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_rental               <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_institution          <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_school               <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_industry             <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_health_post          <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_gov_office           <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_use_police           <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ has_secondary_use_other                <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
+    ## $ damage_grade                           <dbl> 3, 2, 3, 2, 3, 2, 3, 1, 2, 1, 3, 2, 2, 3, 3, 2, ...

@@ -61,9 +61,9 @@ Ingest <- R6::R6Class(
     private = list(
         # Private Variables ----------------------------------------------------
         .path = character(0),
-        .historical_data = tibble::tibble(),
-        .new_data = tibble::tibble(),
-        .submission_sample =  tibble::tibble(),
+        .historical_data = data.frame(),
+        .new_data = data.frame(),
+        .submission_format = data.frame(),
 
         # Private Methods ------------------------------------------------------
         pull_data = function() invisible(private),
@@ -73,6 +73,6 @@ Ingest <- R6::R6Class(
     active = list(
         historical_data = function() private$.historical_data,
         new_data = function() private$.new_data,
-        submission_sample = function() private$.submission_sample
+        submission_format = function() private$.submission_format
     )
 )#end Ingest
