@@ -61,9 +61,9 @@ Ingest <- R6::R6Class(
     private = list(
         # Private Variables ----------------------------------------------------
         .path = character(0),
-        .historical_data = tibble::tibble(),
-        .new_data = tibble::tibble(),
-        .submission_format =  tibble::tibble(),
+        .historical_data = data.frame(),
+        .new_data = data.frame(),
+        .submission_format = data.frame(),
 
         # Private Methods ------------------------------------------------------
         pull_data = function() invisible(private),

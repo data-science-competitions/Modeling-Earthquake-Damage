@@ -48,8 +48,8 @@ DataStore <- R6::R6Class(
     dm_object <- dplyr::src_df(env = PrepareData$new()) %>% dm::dm()
     dm_object <-
         dm_object %>%
-        dm::cdm_add_pk(table = "historical_data", column = "UID") %>%
-        dm::cdm_add_pk(table = "new_data", column = "UID") %>%
-        dm::cdm_add_fk(table = "submission_format", column = "UID", "new_data")
+        dm::cdm_add_pk(table = "historical_data", column = "building_id") %>%
+        dm::cdm_add_pk(table = "new_data", column = "building_id") %>%
+        dm::cdm_add_fk(table = "submission_format", column = "building_id", "new_data")
 }
 

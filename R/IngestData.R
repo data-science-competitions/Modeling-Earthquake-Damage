@@ -100,5 +100,6 @@ IngestData <- R6::R6Class(
 
 .read_csv <- function(file){
     suppressMessages(table <- readr::read_csv(file, progress = FALSE))
+    table <- as.data.frame(table, stringsAsFactors = FALSE)
     invisible(table)
 }

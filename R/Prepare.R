@@ -59,14 +59,8 @@ Prepare <- R6::R6Class(
 #' 3. Standardise column names.
 #' @noRd
 .import_data.frames_from_Ingest <- function(private){
-    .add_row_uid <- function(.data){
-        if(! "UID" %in% colnames(.data))
-            .data <- .data %>% tibble::rownames_to_column(var = "UID")
-        return(.data)
-    }
-
     .standardise_col_names <- function(.data){
-        colnames(.data) <- standardise_strings(colnames(.data), "uppercase", "underscores")
+        colnames(.data) <- standardise_strings(colnames(.data), "lowercase", "underscores")
         return(.data)
     }
 
@@ -74,7 +68,6 @@ Prepare <- R6::R6Class(
         if(is.data.frame(private$.ingest[[element]])){
             private[[paste0(".", element)]] <-
                 private$.ingest[[element]] %>%
-                .add_row_uid() %>%
                 .standardise_col_names()
         }
     }
