@@ -1,5 +1,5 @@
 
-# `modeling.earthquake.damage` <img src='https://i.imgur.com/m7lDBGD.png' align="right" height="50"/>
+# `modeling.earthquake.damage` <img src='https://i.imgur.com/m7lDBGD.png' align="right" height="45"/>
 
 <!-- badges: start -->
 
