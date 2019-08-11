@@ -1,19 +1,15 @@
-Package: template.project
+Package: modeling.earthquake.damage
 Type: Package
-URL: https://github.com/data-science-competitions
-BugReports: https://github.com/data-science-competitions/template.project/issues
-Version: 0.19.32
-Title: R Project Template for Analytic Applications
+Title: Richter's Predictor: Modeling Earthquake Damage
+URL: https://www.drivendata.org/competitions/57/nepal-earthquake/data/
+BugReports: https://github.com/data-science-competitions/modeling.earthquake.damage/issues
+Version: 0.19.30
 Authors@R: c(
             person("Harel", "Lustiger", email = "tidylab@gmail.com", role = c("aut", "cre"))
             )
 Maintainer: Harel Lustiger <tidylab@gmail.com>
-Description: Using this template reduces:  
-    * Unnecessary variance between projects configurations; and  
-    * Development time spent on making a barebone project working for the first time.    
-    This is possible as the boilerplate comes with:    
-    * Fully configured test-suite, including code-coverage; and  
-    * Fully configured continuous-integration (CI) script for Travis.
+Description: Predict the level of damage to buildings that were hit by the 
+    Gorkha earthquake. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -25,12 +21,15 @@ Remotes:
 Depends: 
     R (>= 3.5)
 Imports: 
+    assertive (>= 0.3-5),
     config (>= 0.3),
     conflicted (>= 1.0.2),
-    dm (>= 0.0.1),
-    dplyr (>= 0.8.0),
+    dplyr (>= 0.8),
     magrittr (>= 1.5),
+    Metrics (>= 0.1.4),
     R6 (>= 2.3.0),
+    readr (>= 1.3.1),
+    rsample (>= 0.0.4),
     stringr (>= 1.4.0),
     tibble (>= 2.1.1),
     yaml (>= 2.2.0)

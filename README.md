@@ -1,71 +1,41 @@
 
-# `template.project` <img src='https://i.imgur.com/cLcAYfz.png' align="right" height="50"/>
+# `modeling.earthquake.damage` <img src='https://i.imgur.com/m7lDBGD.png' align="right" height="50"/>
 
 <!-- badges: start -->
 
 [![Travis build
-status](https://travis-ci.org/data-science-competitions/template.project.svg?branch=master)](https://travis-ci.org/data-science-competitions/template.project)
+status](https://travis-ci.org/data-science-competitions/modeling.earthquake.damage.svg?branch=master)](https://travis-ci.org/data-science-competitions/modeling.earthquake.damage)
 [![Code coverage
-status](https://codecov.io/gh/data-science-competitions/template.project/branch/master/graph/badge.svg)](https://codecov.io/github/data-science-competitions/template.project/?branch=master)
+status](https://codecov.io/gh/data-science-competitions/modeling.earthquake.damage/branch/master/graph/badge.svg)](https://codecov.io/github/data-science-competitions/modeling.earthquake.damage/?branch=master)
 [![Launch Rstudio
-Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-science-competitions/template.project/master?urlpath=rstudio)
+Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-science-competitions/modeling.earthquake.damage/master?urlpath=rstudio)
 <!-- badges: end -->
 
 <!-- Package Title -->
 
-R Project Template for Analytic
-Applications
+Richter’s Predictor: Modeling Earthquake
+Damage
 
 -----
 
-<img src="https://i.imgur.com/RLEQkhe.png" width="100%" style="display: block; margin: auto;" />
+<img src="https://i.imgur.com/2sfOQSa.png" width="100%" style="display: block; margin: auto;" />
 
 <!-- Package Description -->
 
 ## Description
 
-Using this template reduces:  
-\* Unnecessary variance between projects configurations; and  
-\* Development time spent on making a barebone project working for the
-first time.  
-This is possible as the boilerplate comes with:  
-\* Fully configured test-suite, including code-coverage; and  
-\* Fully configured continuous-integration (CI) script for Travis.
-
-## Useage
-
-1.  Create a new repo on GitHub.
-2.  Use the
-    [`git-flow`](https://blog.sourcetreeapp.com/2012/08/01/smart-branching-with-sourcetree-and-git-flow/)
-    approach in your development cycle.
-3.  Create a new release named `inception`.
-4.  Copy `template.project` content to the new reposetory.
-5.  Change the `template.project.Rproj` file to `<package-name>.Rproj`.
-6.  Open the `DESCRIPTION` file, and edit the following fields:
-7.  **Package** modify the package name while using the `tidylab.`
-    prefix.
-8.  **Title** modify the package title; use uppercase words with no
-    period (‘.’).
-9.  **URL** modify the package URL such that it leads to its GitHub
-    repo.
-10. **BugReports** edit the URL such that it leads to the package issue
-    page.
-11. **Description** modify the package decription.
-12. In `README.Rmd` delete the **Useage** Section.
-13. Render `README.Rmd` by clicking the **Knit** button.
-14. Push changed on the `inception` branch.
-15. Go to [Travis website](https://travis-ci.org/account/repositories),
-    add the project and enable its integration.
+Predict the level of damage to buildings that were hit by the Gorkha
+earthquake.
 
 ## Installation
 
-`template.project` accommodates two stages in the project life-cycle:
-Development and Production.
+`modeling.earthquake.damage` accommodates two stages in the project
+life-cycle: Development and Production.
 
 ### Working in Pseudo-Package Mode (Advised During Development Stage)
 
 1.  Download the project to local computer
-2.  Launch the project via `template.project.Rproj`
+2.  Launch the project via `modeling.earthquake.damage.Rproj`
 3.  Optional: Install all package
 dependencies
 
@@ -82,7 +52,7 @@ devtools::uninstall()
 ### Working in Package Mode (Advised During Production Stage)
 
     install.packages("devtools")
-    devtools::install_github("data-science-competitions/template.project")
+    devtools::install_github("data-science-competitions/modeling.earthquake.damage")
 
 ## Data Pipeline
 
