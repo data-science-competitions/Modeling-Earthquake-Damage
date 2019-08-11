@@ -45,7 +45,7 @@ DataStore <- R6::R6Class(
 
 # Private Methods --------------------------------------------------------------
 .generate_data_model <- function(){
-    dm_object <- dplyr::src_df(env = PrepareDAO$new()) %>% dm::dm()
+    dm_object <- dplyr::src_df(env = PrepareData$new()) %>% dm::dm()
     dm_object <-
         dm_object %>%
         dm::cdm_add_pk(table = "historical_data", column = "UID") %>%

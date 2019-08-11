@@ -13,14 +13,14 @@
 #' @docType class
 #' @format \code{\link[R6]{R6Class}} object.
 #' @keywords data
-PrepareDAO <- R6::R6Class(
-    classname = "PrepareDAO",
+PrepareData <- R6::R6Class(
+    classname = "PrepareData",
     inherit = Prepare,
     cloneable = FALSE,
     lock_objects = FALSE,
     private = list(
         # Private Variables ----------------------------------------------------
-        .ingest = getOption("dataflows.ingest.concrete", "IngestDAO"),
+        .ingest = getOption("dataflows.ingest.concrete", "IngestData"),
 
         # Private Methods ------------------------------------------------------
         import_data.frames_from_Ingest = function() .import_data.frames_from_Ingest(private),
@@ -34,7 +34,7 @@ PrepareDAO <- R6::R6Class(
         new_data = function() private$.new_data,
         submission_format = function() private$.submission_format
     )
-)#end PrepareDAO
+)#end PrepareData
 
 # Private Methods: High-level Functions ----------------------------------------
 .cast_data <- function(private){
