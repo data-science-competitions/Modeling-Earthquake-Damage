@@ -47,7 +47,7 @@ Prepare <- R6::R6Class(
     active = list(
         historical_data = function() private$.historical_data,
         new_data = function() private$.new_data,
-        submission_sample = function() private$.submission_sample
+        submission_format = function() private$.submission_format
     )
 )#end Prepare
 

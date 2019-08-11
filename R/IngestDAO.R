@@ -29,10 +29,6 @@ IngestDAO <- R6::R6Class(
     inherit = Ingest,
     private = list(
         # Private Variables ----------------------------------------------------
-        .path = character(0),
-        .historical_data = tibble::tibble(),
-        .new_data = tibble::tibble(),
-        .submission_sample = tibble::tibble(),
 
         # Private Methods ------------------------------------------------------
         pull_data = function() .pull_data(private),
@@ -42,7 +38,7 @@ IngestDAO <- R6::R6Class(
     active = list(
         historical_data = function() private$.historical_data,
         new_data = function() private$.new_data,
-        submission_sample = function() private$.submission_sample
+        submission_format = function() private$.submission_format
     )
 )#end IngestDAO
 
@@ -66,7 +62,7 @@ IngestDAO <- R6::R6Class(
 
     private$.historical_data <- get("mtcars")[1:22,]
     private$.new_data <- get("mtcars")[23:32,]
-    private$.submission_sample <- tibble::tibble(UID = rownames(private$.new_data))
+    private$.submission_format <- tibble::tibble(UID = rownames(private$.new_data))
 
     invisible(private)
 }

@@ -50,6 +50,6 @@ DataStore <- R6::R6Class(
         dm_object %>%
         dm::cdm_add_pk(table = "historical_data", column = "UID") %>%
         dm::cdm_add_pk(table = "new_data", column = "UID") %>%
-        dm::cdm_add_fk(table = "submission_sample", column = "UID", "new_data")
+        dm::cdm_add_fk(table = "submission_format", column = "UID", "new_data")
 }
 
