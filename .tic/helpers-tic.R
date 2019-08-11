@@ -5,6 +5,7 @@ ci_get_job_name <- function(){
 show_error_log <- function(){
     if(is_travis())
         print(readLines("/home/travis/build/tidylab/boilerplate/boilerplate.Rcheck/00check.log"))
+    devtools::session_info()
 }
 
 is_travis <- function(){
