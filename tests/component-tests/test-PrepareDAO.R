@@ -1,4 +1,4 @@
-context("component test for Prepare concrete class (DAO)")
+context("component test for Prepare concrete class (PrepareDAO)")
 
 test_that("PrepareDAO implements its interface method signatures", {
     expect_class(dp <- PrepareDAO$new(), "Prepare")
