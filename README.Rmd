@@ -159,8 +159,6 @@ remove_all_keys <- function(.data_model){
   return(.data_model)
 }
 
-print(ds$data_model, width = 80)
-
 ds$data_model %>% 
   remove_all_keys() %>% 
   dm::cdm_draw(
@@ -169,9 +167,32 @@ ds$data_model %>%
   )
 ```
 
+<!--
+### Data Model
+
+```{r project-data-model, out.width = "100%", fig.height=0.5, echo = FALSE, message=FALSE, eval = FALSE}
+ds$data_model %>% 
+  dm::cdm_draw(
+    col_attr = c("column", "type")[1],
+    view_type = "keys_only", columnArrows = TRUE, rankdir = "LR"
+  )
+```
+-->
+
 ### Data Glimpse
 
 ```{r project-data-glimpse, echo=FALSE}
-ds$data_model$historical_data %>% dplyr::glimpse(width = 100)
+tables <- ds$data_model %>% dm::cdm_get_tables()
+for(k in seq_along(tables)){
+  message("---\n", names(tables)[k])
+  tables[[k]] %>% dplyr::glimpse(width = 100)
+} 
 ```
 
+<!--
+## Function Dependencies
+
+```{r package-function-dependencies, echo = FALSE, out.width = "100%", eval = FALSE}
+plot_function_dependencies(package_name)
+```
+-->
