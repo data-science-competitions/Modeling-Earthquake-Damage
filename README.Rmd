@@ -152,6 +152,12 @@ names(ds$data_model)
 
 ### Data Overview
 
+<font size="2.5">
+```{r data-model, echo = FALSE}
+ds$data_model
+```
+</font>
+
 ```{r project-data-overview, out.width = "100%", fig.height=0.5, echo = FALSE, message=FALSE}
 remove_all_keys <- function(.data_model){
   for(table_name in names(.data_model))
@@ -167,23 +173,11 @@ ds$data_model %>%
   )
 ```
 
-<!--
-### Data Model
-
-```{r project-data-model, out.width = "100%", fig.height=0.5, echo = FALSE, message=FALSE, eval = FALSE}
-ds$data_model %>% 
-  dm::cdm_draw(
-    col_attr = c("column", "type")[1],
-    view_type = "keys_only", columnArrows = TRUE, rankdir = "LR"
-  )
-```
--->
-
 ### Data Glimpse
 
 ```{r project-data-glimpse, echo=FALSE}
 tables <- ds$data_model %>% dm::cdm_get_tables()
-for(k in seq_along(tables)){
+for(k in 1){
   message("---\n", names(tables)[k])
   tables[[k]] %>% dplyr::glimpse(width = 100)
 } 
