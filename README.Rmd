@@ -152,14 +152,18 @@ names(ds$data_model)
 
 ### Data Overview
 
+<font size="2.5">
+```{r data-model, echo = FALSE}
+ds$data_model
+```
+</font>
+
 ```{r project-data-overview, out.width = "100%", fig.height=0.5, echo = FALSE, message=FALSE}
 remove_all_keys <- function(.data_model){
   for(table_name in names(.data_model))
     try(.data_model <- dm::cdm_rm_pk(.data_model, !!table_name, rm_referencing_fks = TRUE), silent = TRUE)
   return(.data_model)
 }
-
-print(ds$data_model, width = 80)
 
 ds$data_model %>% 
   remove_all_keys() %>% 
@@ -172,6 +176,17 @@ ds$data_model %>%
 ### Data Glimpse
 
 ```{r project-data-glimpse, echo=FALSE}
-ds$data_model$historical_data %>% dplyr::glimpse(width = 100)
+tables <- ds$data_model %>% dm::cdm_get_tables()
+for(k in 1){
+  message("---\n", names(tables)[k])
+  tables[[k]] %>% dplyr::glimpse(width = 100)
+} 
 ```
 
+<!--
+## Function Dependencies
+
+```{r package-function-dependencies, echo = FALSE, out.width = "100%", eval = FALSE}
+plot_function_dependencies(package_name)
+```
+-->

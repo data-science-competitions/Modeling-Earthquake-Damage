@@ -136,21 +136,28 @@ names(ds$data_model)
 
 ### Data Overview
 
-    ## -- Table source --------------------------------------------------------------------------------------------------
+<font size="2.5">
+
+    ## -- Table source ---------------------------------------------------------------------------------------------------
     ## src:  <PrepareData>
-    ## -- Data model ----------------------------------------------------------------------------------------------------
+    ## -- Data model -----------------------------------------------------------------------------------------------------
     ## Data model object:
     ##   3 tables:  historical_data, new_data, submission_format 
     ##   82 columns
     ##   2 primary keys
     ##   1 references
-    ## -- Rows ----------------------------------------------------------------------------------------------------------
+    ## -- Rows -----------------------------------------------------------------------------------------------------------
     ## Total: 434337
     ## historical_data: 260601, new_data: 86868, submission_format: 86868
+
+</font>
 
 <img src="README_files/figure-gfm/project-data-overview-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Data Glimpse
+
+    ## ---
+    ## historical_data
 
     ## Observations: 260,601
     ## Variables: 40
@@ -194,3 +201,9 @@ names(ds$data_model)
     ## $ has_secondary_use_use_police           <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
     ## $ has_secondary_use_other                <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,...
     ## $ damage_grade                           <dbl> 3, 2, 3, 2, 3, 2, 3, 1, 2, 1, 3, 2, 2, 3, 3, 2, ...
+
+<!--
+## Function Dependencies
+
+
+-->

@@ -70,7 +70,6 @@ PrepareData <- R6::R6Class(
     private$.historical_data <- table %>% dplyr::filter(Source == "train") %>% dplyr::select(-Source)
     private$.new_data <- table %>% dplyr::filter(Source == "test") %>% dplyr::select(-Source)
 
-    return(invisible())
     invisible(private)
 }
 

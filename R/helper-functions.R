@@ -16,6 +16,14 @@
     return(identical(length(x) == 1 & is.numeric(x) & is.finite(x) & x > 0, TRUE))
 }
 
+.is_whole_number <- function(x){
+    return(identical(as.integer(x) - as.numeric(x), 0))
+}
+
+.are_all_less_than_or_equal_to <- function(x, y){
+    return(identical(all(x <= y), TRUE))
+}
+
 # Assertions --------------------------------------------------------------
 .assert_is_a_non_missing_nor_empty_string <- function(x){
     stopifnot(.is_a_non_missing_nor_empty_string(x))
