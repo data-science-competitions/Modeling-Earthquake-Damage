@@ -1,4 +1,14 @@
 # Helper-Functions -------------------------------------------------------------
+calc_confusion_matrix <- function(actual, predicted){
+    suppressWarnings(
+        caret::confusionMatrix(
+            data = predicted %>% as.factor(),
+            reference = actual %>% as.factor()
+        )
+    )
+}
+
+
 sample_the_data <- function(.data){
     .data %>%
         dplyr::group_by(damage_grade) %>%
@@ -66,11 +76,10 @@ response <- tibble::enframe(response, name = role_pk, value = role_target)
 # Model Evaluation -------------------------------------------------------------
 median_value <- train_set[[role_target]] %>% median() %>% rep(nrow(test_set))
 
-base_err_f1 <- Metrics::f1(actual = test_set[[role_target]], predicted = median_value)
-mdl_err_f1 <- Metrics::f1(actual = test_set[[role_target]], predicted = response[[role_target]])
+cm_baseline <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = median_value)
+cm_mdl <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = response[[role_target]])
 
-base_err_rmse <- Metrics::rmse(actual = test_set[[role_target]], predicted = median_value)
-mdl_err_rmse <- Metrics::rmse(actual = test_set[[role_target]], predicted = response[[role_target]])
-
-(err_ratio_rf <- mdl_err_f1 / base_err_f1)
-(err_ratio_rmse <- mdl_err_rmse / base_err_rmse)
+cat("Percentage Change from base-model to model-under-test")
+M1 <- cm_baseline$overall
+M2 <- cm_mdl$overall
+round(100 * (M2 - M1) / abs(M1))
