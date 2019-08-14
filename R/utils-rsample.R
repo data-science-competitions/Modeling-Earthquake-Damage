@@ -41,7 +41,7 @@ get_rsample_training_set <- function(rset_obj, split) {
     ############
     ## Return ##
     ############
-    return(X)
+    return(as.data.frame(X, stringsAsFactors = FALSE))
 }
 
 # get_rsample_test_set ---------------------------------------------------------
@@ -85,7 +85,7 @@ get_rsample_test_set <- function(rset_obj, split) {
     ############
     ## Return ##
     ############
-    return(X)
+    return(as.data.frame(X, stringsAsFactors = FALSE))
 }
 
 # get_rsample_num_of_splits ----------------------------------------------------

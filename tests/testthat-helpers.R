@@ -17,6 +17,7 @@ expect_an_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_
 expect_a_non_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_gt(nrow(x), 0, label = paste("data.frame is empty; "))}
 expect_table_has_col_names <- function(object, col_names) expect_subset(col_names, colnames(object))
 expect_not_identical <- function(object, expected) expect_false(identical(object, expected), info  = "Error: objects A and B are identical")
+expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c("tbl", "tbl_df")), label = "Error: Object is not a tbl")
 
 # Predicates -------------------------------------------------------------------
 .are_set_equal <- function(x, y){

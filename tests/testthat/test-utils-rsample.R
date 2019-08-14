@@ -21,7 +21,6 @@ test_that("get_rsample_num_of_splits works", {
     expect_equal(get_rsample_num_of_splits(rset_list[["bootstraps"]]), 25)
 })
 
-
 test_that("get_rsample_training_set works", {
     ## Setup
     set.seed(139)
@@ -79,4 +78,15 @@ test_that("get_rsample_test_set works", {
     expect_identical(get_rsample_test_set(rset_list[["rvfold_cv"]], 8), X_tr)
     X_tr <- rsample::testing(rset_list[["bootstraps"]]$splits[[20]])
     expect_identical(get_rsample_test_set(rset_list[["bootstraps"]], 20), X_tr)
+})
+
+test_that("output is not a tibble", {
+    skip_if_not_installed("dplyr")
+
+    set.seed(139)
+    rset_list <- list()
+    rset_list[["initial_split"]] <- rsample::initial_split(mtcars %>% dplyr::as_tibble())
+
+    expect_not_a_tbl(get_rsample_training_set(rset_list[["initial_split"]], 1))
+    expect_not_a_tbl(get_rsample_test_set(rset_list[["initial_split"]], 1))
 })
