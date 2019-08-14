@@ -19,13 +19,17 @@ minmax <- function(x, lb, ub) {
     sapply(x, .minmax, lb = lb, ub = ub)
 }
 
-set.seed(1936)
-historical_data <- DataStore$new()$data_model %>% dm::cdm_get_tables() %>% .$historical_data
-rset_obj <- sample_the_data(historical_data)
+historical_data <-
+    DataStore$new()$data_model %>%
+    dm::cdm_get_tables() %>%
+    .$historical_data %>%
+    as.data.frame(stringsAsFactors = FALSE)
 
 # Sample the Data --------------------------------------------------------------
 #' <https://www.ibm.com/support/knowledgecenter/en/SSLVMB_23.0.0/spss/base/dataedit_roles.html>
 #' role_target ~ role_input - role_none | role_pk
+set.seed(1936)
+rset_obj <- sample_the_data(historical_data)
 role_pk <- "building_id" # private key
 role_none <- c(
     tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_")),
@@ -43,9 +47,16 @@ test_set <-
     dplyr::select(role_pk, role_input, role_target, -role_none)
 
 # Fit Model --------------------------------------------------------------------
+set.seed(1915)
 mdl_formula <- compose_formula(role_pk, role_none, role_input, role_target)
-mdl_obj <- lm(mdl_formula, data = train_set)
-predict_function <- function(X, m) predict.lm(m, newdata = X)
+mdl_obj <-
+    ranger::ranger(
+        mdl_formula, data = train_set,
+        num.trees = 1 , mtry = 3
+    )
+
+# Predict Test Set -------------------------------------------------------------
+predict_function <- function(X, m) predict(m, X)$predictions
 link_function <- function(x) x %>% round() %>% minmax(lb = 1, ub = 3)
 
 response <- predict_function(X = test_set, m = mdl_obj) %>% link_function()
