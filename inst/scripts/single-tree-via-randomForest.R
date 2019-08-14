@@ -83,3 +83,7 @@ cat("Percentage Change from base-model to model-under-test")
 M1 <- cm_baseline$overall
 M2 <- cm_mdl$overall
 round(100 * (M2 - M1) / abs(M1))
+
+# Visualisation ----------------------------------------------------------------
+# plot(cm_mdl)
+
