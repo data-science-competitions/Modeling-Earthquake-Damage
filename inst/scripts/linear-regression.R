@@ -1,4 +1,13 @@
 # Helper-Functions -------------------------------------------------------------
+calc_confusion_matrix <- function(actual, predicted){
+    suppressWarnings(
+        caret::confusionMatrix(
+            data = predicted %>% as.factor(),
+            reference = actual %>% as.factor()
+        )
+    )
+}
+
 sample_the_data <- function(.data){
     .data %>%
         dplyr::group_by(damage_grade) %>%
@@ -19,18 +28,22 @@ minmax <- function(x, lb, ub) {
     sapply(x, .minmax, lb = lb, ub = ub)
 }
 
-set.seed(1936)
-historical_data <- DataStore$new()$data_model %>% dm::cdm_get_tables() %>% .$historical_data
-rset_obj <- sample_the_data(historical_data)
+historical_data <-
+    DataStore$new()$data_model %>%
+    dm::cdm_get_tables() %>%
+    .$historical_data %>%
+    as.data.frame(stringsAsFactors = FALSE)
 
 # Sample the Data --------------------------------------------------------------
 #' <https://www.ibm.com/support/knowledgecenter/en/SSLVMB_23.0.0/spss/base/dataedit_roles.html>
 #' role_target ~ role_input - role_none | role_pk
+set.seed(1936)
+rset_obj <- sample_the_data(historical_data)
 role_pk <- "building_id" # private key
 role_none <- c(
     tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_")),
     tidyselect::vars_select(names(historical_data), dplyr::starts_with("has_"))
-    )
+)
 role_input <- names(historical_data)
 role_target <- "damage_grade"
 
@@ -43,8 +56,11 @@ test_set <-
     dplyr::select(role_pk, role_input, role_target, -role_none)
 
 # Fit Model --------------------------------------------------------------------
+set.seed(1915)
 mdl_formula <- compose_formula(role_pk, role_none, role_input, role_target)
 mdl_obj <- lm(mdl_formula, data = train_set)
+
+# Predict Test Set -------------------------------------------------------------
 predict_function <- function(X, m) predict.lm(m, newdata = X)
 link_function <- function(x) x %>% round() %>% minmax(lb = 1, ub = 3)
 
@@ -55,11 +71,15 @@ response <- tibble::enframe(response, name = role_pk, value = role_target)
 # Model Evaluation -------------------------------------------------------------
 median_value <- train_set[[role_target]] %>% median() %>% rep(nrow(test_set))
 
-base_err_f1 <- Metrics::f1(actual = test_set[[role_target]], predicted = median_value)
-mdl_err_f1 <- Metrics::f1(actual = test_set[[role_target]], predicted = response[[role_target]])
+cm_baseline <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = median_value)
+cm_mdl <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = response[[role_target]])
+print(cm_mdl)
 
-base_err_rmse <- Metrics::rmse(actual = test_set[[role_target]], predicted = median_value)
-mdl_err_rmse <- Metrics::rmse(actual = test_set[[role_target]], predicted = response[[role_target]])
+cat("Percentage Change from base-model to model-under-test")
+M1 <- cm_baseline$overall
+M2 <- cm_mdl$overall
+round(100 * (M2 - M1) / abs(M1))
 
-(err_ratio_rf <- mdl_err_f1 / base_err_f1)
-(err_ratio_rmse <- mdl_err_rmse / base_err_rmse)
+# Visualisation ----------------------------------------------------------------
+# plot(cm_mdl)
+

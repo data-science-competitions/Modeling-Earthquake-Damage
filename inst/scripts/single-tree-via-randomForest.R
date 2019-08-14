@@ -8,7 +8,6 @@ calc_confusion_matrix <- function(actual, predicted){
     )
 }
 
-
 sample_the_data <- function(.data){
     .data %>%
         dplyr::group_by(damage_grade) %>%
@@ -78,6 +77,7 @@ median_value <- train_set[[role_target]] %>% median() %>% rep(nrow(test_set))
 
 cm_baseline <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = median_value)
 cm_mdl <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = response[[role_target]])
+print(cm_mdl)
 
 cat("Percentage Change from base-model to model-under-test")
 M1 <- cm_baseline$overall
