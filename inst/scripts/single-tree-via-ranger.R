@@ -28,6 +28,7 @@ minmax <- function(x, lb, ub) {
     sapply(x, .minmax, lb = lb, ub = ub)
 }
 
+# Get the Data -----------------------------------------------------------------
 historical_data <-
     DataStore$new()$data_model %>%
     dm::cdm_get_tables() %>%
