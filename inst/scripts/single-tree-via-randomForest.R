@@ -16,7 +16,7 @@ sample_the_data <- function(.data){
 }
 
 compose_formula <- function(role_pk = NULL, role_none = NULL, role_input, role_target){
-    X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk)
+    X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk) %>% setdiff(role_target)
     y <- role_target
 
     formula(paste(y, "~", paste(X, collapse = " + ")))
@@ -28,6 +28,7 @@ minmax <- function(x, lb, ub) {
     sapply(x, .minmax, lb = lb, ub = ub)
 }
 
+# Get the Data -----------------------------------------------------------------
 historical_data <-
     DataStore$new()$data_model %>%
     dm::cdm_get_tables() %>%
@@ -59,13 +60,14 @@ test_set <-
 set.seed(1915)
 mdl_formula <- compose_formula(role_pk, role_none, role_input, role_target)
 mdl_obj <-
-    ranger::ranger(
+    randomForest::randomForest(
         mdl_formula, data = train_set,
-        num.trees = 1 , mtry = 3
+        ntree = 1 , mtry = 3,
+        importance = TRUE
     )
 
 # Predict Test Set -------------------------------------------------------------
-predict_function <- function(X, m) predict(m, X)$predictions
+predict_function <- function(X, m) predict(m, X)
 link_function <- function(x) x %>% round() %>% minmax(lb = 1, ub = 3)
 
 response <- predict_function(X = test_set, m = mdl_obj) %>% link_function()
