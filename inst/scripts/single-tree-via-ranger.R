@@ -16,7 +16,7 @@ sample_the_data <- function(.data){
 }
 
 compose_formula <- function(role_pk = NULL, role_none = NULL, role_input, role_target){
-    X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk)
+    X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk) %>% setdiff(role_target)
     y <- role_target
 
     formula(paste(y, "~", paste(X, collapse = " + ")))
