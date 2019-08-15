@@ -87,5 +87,18 @@ M2 <- cm_mdl$overall
 round(100 * (M2 - M1) / abs(M1), 1)
 
 # Visualisation ----------------------------------------------------------------
-# plot(cm_mdl)
+plot(mdl_obj, main = "Error as a Function of Number of Trees in the Forest")
+randomForest::varImpPlot(mdl_obj, n.var = 10, scale = TRUE, main = "Feature Importance")
 
+# https://cran.rstudio.com/web/packages/randomForestExplainer/vignettes/randomForestExplainer.html
+library(help = randomForestExplainer)
+library(randomForestExplainer)
+
+randomForestExplainer::explain_forest(mdl_obj, interactions = TRUE, data = train_set)
+
+randomForestExplainer::plot_importance_rankings(mdl_obj)
+randomForestExplainer::plot_min_depth_distribution(mdl_obj)
+randomForestExplainer::plot_predict_interaction()
+
+importance_frame <- measure_importance(mdl_obj)
+importance_frame %>% View()
