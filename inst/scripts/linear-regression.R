@@ -16,7 +16,7 @@ sample_the_data <- function(.data){
 }
 
 compose_formula <- function(role_pk = NULL, role_none = NULL, role_input, role_target){
-    X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk)
+    X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk) %>% setdiff(role_target)
     y <- role_target
 
     formula(paste(y, "~", paste(X, collapse = " + ")))
@@ -28,6 +28,7 @@ minmax <- function(x, lb, ub) {
     sapply(x, .minmax, lb = lb, ub = ub)
 }
 
+# Get the Data -----------------------------------------------------------------
 historical_data <-
     DataStore$new()$data_model %>%
     dm::cdm_get_tables() %>%
@@ -78,7 +79,7 @@ print(cm_mdl)
 cat("Percentage Change from base-model to model-under-test")
 M1 <- cm_baseline$overall
 M2 <- cm_mdl$overall
-round(100 * (M2 - M1) / abs(M1))
+round(100 * (M2 - M1) / abs(M1), 1)
 
 # Visualisation ----------------------------------------------------------------
 # plot(cm_mdl)
