@@ -79,6 +79,8 @@ median_value <- train_set[[role_target]] %>% median() %>% rep(nrow(test_set))
 
 cm_baseline <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = median_value)
 cm_mdl <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = response[[role_target]])
+
+print(cm_baseline)
 print(cm_mdl)
 
 cat("Percentage Change from base-model to model-under-test")
@@ -87,18 +89,31 @@ M2 <- cm_mdl$overall
 round(100 * (M2 - M1) / abs(M1), 1)
 
 # Visualisation ----------------------------------------------------------------
-plot(mdl_obj, main = "Error as a Function of Number of Trees in the Forest")
-randomForest::varImpPlot(mdl_obj, n.var = 10, scale = TRUE, main = "Feature Importance")
+dplyr::bind_cols(actual = test_set[[role_target]], predicted = response[[role_target]]) %>%
+    ggplot(aes(x = actual, y = predicted)) +
+    ggtitle("Predicted vs Actual Values") +
+    geom_point() +
+    scale_x_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
+    scale_y_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
+    coord_equal(ratio = 1) +
+    geom_abline(slope = 1, intercept = 0) +
+    theme_bw()
+
+plot(mdl_obj, main = "Error as a Function of Number of Trees in the Forest", xaxt="n")
+axis(side=1, at=(0:100)*25, labels = TRUE)
+
+randomForest::varImpPlot(mdl_obj, n.var = nrow(mdl_obj$importance), scale = TRUE, main = "Feature Importance")
 
 # https://cran.rstudio.com/web/packages/randomForestExplainer/vignettes/randomForestExplainer.html
 library(help = randomForestExplainer)
 library(randomForestExplainer)
 
-randomForestExplainer::explain_forest(mdl_obj, interactions = TRUE, data = train_set)
+url <- randomForestExplainer::explain_forest(mdl_obj, interactions = F, data = train_set)
+browseURL(url)
+# unlink(url)
 
-randomForestExplainer::plot_importance_rankings(mdl_obj)
-randomForestExplainer::plot_min_depth_distribution(mdl_obj)
-randomForestExplainer::plot_predict_interaction()
+# randomForestExplainer::plot_importance_rankings(mdl_obj)
+# randomForestExplainer::plot_min_depth_distribution(mdl_obj)
 
-importance_frame <- measure_importance(mdl_obj)
-importance_frame %>% View()
+# options(scipen=999)
+randomForestExplainer::measure_importance(mdl_obj) %>% print(digits = 3)
