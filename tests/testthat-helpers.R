@@ -193,3 +193,20 @@ expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c
     while (length(grep("test", proj_path))>0) proj_path <- dirname(proj_path)
     return(proj_path)
 }
+
+# PentaModel --------------------------------------------------------------
+.create_valid_mock_pentamodel <- function(path){
+    writeLines("model_init <- function() NULL", file.path(path, "model_init.R"))
+    writeLines("model_fit <- function(historical_data) lm(cyl~., mtcars)", file.path(path, "model_fit.R"))
+    writeLines("model_predict <- function() NULL", file.path(path, "model_predict.R"))
+    writeLines("model_store <- function() NULL", file.path(path, "model_store.R"))
+    writeLines("model_end <- function() NULL", file.path(path, "model_end.R"))
+}
+
+.create_invalid_mock_pentamodel <- function(path){
+    writeLines("model_init <- function() NULL", file.path(path, "model_init.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_fit.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_predict.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_store.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_end.R"))
+}

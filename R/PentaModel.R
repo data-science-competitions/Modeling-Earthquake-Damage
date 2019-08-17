@@ -23,19 +23,23 @@ PentaModel <- R6::R6Class(
 
             .load_model_components(private)
         },
-        model_init = function() base::get("model_init", envir = private$.env)(),
-        model_fit = function() base::get("model_fit", envir = private$.env)(),
+        model_init = function() .model_init(private),
+        model_fit = function() .model_fit(private),
         model_predict = function() base::get("model_predict", envir = private$.env)(),
         model_store = function() base::get("model_store", envir = private$.env)(),
-        model_end = function() base::get("model_end", envir = private$.env)()
+        model_end = function() base::get("model_end", envir = private$.env)(),
+        set_historical_data = function(historical_data) .set_historical_data(private, historical_data),
+        set_new_data = function(new_data) .set_new_data(private, new_data)
     ),
-
     private = list(
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
         .component_paths = character(0),
         .model_name = character(0),
         .model_path = character(0),
-        .env = environment()
+        .model_object = c(),
+        .env = environment(),
+        historical_data = data.frame(),
+        new_data = data.frame()
     ),
 
     active = list(
@@ -44,7 +48,29 @@ PentaModel <- R6::R6Class(
     )
 )
 
+# Public Methods ---------------------------------------------------------------
+.set_historical_data <- function(private, historical_data){
+    private$historical_data <- historical_data
+    return(invisible())
+}
+
+.set_new_data <- function(private, new_data){
+    private$new_data <- new_data
+    return(invisible())
+}
+
 # Private Methods --------------------------------------------------------------
+.model_init <- function(private){
+    base::get("model_init", envir = private$.env)()
+    return(invisible())
+}
+
+.model_fit <- function(private){
+    private$.model_object <- base::get("model_fit", envir = private$.env)(historical_data = private$historical_data)
+    return(invisible())
+}
+
+# High-Level Helper-Functions --------------------------------------------------
 .load_model_components <- function(object){
     .assert_all_components_files_exist(object)
     .remove_model_components_from_env(object)
@@ -52,6 +78,7 @@ PentaModel <- R6::R6Class(
     .assert_all_components_are_in_env(object)
 }
 
+# Low-Level Helper-Functions ---------------------------------------------------
 .assert_all_components_files_exist <- function(object){
     assertive::assert_all_are_existing_files(object$.component_paths)
 }
