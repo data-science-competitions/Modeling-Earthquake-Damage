@@ -34,3 +34,6 @@ test_set <-
 
 # Run model ---------------------------------------------------------------
 pm <- PentaModel$new(path = file.path(.Options$path_models, "rpart-tree"))
+
+pm$model_init()
+pm$model_fit()
