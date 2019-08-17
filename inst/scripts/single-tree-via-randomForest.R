@@ -68,7 +68,7 @@ mdl_obj <-
 
 # Predict Test Set -------------------------------------------------------------
 predict_function <- function(X, m) predict(m, X)
-link_function <- function(x) x %>% round() %>% minmax(lb = 1, ub = 3)
+link_function <- function(x) x %>% minmax(lb = 1, ub = 3) %>% round()
 
 response <- predict_function(X = test_set, m = mdl_obj) %>% link_function()
 names(response) <- test_set[[role_pk]]
