@@ -4,7 +4,7 @@
 #'
 #' @description NA
 #'
-#' @return (`PentaModel`) A DataStore with data tables.
+#' @return (`PentaModel`) A PentaModel API.
 #' @export
 #'
 #' @examples
