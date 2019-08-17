@@ -68,7 +68,6 @@ jobs:
     - stage: "test"
       name: "integration-tests"
       script: R -q -e 'tic::script()'
-      if: branch = master OR branch = develop
     - stage: "test"
       name: "coverage-tests"
       script: R -q -e 'tic::script()'
