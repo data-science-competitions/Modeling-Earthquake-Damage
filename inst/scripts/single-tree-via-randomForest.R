@@ -93,8 +93,9 @@ dplyr::bind_cols(actual = test_set[[role_target]], predicted = response[[role_ta
     ggplot(aes(x = actual, y = predicted)) +
     ggtitle("Predicted vs Actual Values") +
     geom_point() +
-    scale_x_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
-    scale_y_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
+    geom_count() +
+    # scale_x_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
+    # scale_y_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
     coord_equal(ratio = 1) +
     geom_abline(slope = 1, intercept = 0) +
     theme_bw()
