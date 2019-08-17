@@ -9,5 +9,11 @@ test_that("Data Pipeline and PentaModel are working together", {
     expect_class(ds <- DataStore$new(), "DataStore")
     expect_class(pm <- PentaModel$new(model_path), "PentaModel")
 
+    # expect_null(pm$set_historical_data(ds$data_model$historical_data))
+    # expect_null(pm$set_new_data(ds$data_model$new_data))
 
+    expect_null(pm$model_init())
+    expect_null(pm$model_fit())
+
+    # expect_class(pm$get_model(), "lm")
 })
