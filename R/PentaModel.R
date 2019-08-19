@@ -66,10 +66,6 @@ PentaModel <- R6::R6Class(
     return(invisible())
 }
 
-.get_model <- function(private){
-
-}
-
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
     base::get("model_init", envir = private$.env)()
