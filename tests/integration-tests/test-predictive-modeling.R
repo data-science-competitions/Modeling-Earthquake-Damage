@@ -15,5 +15,5 @@ test_that("Data Pipeline and PentaModel are working together", {
     expect_null(pm$model_init())
     expect_null(pm$model_fit())
 
-    # expect_class(pm$get_model(), "lm")
+    expect_class(pm$model_object, "lm")
 })
