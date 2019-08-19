@@ -37,7 +37,7 @@ PentaModel <- R6::R6Class(
         .component_paths = character(0),
         .model_name = character(0),
         .model_path = character(0),
-        .model_object = c(),
+        .model_object = NULL,
         .env = environment(),
         .historical_data = data.frame(),
         .new_data = data.frame()
@@ -45,7 +45,8 @@ PentaModel <- R6::R6Class(
 
     active = list(
         model_name = function() private$.model_name,
-        model_path = function() private$.model_path
+        model_path = function() private$.model_path,
+        model_object = function() private$.model_object
     )
 )
 
@@ -63,6 +64,10 @@ PentaModel <- R6::R6Class(
 .set_model <- function(private, model_object){
     private$.model_object <- model_object
     return(invisible())
+}
+
+.get_model <- function(private){
+
 }
 
 # Private Methods --------------------------------------------------------------
