@@ -39,8 +39,8 @@ PentaModel <- R6::R6Class(
         .model_path = character(0),
         .model_object = c(),
         .env = environment(),
-        historical_data = data.frame(),
-        new_data = data.frame()
+        .historical_data = data.frame(),
+        .new_data = data.frame()
     ),
 
     active = list(
@@ -51,12 +51,12 @@ PentaModel <- R6::R6Class(
 
 # Public Methods ---------------------------------------------------------------
 .set_historical_data <- function(private, historical_data){
-    private$historical_data <- historical_data
+    private$.historical_data <- historical_data
     return(invisible())
 }
 
 .set_new_data <- function(private, new_data){
-    private$new_data <- new_data
+    private$.new_data <- new_data
     return(invisible())
 }
 
@@ -72,7 +72,7 @@ PentaModel <- R6::R6Class(
 }
 
 .model_fit <- function(private){
-    private$.model_object <- base::get("model_fit", envir = private$.env)(historical_data = private$historical_data)
+    private$.model_object <- base::get("model_fit", envir = private$.env)(historical_data = private$.historical_data)
     return(invisible())
 }
 
