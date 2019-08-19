@@ -77,13 +77,35 @@ test_that("PentaModel fails due to missing input arguments / files", {
     expect_error(PentaModel$new(path = model_path))
 })
 
-test_that("Setters fail due to missing input arguments", {
+test_that("PentaModel model_fit has no historical_data", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
     .delete_and_create_dir(model_path)
     .create_valid_mock_pentamodel(model_path)
+    expect_silent(mdl <- PentaModel$new(path = model_path))
 
-    expect_class(mdl <- PentaModel$new(path = model_path), "PentaModel")
-    expect_error(mdl$set_historical_data())
-    expect_error(mdl$set_new_data())
+    historical_data <- mtcars[1:22,]
+    new_data <- mtcars[23:32,]
+    mdl_object <- lm(mpg ~ ., historical_data)
+    y_hat <- predict(mdl_object, new_data)
+
+    expect_error(mdl$model_fit())
+})
+
+test_that("PentaModel model_predict has no model/new_data", {
+    model_name <- "mockModel"
+    model_path <- file.path(.get_temp_dir(), model_name)
+    .delete_and_create_dir(model_path)
+    .create_valid_mock_pentamodel(model_path)
+    expect_silent(mdl <- PentaModel$new(path = model_path))
+
+    historical_data <- mtcars[1:22,]
+    new_data <- mtcars[23:32,]
+    mdl_object <- lm(mpg ~ ., historical_data)
+    y_hat <- predict(mdl_object, new_data)
+
+    expect_error(mdl$model_predict())
+
+    expect_null(mdl$set_new_data(new_data))
+    expect_error(mdl$model_predict())
 })

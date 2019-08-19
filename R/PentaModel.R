@@ -75,16 +75,17 @@ PentaModel <- R6::R6Class(
 }
 
 .model_fit <- function(private){
+    if(is.null(private$.historical_data)) stop("\nhistorical_data is an empty data frame.\nDid you forget to use PentaModelObj$set_historical_data(.data)?")
     private$.model_object <- base::get("model_fit", envir = private$.env)(historical_data = private$.historical_data)
     return(invisible())
 }
 
 .model_predict <- function(private){
-    # new_data <-  private$.new_data
-    # model_object <- private$.model_object
-    # if(.is_a_non_empty_data.frame(new_data)) stop("new_data is an empty data frame; Did you forget to use obj$set_new_data(.data)?")
-    # private$.response <- base::get("model_predict", envir = private$.env)(new_data = new_data, model_object = model_object)
+    if(is.null(private$.new_data)) stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
+    if(is.null(private$.model_object)) stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
+
     private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
+
     .assert_objects_have_the_same_number_of_observations(private$.response, private$.new_data)
     return(invisible())
 }
@@ -109,10 +110,6 @@ PentaModel <- R6::R6Class(
 
 .remove_model_components_from_env <- function(object){
     suppressWarnings(rm(list = object$.component_names, envir = object$.env))
-}
-
-.is_a_non_empty_data.frame <- function(x){
-    identical("data.frame" %in% class(x) & nrow(x) > 0)
 }
 
 # assert_objects_have_the_same_number_of_observations --------------------------
