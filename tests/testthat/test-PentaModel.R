@@ -43,6 +43,26 @@ test_that("PentaModel workflow is flawless", {
     expect_null(mdl$model_end())
 })
 
+test_that("PentaModel can be preset with a model object", {
+    model_name <- "mockModel"
+    model_path <- file.path(.get_temp_dir(), model_name)
+    .delete_and_create_dir(model_path)
+    .create_valid_mock_pentamodel(model_path)
+    expect_silent(mdl <- PentaModel$new(path = model_path))
+
+    historical_data <- mtcars[1:22,]
+    new_data <- mtcars[23:32,]
+    mdl_object <- lm(mpg ~ ., historical_data)
+    y_hat <- predict(mdl_object, new_data)
+
+    expect_null(mdl$set_model(mdl_object))
+    expect_identical(mdl$model_object, mdl_object)
+
+    expect_null(mdl$set_new_data(new_data))
+    expect_null(mdl$model_predict())
+    expect_equal(mdl$response, y_hat)
+})
+
 test_that("PentaModel fails due to missing input arguments / files", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)

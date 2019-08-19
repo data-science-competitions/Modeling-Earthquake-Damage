@@ -40,8 +40,8 @@ PentaModel <- R6::R6Class(
         .model_object = NULL,
         .response = NULL,
         .env = environment(),
-        .historical_data = data.frame(),
-        .new_data = data.frame()
+        .historical_data = NULL,
+        .new_data = NULL
     ),
 
     active = list(
@@ -82,14 +82,11 @@ PentaModel <- R6::R6Class(
 .model_predict <- function(private){
     # new_data <-  private$.new_data
     # model_object <- private$.model_object
-    #
+    # if(.is_a_non_empty_data.frame(new_data)) stop("new_data is an empty data frame; Did you forget to use obj$set_new_data(.data)?")
     # private$.response <- base::get("model_predict", envir = private$.env)(new_data, model_object)
     private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
     return(invisible())
 }
-
-
-
 
 # High-Level Helper-Functions --------------------------------------------------
 .load_model_components <- function(object){
@@ -112,3 +109,10 @@ PentaModel <- R6::R6Class(
 .remove_model_components_from_env <- function(object){
     suppressWarnings(rm(list = object$.component_names, envir = object$.env))
 }
+
+.is_a_non_empty_data.frame <- function(x){
+    identical("data.frame" %in% class(x) & nrow(x) > 0)
+}
+
+
+
