@@ -75,18 +75,27 @@ PentaModel <- R6::R6Class(
 }
 
 .model_fit <- function(private){
-    if(is.null(private$.historical_data)) stop("\nhistorical_data is an empty data frame.\nDid you forget to use PentaModelObj$set_historical_data(.data)?")
+    if(is.null(private$.historical_data))
+        stop("\nhistorical_data is an empty data frame.\nDid you forget to use PentaModelObj$set_historical_data(.data)?")
+
     private$.model_object <- base::get("model_fit", envir = private$.env)(historical_data = private$.historical_data)
+
     return(invisible())
 }
 
 .model_predict <- function(private){
-    if(is.null(private$.new_data)) stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
-    if(is.null(private$.model_object)) stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
+    if(is.null(private$.new_data))
+        stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
+    if(is.null(private$.model_object))
+        stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
 
     private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
 
-    .assert_objects_have_the_same_number_of_observations(private$.response, private$.new_data)
+    if(any(is.na(private$.response)))
+        stop("model_predict produced NA values.\nSee PentaModelObj$response")
+    if(nrow(as.data.frame(private$.response)) != nrow(as.data.frame(private$.new_data)))
+        stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
+
     return(invisible())
 }
 
@@ -110,51 +119,4 @@ PentaModel <- R6::R6Class(
 
 .remove_model_components_from_env <- function(object){
     suppressWarnings(rm(list = object$.component_names, envir = object$.env))
-}
-
-# assert_objects_have_the_same_number_of_observations --------------------------
-#
-#' @title Check that Two Objects Have the Same Number of Observations
-#'
-#' @description Given two objects of data.frame and vector types, when the function is called then the two objects' size are compared.
-#'
-#' @param obj_1,obj_2 data.frame, matrix or vector.
-#'
-#' @return Returns an error if any assertion is invalid, otherwise NULL.
-#'
-#' @noRd
-.assert_objects_have_the_same_number_of_observations <- function(obj_1, obj_2) {
-    ###########################
-    ## Defensive Programming ##
-    ###########################
-    stopifnot(!missing(obj_1), !missing(obj_2))
-    obj_1_class <- class(obj_1)
-    obj_2_class <- class(obj_2)
-    stopifnot(any(obj_1_class %in% c("data.frame", "character", "numeric", "integer", "logical", "matrix")))
-    stopifnot(any(obj_2_class %in% c("data.frame", "character", "numeric", "integer", "logical", "matrix")))
-
-    ##################
-    ## Computations ##
-    ##################
-    ## Object 1
-    if (any(obj_1_class %in% c("data.frame", "matrix"))) {
-        obj_1_n <- nrow(obj_1)
-    } else {
-        obj_1_n <- length(obj_1)
-    }
-    ## Object 2
-    if (any(obj_2_class %in% c("data.frame", "matrix"))) {
-        obj_2_n <- nrow(obj_2)
-    } else {
-        obj_2_n <- length(obj_2)
-    }
-    ## Compare
-    if (obj_1_n != obj_2_n) {
-        stop("The two objects have different number of observations")
-    }
-
-    ############
-    ## Return ##
-    ############
-    return(invisible())
 }
