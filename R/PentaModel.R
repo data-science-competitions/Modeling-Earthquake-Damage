@@ -93,7 +93,7 @@ PentaModel <- R6::R6Class(
 
     if(any(is.na(private$.response)))
         stop("model_predict produced NA values.\nSee PentaModelObj$response")
-    if(nrow(as.data.frame(private$.response)) != nrow(as.data.frame(private$.new_data)))
+    if(.nrecord(private$.response) != .nrecord(private$.new_data))
         stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
 
     return(invisible())
@@ -119,4 +119,14 @@ PentaModel <- R6::R6Class(
 
 .remove_model_components_from_env <- function(object){
     suppressWarnings(rm(list = object$.component_names, envir = object$.env))
+}
+
+.nrecord <- function(x) {
+    if(isTRUE(class(x) %in% "data.frame")){
+        return(nrow(x))
+    } else if (isTRUE(class(x) %in% "matrix")) {
+        return(dim(x)[1])
+    } else {
+        return(length(x))
+    }
 }
