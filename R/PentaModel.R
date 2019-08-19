@@ -83,8 +83,9 @@ PentaModel <- R6::R6Class(
     # new_data <-  private$.new_data
     # model_object <- private$.model_object
     # if(.is_a_non_empty_data.frame(new_data)) stop("new_data is an empty data frame; Did you forget to use obj$set_new_data(.data)?")
-    # private$.response <- base::get("model_predict", envir = private$.env)(new_data, model_object)
+    # private$.response <- base::get("model_predict", envir = private$.env)(new_data = new_data, model_object = model_object)
     private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
+    .assert_objects_have_the_same_number_of_observations(private$.response, private$.new_data)
     return(invisible())
 }
 
@@ -114,5 +115,49 @@ PentaModel <- R6::R6Class(
     identical("data.frame" %in% class(x) & nrow(x) > 0)
 }
 
+# assert_objects_have_the_same_number_of_observations --------------------------
+#
+#' @title Check that Two Objects Have the Same Number of Observations
+#'
+#' @description Given two objects of data.frame and vector types, when the function is called then the two objects' size are compared.
+#'
+#' @param obj_1,obj_2 data.frame, matrix or vector.
+#'
+#' @return Returns an error if any assertion is invalid, otherwise NULL.
+#'
+#' @noRd
+.assert_objects_have_the_same_number_of_observations <- function(obj_1, obj_2) {
+    ###########################
+    ## Defensive Programming ##
+    ###########################
+    stopifnot(!missing(obj_1), !missing(obj_2))
+    obj_1_class <- class(obj_1)
+    obj_2_class <- class(obj_2)
+    stopifnot(any(obj_1_class %in% c("data.frame", "character", "numeric", "integer", "logical", "matrix")))
+    stopifnot(any(obj_2_class %in% c("data.frame", "character", "numeric", "integer", "logical", "matrix")))
 
+    ##################
+    ## Computations ##
+    ##################
+    ## Object 1
+    if (any(obj_1_class %in% c("data.frame", "matrix"))) {
+        obj_1_n <- nrow(obj_1)
+    } else {
+        obj_1_n <- length(obj_1)
+    }
+    ## Object 2
+    if (any(obj_2_class %in% c("data.frame", "matrix"))) {
+        obj_2_n <- nrow(obj_2)
+    } else {
+        obj_2_n <- length(obj_2)
+    }
+    ## Compare
+    if (obj_1_n != obj_2_n) {
+        stop("The two objects have different number of observations")
+    }
 
+    ############
+    ## Return ##
+    ############
+    return(invisible())
+}
