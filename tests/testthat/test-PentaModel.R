@@ -36,7 +36,8 @@ test_that("PentaModel workflow is flawless", {
     expect_null(mdl$model_fit())
     expect_equal(mdl$model_object, mdl_object)
 
-    # expect_null(mdl$model_predict())
+    expect_null(mdl$model_predict())
+    expect_equal(mdl$response, y_hat)
 
     expect_null(mdl$model_store())
     expect_null(mdl$model_end())

@@ -25,7 +25,7 @@ PentaModel <- R6::R6Class(
         },
         model_init = function() .model_init(private),
         model_fit = function() .model_fit(private),
-        model_predict = function() base::get("model_predict", envir = private$.env)(),
+        model_predict = function() .model_predict(private),
         model_store = function() base::get("model_store", envir = private$.env)(),
         model_end = function() base::get("model_end", envir = private$.env)(),
         set_historical_data = function(historical_data) .set_historical_data(private, historical_data),
@@ -38,6 +38,7 @@ PentaModel <- R6::R6Class(
         .model_name = character(0),
         .model_path = character(0),
         .model_object = NULL,
+        .response = NULL,
         .env = environment(),
         .historical_data = data.frame(),
         .new_data = data.frame()
@@ -46,7 +47,8 @@ PentaModel <- R6::R6Class(
     active = list(
         model_name = function() private$.model_name,
         model_path = function() private$.model_path,
-        model_object = function() private$.model_object
+        model_object = function() private$.model_object,
+        response = function() private$.response
     )
 )
 
@@ -76,6 +78,16 @@ PentaModel <- R6::R6Class(
     private$.model_object <- base::get("model_fit", envir = private$.env)(historical_data = private$.historical_data)
     return(invisible())
 }
+
+.model_predict <- function(private){
+    # new_data <-  private$.new_data
+    # model_object <- private$.model_object
+    #
+    # private$.response <- base::get("model_predict", envir = private$.env)(new_data, model_object)
+    private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
+    return(invisible())
+}
+
 
 
 
