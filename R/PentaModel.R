@@ -28,11 +28,12 @@ PentaModel <- R6::R6Class(
         model_predict = function() .model_predict(private),
         model_store = function() base::get("model_store", envir = private$.env)(),
         model_end = function() base::get("model_end", envir = private$.env)(),
+        get_model_formula = function() .get_formula(private),
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
         set_input_vars = function(value) .set_private_variable(private, ".role_input", value),
-        set_targer_var = function(value) .set_private_variable(private, ".role_target_variable", value)
+        set_targer_var = function(value) .set_private_variable(private, ".role_target", value)
     ),
 
     private = list(
@@ -45,8 +46,10 @@ PentaModel <- R6::R6Class(
         .env = environment(),
         .historical_data = NULL,
         .new_data = NULL,
-        .role_input = ".",
-        .role_target_variable = NULL
+        .role_pk = NULL,
+        .role_none = NULL,
+        .role_input = NULL,
+        .role_target = NULL
     ),
 
     active = list(
@@ -58,6 +61,17 @@ PentaModel <- R6::R6Class(
 )
 
 # Public Methods ---------------------------------------------------------------
+.get_formula <- function(private){
+    X <-
+        role_input %>%
+        base::setdiff(private$.role_none) %>%
+        base::setdiff(private$.role_pk) %>%
+        base::setdiff(private$.role_target)
+    y <- private$.role_target
+
+    formula(paste(y, "~", paste(X, collapse = " + ")))
+}
+
 .set_private_variable <- function(private, key, value){
     private[[key]] <- value
     return(invisible())
