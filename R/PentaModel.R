@@ -28,10 +28,13 @@ PentaModel <- R6::R6Class(
         model_predict = function() .model_predict(private),
         model_store = function() base::get("model_store", envir = private$.env)(),
         model_end = function() base::get("model_end", envir = private$.env)(),
-        set_historical_data = function(historical_data) .set_historical_data(private, historical_data),
-        set_new_data = function(new_data) .set_new_data(private, new_data),
-        set_model = function(model_object) .set_model(private, model_object)
+        set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
+        set_new_data = function(value) .set_private_variable(private, ".new_data", value),
+        set_model = function(value) .set_private_variable(private, ".model_object", value),
+        set_input_vars = function(value) .set_private_variable(private, ".role_input", value),
+        set_targer_var = function(value) .set_private_variable(private, ".role_target_variable", value)
     ),
+
     private = list(
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
         .component_paths = character(0),
@@ -41,7 +44,9 @@ PentaModel <- R6::R6Class(
         .response = NULL,
         .env = environment(),
         .historical_data = NULL,
-        .new_data = NULL
+        .new_data = NULL,
+        .role_input = ".",
+        .role_target_variable = NULL
     ),
 
     active = list(
@@ -53,20 +58,11 @@ PentaModel <- R6::R6Class(
 )
 
 # Public Methods ---------------------------------------------------------------
-.set_historical_data <- function(private, historical_data){
-    private$.historical_data <- historical_data
+.set_private_variable <- function(private, key, value){
+    private[[key]] <- value
     return(invisible())
 }
 
-.set_new_data <- function(private, new_data){
-    private$.new_data <- new_data
-    return(invisible())
-}
-
-.set_model <- function(private, model_object){
-    private$.model_object <- model_object
-    return(invisible())
-}
 
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
