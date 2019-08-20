@@ -28,7 +28,6 @@ PentaModel <- R6::R6Class(
         model_predict = function() .model_predict(private),
         model_store = function() base::get("model_store", envir = private$.env)(),
         model_end = function() base::get("model_end", envir = private$.env)(),
-        get_model_formula = function() .get_formula(private),
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
@@ -56,27 +55,16 @@ PentaModel <- R6::R6Class(
         model_name = function() private$.model_name,
         model_path = function() private$.model_path,
         model_object = function() private$.model_object,
+        model_formula = function() .model_formula(private),
         response = function() private$.response
     )
 )
 
 # Public Methods ---------------------------------------------------------------
-.get_formula <- function(private){
-    X <-
-        role_input %>%
-        base::setdiff(private$.role_none) %>%
-        base::setdiff(private$.role_pk) %>%
-        base::setdiff(private$.role_target)
-    y <- private$.role_target
-
-    formula(paste(y, "~", paste(X, collapse = " + ")))
-}
-
 .set_private_variable <- function(private, key, value){
     private[[key]] <- value
     return(invisible())
 }
-
 
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
@@ -107,6 +95,17 @@ PentaModel <- R6::R6Class(
         stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
 
     return(invisible())
+}
+
+.model_formula <- function(private){
+    X <-
+        private$.role_input %>%
+        base::setdiff(private$.role_none) %>%
+        base::setdiff(private$.role_pk) %>%
+        base::setdiff(private$.role_target)
+    y <- private$.role_target
+
+    return(formula(paste(y, "~", paste(X, collapse = " + "))))
 }
 
 # High-Level Helper-Functions --------------------------------------------------

@@ -63,6 +63,18 @@ test_that("PentaModel can be preset with a model object", {
     expect_equal(mdl$response, y_hat)
 })
 
+test_that("PentaModel formula components work", {
+    model_name <- "mockModel"
+    model_path <- file.path(.get_temp_dir(), model_name)
+    .delete_and_create_dir(model_path)
+    .create_valid_mock_pentamodel(model_path)
+    expect_silent(mdl <- PentaModel$new(path = model_path))
+
+    expect_null(mdl$set_targer_var("mpg"))
+    expect_null(mdl$set_input_vars("cyl"))
+    expect_equal(mdl$model_formula, formula(mpg ~ cyl))
+})
+
 test_that("PentaModel workflow given var roles", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
@@ -76,9 +88,9 @@ test_that("PentaModel workflow given var roles", {
 
     expect_null(mdl$set_historical_data(historical_data))
     expect_null(mdl$set_new_data(new_data))
+
     expect_null(mdl$set_targer_var("mpg"))
     expect_null(mdl$set_input_vars("cyl"))
-
     expect_null(mdl$model_init())
     expect_null(mdl$model_fit())
     # expect_identical(mdl$model_object, mdl_object)
