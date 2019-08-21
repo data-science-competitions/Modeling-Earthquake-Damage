@@ -69,9 +69,8 @@ test_that("PentaModel formula components work", {
     .delete_and_create_dir(model_path)
     .create_valid_mock_pentamodel(model_path)
     expect_silent(mdl <- PentaModel$new(path = model_path))
-    mtcars <- mtcars %>% tibble::rownames_to_column("UID")
 
-    expect_null(mdl$set_role_pk("UID"))
+    expect_null(mdl$set_role_pk(NULL))
     expect_null(mdl$set_role_none("wt"))
     expect_null(mdl$set_role_input("cyl"))
     expect_null(mdl$set_role_target("mpg"))
