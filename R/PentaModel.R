@@ -76,8 +76,7 @@ PentaModel <- R6::R6Class(
 }
 
 .model_fit <- function(private){
-    if(is.null(private$.historical_data))
-        stop("\nhistorical_data is an empty data frame.\nDid you forget to use PentaModelObj$set_historical_data(.data)?")
+    .check_model_fit_input_arguments(private)
 
     private$.model_object <-
         base::get("model_fit", envir = private$.env)(
@@ -116,6 +115,28 @@ PentaModel <- R6::R6Class(
         ), silent = TRUE)
 
     return(invisible())
+}
+
+.check_model_fit_input_arguments <- function(private){
+    if(is.null(private$.historical_data))
+        stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
+
+    # if(is.null(private$.role_pk))
+    #     stop("Primary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
+
+    if(is.null(private$.role_input))
+        stop("Input variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")
+
+    if(is.null(private$.role_target)){
+        stop("Target variable is unset;\nDid you forget to use PentaModelObj$set_role_target(<var-name>)?")
+    } else if (!identical(length(private$.role_target), 1L)){
+        stop("More than one target variable are set")
+    }
+
+    #     .role_pk = NULL,
+    # .role_none = NULL,
+    # .role_input = NULL,
+    # .role_target = NULL
 }
 
 # High-Level Helper-Functions --------------------------------------------------
