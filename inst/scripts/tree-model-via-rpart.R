@@ -59,11 +59,12 @@ test_set <-
 # Fit Model --------------------------------------------------------------------
 set.seed(1915)
 mdl_formula <- compose_formula(role_pk, role_none, role_input, role_target)
-mdl_obj <- lm(mdl_formula, data = train_set)
+rpart_control <- rpart::rpart.control(maxdepth = 3, minsplit = 10, maxcompete = 2)
+mdl_obj <- rpart::rpart(mdl_formula, data = train_set, method = "anova", control = rpart_control)
 
 # Predict Test Set -------------------------------------------------------------
-predict_function <- function(X, m) predict.lm(m, newdata = X)
-link_function <- function(x) x %>% round() %>% minmax(lb = 1, ub = 3)
+predict_function <- function(X, m) predict(m, X)
+link_function <- function(x) x  %>% minmax(lb = 1, ub = 3) %>% round()
 
 response <- predict_function(X = test_set, m = mdl_obj) %>% link_function()
 names(response) <- test_set[[role_pk]]
@@ -74,6 +75,8 @@ median_value <- train_set[[role_target]] %>% median() %>% rep(nrow(test_set))
 
 cm_baseline <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = median_value)
 cm_mdl <- calc_confusion_matrix(actual = test_set[[role_target]], predicted = response[[role_target]])
+
+print(cm_baseline)
 print(cm_mdl)
 
 cat("Percentage Change from base-model to model-under-test")
@@ -82,5 +85,17 @@ M2 <- cm_mdl$overall
 round(100 * (M2 - M1) / abs(M1), 1)
 
 # Visualisation ----------------------------------------------------------------
-# plot(cm_mdl)
+dplyr::bind_cols(actual = test_set[[role_target]], predicted = response[[role_target]]) %>%
+    ggplot(aes(x = actual, y = predicted)) +
+    ggtitle("Predicted vs Actual Values") +
+    geom_point() +
+    geom_count() +
+    # scale_x_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
+    # scale_y_continuous(lim=c(0,50), breaks = (0:100) * 10, expand = c(0,0)) +
+    coord_equal(ratio = 1) +
+    geom_abline(slope = 1, intercept = 0) +
+    theme_bw()
 
+rpart.plot::rpart.plot(mdl_obj, type = 2, branch.type = 5, extra = 101, yesno = FALSE)
+rpart.plot::rpart.rules(mdl_obj, clip.facs = FALSE)
+# rpart.plot::rpart.predict(mdl_obj, newdata=test_set, rules=TRUE)

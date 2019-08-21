@@ -1,0 +1,65 @@
+---
+title: '{{model_name}} Development Notebook'
+author: '{{model_author}}'
+output: 
+  html_document: 
+    highlight: tango
+    theme: journal
+    toc: yes
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rmonic::setup()
+model_name <<- rmonic::slug("{{model_name}}")
+```
+
+## Developing a Model {.tabset .tabset-fade}
+
+### model_init {#model_init}
+
+```{r model_init}
+{{{model_init}}}
+```
+
+### model_fit {#model_fit}
+
+```{r model_fit}
+{{{model_fit}}}
+```
+
+### model_predict {#model_predict}
+
+```{r model_predict}
+{{{model_predict}}}
+```
+
+### model_store {#model_store}
+
+```{r model_store}
+{{{model_store}}}
+```
+
+### model_end {#model_end}
+
+```{r model_end}
+{{{model_end}}}
+```
+
+<!-- Store Notebook Changes -->
+
+```{r, echo = FALSE, results = 'hide'}
+## Store notebook changes in model components.
+## This means that the code above will take effect during model backtesting.
+if(existsFunction("model_init")) 
+    rmonic::write_function(model_init, file.path(k_path_models, model_name, paste0("model_init.R")))
+if(existsFunction("model_fit")) 
+    rmonic::write_function(model_fit, file.path(k_path_models, model_name, paste0("model_fit.R")))
+if(existsFunction("model_predict")) 
+    rmonic::write_function(model_predict, file.path(k_path_models, model_name, paste0("model_predict.R")))
+if(existsFunction("model_store")) 
+    rmonic::write_function(model_store, file.path(k_path_models, model_name, paste0("model_store.R")))
+if(existsFunction("model_end")) 
+    rmonic::write_function(model_end, file.path(k_path_models, model_name, paste0("model_end.R")))
+```

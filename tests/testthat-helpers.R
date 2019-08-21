@@ -17,6 +17,7 @@ expect_an_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_
 expect_a_non_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_gt(nrow(x), 0, label = paste("data.frame is empty; "))}
 expect_table_has_col_names <- function(object, col_names) expect_subset(col_names, colnames(object))
 expect_not_identical <- function(object, expected) expect_false(identical(object, expected), info  = "Error: objects A and B are identical")
+expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c("tbl", "tbl_df")), label = "Error: Object is not a tbl")
 
 # Predicates -------------------------------------------------------------------
 .are_set_equal <- function(x, y){
@@ -191,4 +192,21 @@ expect_not_identical <- function(object, expected) expect_false(identical(object
     proj_path <- getwd()
     while (length(grep("test", proj_path))>0) proj_path <- dirname(proj_path)
     return(proj_path)
+}
+
+# PentaModel --------------------------------------------------------------
+.create_valid_mock_pentamodel <- function(path){
+    writeLines("model_init <- function() NULL", file.path(path, "model_init.R"))
+    writeLines("model_fit <- function(historical_data, model_formula) lm(model_formula, historical_data)", file.path(path, "model_fit.R"))
+    writeLines("model_predict <- function(new_data, model_object) predict(model_object, new_data, na.action = .Options$na.action)", file.path(path, "model_predict.R"))
+    writeLines("model_store <- function() NULL", file.path(path, "model_store.R"))
+    writeLines("model_end <- function() NULL", file.path(path, "model_end.R"))
+}
+
+.create_invalid_mock_pentamodel <- function(path){
+    writeLines("model_init <- function() NULL", file.path(path, "model_init.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_fit.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_predict.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_store.R"))
+    writeLines("model_init <- function() NULL", file.path(path, "model_end.R"))
 }
