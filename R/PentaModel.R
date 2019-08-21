@@ -31,8 +31,10 @@ PentaModel <- R6::R6Class(
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
-        set_input_vars = function(value) .update_formula_variables(private, ".role_input", value),
-        set_target_var = function(value) .update_formula_variables(private, ".role_target", value)
+        set_role_pk = function(value) .update_formula_variables(private, ".role_pk", value),
+        set_role_none = function(value) .update_formula_variables(private, ".role_none", value),
+        set_role_input = function(value) .update_formula_variables(private, ".role_input", value),
+        set_role_target = function(value) .update_formula_variables(private, ".role_target", value)
     ),
 
     private = list(
@@ -148,5 +150,5 @@ PentaModel <- R6::R6Class(
     X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk) %>% setdiff(role_target)
     y <- role_target
 
-    formula(paste(y, "~", paste(X, collapse = " + ")))
+    stats::formula(paste(y, "~", paste(X, collapse = " + ")))
 }

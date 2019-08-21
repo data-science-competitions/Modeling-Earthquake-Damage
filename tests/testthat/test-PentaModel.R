@@ -69,9 +69,12 @@ test_that("PentaModel formula components work", {
     .delete_and_create_dir(model_path)
     .create_valid_mock_pentamodel(model_path)
     expect_silent(mdl <- PentaModel$new(path = model_path))
+    mtcars <- mtcars %>% tibble::rownames_to_column("UID")
 
-    expect_null(mdl$set_target_var("mpg"))
-    expect_null(mdl$set_input_vars("cyl"))
+    expect_null(mdl$set_role_pk("UID"))
+    expect_null(mdl$set_role_none("wt"))
+    expect_null(mdl$set_role_input("cyl"))
+    expect_null(mdl$set_role_target("mpg"))
     expect_equal(mdl$model_formula, formula(mpg ~ cyl))
 })
 
@@ -89,8 +92,8 @@ test_that("PentaModel workflow given var roles", {
     expect_null(mdl$set_historical_data(historical_data))
     expect_null(mdl$set_new_data(new_data))
 
-    expect_null(mdl$set_target_var("mpg"))
-    expect_null(mdl$set_input_vars("cyl"))
+    expect_null(mdl$set_role_input("cyl"))
+    expect_null(mdl$set_role_target("mpg"))
     expect_null(mdl$model_init())
     expect_null(mdl$model_fit())
     # expect_identical(mdl$model_object, mdl_object)
