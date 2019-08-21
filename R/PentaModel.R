@@ -32,7 +32,7 @@ PentaModel <- R6::R6Class(
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
         set_input_vars = function(value) .set_private_variable(private, ".role_input", value),
-        set_targer_var = function(value) .set_private_variable(private, ".role_target", value)
+        set_target_var = function(value) .set_private_variable(private, ".role_target", value)
     ),
 
     private = list(

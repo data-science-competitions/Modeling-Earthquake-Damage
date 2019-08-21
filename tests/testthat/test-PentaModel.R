@@ -70,7 +70,7 @@ test_that("PentaModel formula components work", {
     .create_valid_mock_pentamodel(model_path)
     expect_silent(mdl <- PentaModel$new(path = model_path))
 
-    expect_null(mdl$set_targer_var("mpg"))
+    expect_null(mdl$set_target_var("mpg"))
     expect_null(mdl$set_input_vars("cyl"))
     expect_equal(mdl$model_formula, formula(mpg ~ cyl))
 })
@@ -89,7 +89,7 @@ test_that("PentaModel workflow given var roles", {
     expect_null(mdl$set_historical_data(historical_data))
     expect_null(mdl$set_new_data(new_data))
 
-    expect_null(mdl$set_targer_var("mpg"))
+    expect_null(mdl$set_target_var("mpg"))
     expect_null(mdl$set_input_vars("cyl"))
     expect_null(mdl$model_init())
     expect_null(mdl$model_fit())
