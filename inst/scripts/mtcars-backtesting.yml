@@ -1,0 +1,9 @@
+## Define the model's name (must be identical to the model folder's name)
+model_name: mtcars-example
+## Sampling technique levers
+### Define the number of splits
+n_splits: 1 # insert 1 for a single binary split of 70%/30%
+### Define the number of observations in each split
+n_observations: 100 # insert `Inf` in order to use all the available records
+## Should a parallel back-end be loaded and available?
+allow_parallel: no
