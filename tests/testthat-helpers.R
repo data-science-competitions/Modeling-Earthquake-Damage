@@ -197,7 +197,7 @@ expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c
 # PentaModel --------------------------------------------------------------
 .create_valid_mock_pentamodel <- function(path){
     writeLines("model_init <- function() NULL", file.path(path, "model_init.R"))
-    writeLines("model_fit <- function(historical_data) lm(mpg ~ ., historical_data)", file.path(path, "model_fit.R"))
+    writeLines("model_fit <- function(historical_data, model_formula) lm(model_formula, historical_data)", file.path(path, "model_fit.R"))
     writeLines("model_predict <- function(new_data, model_object) predict(model_object, new_data, na.action = .Options$na.action)", file.path(path, "model_predict.R"))
     writeLines("model_store <- function() NULL", file.path(path, "model_store.R"))
     writeLines("model_end <- function() NULL", file.path(path, "model_end.R"))

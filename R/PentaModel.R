@@ -79,7 +79,11 @@ PentaModel <- R6::R6Class(
     if(is.null(private$.historical_data))
         stop("\nhistorical_data is an empty data frame.\nDid you forget to use PentaModelObj$set_historical_data(.data)?")
 
-    private$.model_object <- base::get("model_fit", envir = private$.env)(historical_data = private$.historical_data)
+    private$.model_object <-
+        base::get("model_fit", envir = private$.env)(
+            historical_data = private$.historical_data,
+            model_formula = private$.model_formula
+        )
 
     return(invisible())
 }
