@@ -91,56 +91,6 @@ install.packages("devtools")
 devtools::install_github("`r package_repo`")
 ```
 
-## Data Pipeline
-
-The template includes a database abstraction layer (DAL) that separates data
-sources and analytic applications. The DAL has three stages with the following
-functionality:
-
-1. `Ingest`
-* Pull data from external sources; and
-* Matching schema, organizing, indexing, encoding and compressing the data.
-2. `Prepare`
-* Type conversion of variables if necessary; and
-* Data cleansing;
-3. `Store`
-* Create a data model if relational tables exist;
-* Introduce new features and ready-for-modelling tables; and 
-* Make the data available for query.
-
-The template provides skeletons for `Ingest`, `Prepare` and `Store` interfaces.
-In addition, the template includes a toy example which demonstrates the data
-flow between all three interfaces.
-
-<!--
-### Ingest Layer Interface and its Implementation
-
-```{r ingest, message = FALSE, eval = FALSE}
-ingest_abstract <- Ingest$new(path = tempdir())
-class(ingest_abstract)
-
-ingest_concrete <- IngestDAO$new(path = tempdir())
-class(ingest_concrete)
-```
-
-### Prepare Layer Interface and its Implementation
-
-```{r prepare, message = FALSE, eval = FALSE}
-prepare_abstract <- Prepare$new()
-class(prepare_abstract)
-
-prepare_concrete <- PrepareDAO$new()
-class(prepare_concrete)
-```
-
-### DataStore Object
-
-```{r datastore, message = FALSE, eval = FALSE}
-ds <- DataStore$new()
-class(ds)
-```
--->
-
 ## Datasets
 
 ### Accessing the Project Data
