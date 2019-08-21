@@ -31,8 +31,8 @@ PentaModel <- R6::R6Class(
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
-        set_input_vars = function(value) .set_private_variable(private, ".role_input", value),
-        set_target_var = function(value) .set_private_variable(private, ".role_target", value)
+        set_input_vars = function(value) .update_formula_variables(private, ".role_input", value),
+        set_target_var = function(value) .update_formula_variables(private, ".role_target", value)
     ),
 
     private = list(
@@ -41,6 +41,7 @@ PentaModel <- R6::R6Class(
         .model_name = character(0),
         .model_path = character(0),
         .model_object = NULL,
+        .model_formula = NULL,
         .response = NULL,
         .env = environment(),
         .historical_data = NULL,
@@ -55,7 +56,7 @@ PentaModel <- R6::R6Class(
         model_name = function() private$.model_name,
         model_path = function() private$.model_path,
         model_object = function() private$.model_object,
-        model_formula = function() .model_formula(private),
+        model_formula = function() private$.model_formula,
         response = function() private$.response
     )
 )
@@ -97,15 +98,18 @@ PentaModel <- R6::R6Class(
     return(invisible())
 }
 
-.model_formula <- function(private){
-    X <-
-        private$.role_input %>%
-        base::setdiff(private$.role_none) %>%
-        base::setdiff(private$.role_pk) %>%
-        base::setdiff(private$.role_target)
-    y <- private$.role_target
+.update_formula_variables <- function(private, key, value){
+    .set_private_variable(private, key, value)
 
-    return(formula(paste(y, "~", paste(X, collapse = " + "))))
+    try(
+        private$.model_formula <- .compose_formula(
+            role_pk = private$.role_pk,
+            role_none = private$.role_none,
+            role_input = private$.role_input,
+            role_target = private$.role_target
+        ), silent = TRUE)
+
+    return(invisible())
 }
 
 # High-Level Helper-Functions --------------------------------------------------
@@ -138,4 +142,11 @@ PentaModel <- R6::R6Class(
     } else {
         return(length(x))
     }
+}
+
+.compose_formula <- function(role_pk = NULL, role_none = NULL, role_input, role_target){
+    X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk) %>% setdiff(role_target)
+    y <- role_target
+
+    formula(paste(y, "~", paste(X, collapse = " + ")))
 }
