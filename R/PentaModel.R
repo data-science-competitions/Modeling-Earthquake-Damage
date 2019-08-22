@@ -88,17 +88,13 @@ PentaModel <- R6::R6Class(
 }
 
 .model_predict <- function(private){
-    if(is.null(private$.new_data))
-        stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
-    if(is.null(private$.model_object))
-        stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
+    .check_model_predict_input_arguments(private)
+    .add_rowid_to_new_data(private)
 
     private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
 
-    if(any(is.na(private$.response)))
-        stop("model_predict produced NA values.\nSee PentaModelObj$response")
-    if(.nrecord(private$.response) != .nrecord(private$.new_data))
-        stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
+    .check_model_predict_output_arguments(private)
+    .pack_model_predict_output_arguments(private)
 
     return(invisible())
 }
@@ -132,11 +128,37 @@ PentaModel <- R6::R6Class(
     } else if (!identical(length(private$.role_target), 1L)){
         stop("More than one target variable are set")
     }
+}
 
-    #     .role_pk = NULL,
-    # .role_none = NULL,
-    # .role_input = NULL,
-    # .role_target = NULL
+.check_model_predict_input_arguments <- function(private){
+    if(is.null(private$.new_data))
+        stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
+    if(is.null(private$.model_object))
+        stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
+}
+
+.add_rowid_to_new_data <- function(private){
+    if(is.null(private$.role_pk)){
+        private$.new_data <-  private$.new_data %>% tibble::rownames_to_column("rowid")
+        .update_formula_variables(private, ".role_pk", "rowid")
+    }
+
+    invisible(private)
+}
+
+.check_model_predict_output_arguments <- function(private){
+    if(any(is.na(private$.response)))
+        stop("model_predict produced NA values.\nSee PentaModelObj$response")
+    if(.nrecord(private$.response) != .nrecord(private$.new_data))
+        stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
+}
+
+.pack_model_predict_output_arguments <- function(private){
+    private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
+    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response)
+    colnames(private$.response) <- gsub("^private\\$\\.", "", colnames(private$.response))
+    colnames(private$.response)[1] <- private$.role_pk
+    invisible(private)
 }
 
 # High-Level Helper-Functions --------------------------------------------------
