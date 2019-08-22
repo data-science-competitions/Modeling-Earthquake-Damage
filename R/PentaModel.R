@@ -91,6 +91,8 @@ PentaModel <- R6::R6Class(
     .check_model_predict_input_arguments(private)
 
     private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
+    private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
+    colnames(private$.response) <- gsub("^private\\$\\.","", colnames(private$.response))
 
     if(any(is.na(private$.response)))
         stop("model_predict produced NA values.\nSee PentaModelObj$response")

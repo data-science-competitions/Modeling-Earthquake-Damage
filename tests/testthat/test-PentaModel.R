@@ -33,7 +33,7 @@ test_that("PentaModel can be preset with a model object", {
 
     expect_null(mdl$set_new_data(new_data))
     expect_null(mdl$model_predict())
-    expect_equal(mdl$response, y_hat)
+    expect_equal(mdl$response[["response"]], y_hat %>% unname())
 })
 
 test_that("PentaModel composes variable roles into formula", {
@@ -51,7 +51,22 @@ test_that("PentaModel composes variable roles into formula", {
 })
 
 test_that("PentaModel composes row ids in the absence of role_pk", {
+    model_name <- "mockModel"
+    model_path <- file.path(.get_temp_dir(), model_name)
+    .delete_and_create_dir(model_path)
+    .create_valid_mock_pentamodel(model_path)
+    expect_silent(mdl <- PentaModel$new(path = model_path))
+    expect_null(mdl$set_historical_data(mtcars[1:22,]))
+    expect_null(mdl$set_new_data(mtcars[23:32,]))
 
+    expect_null(mdl$set_role_pk(NULL))
+    expect_null(mdl$set_role_input("cyl"))
+    expect_null(mdl$set_role_target("mpg"))
+    expect_null(mdl$model_init())
+    expect_null(mdl$model_fit())
+    expect_null(mdl$model_predict())
+    expect_a_non_empty_data.frame(mdl$response)
+    expect_true(colnames(mdl$response)[1] == "response")
 })
 
 test_that("PentaModel workflow given var roles", {
