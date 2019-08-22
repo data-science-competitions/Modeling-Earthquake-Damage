@@ -66,7 +66,8 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
     expect_null(mdl$model_fit())
     expect_null(mdl$model_predict())
     expect_a_non_empty_data.frame(mdl$response)
-    expect_true(colnames(mdl$response)[1] == "response")
+    expect_true(colnames(mdl$response)[1] == "rowid")
+    expect_true(colnames(mdl$response)[2] == "response")
 })
 
 test_that("PentaModel workflow given var roles", {
