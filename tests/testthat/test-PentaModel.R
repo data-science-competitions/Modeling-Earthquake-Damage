@@ -183,3 +183,8 @@ test_that("PentaModel model_predict outputs fewer predictions than there are in 
     expect_error(mdl$model_predict())
 })
 
+test_that("PentaModel fails because role_pk is defined but doesn't exist in new_data", {
+    # Give sugeestion of nullfing role_pk
+})
+
+
