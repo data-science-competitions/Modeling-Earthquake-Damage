@@ -50,6 +50,10 @@ test_that("PentaModel composes variable roles into formula", {
     expect_equal(mdl$model_formula, formula(mpg ~ cyl))
 })
 
+test_that("PentaModel composes row ids in the absence of role_pk", {
+
+})
+
 test_that("PentaModel workflow given var roles", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
