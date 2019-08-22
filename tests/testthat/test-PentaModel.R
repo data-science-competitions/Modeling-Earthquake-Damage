@@ -36,7 +36,7 @@ test_that("PentaModel can be preset with a model object", {
     expect_equal(mdl$response, y_hat)
 })
 
-test_that("PentaModel formula components work", {
+test_that("PentaModel composes variable roles into formula", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
     .delete_and_create_dir(model_path)
