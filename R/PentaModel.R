@@ -88,10 +88,7 @@ PentaModel <- R6::R6Class(
 }
 
 .model_predict <- function(private){
-    if(is.null(private$.new_data))
-        stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
-    if(is.null(private$.model_object))
-        stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
+    .check_model_predict_input_arguments(private)
 
     private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
 
@@ -132,11 +129,13 @@ PentaModel <- R6::R6Class(
     } else if (!identical(length(private$.role_target), 1L)){
         stop("More than one target variable are set")
     }
+}
 
-    #     .role_pk = NULL,
-    # .role_none = NULL,
-    # .role_input = NULL,
-    # .role_target = NULL
+.check_model_predict_input_arguments <- function(private){
+    if(is.null(private$.new_data))
+        stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
+    if(is.null(private$.model_object))
+        stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
 }
 
 # High-Level Helper-Functions --------------------------------------------------
