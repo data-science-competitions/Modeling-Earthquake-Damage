@@ -110,7 +110,7 @@ test_that("PentaModel fails due to missing input arguments / files", {
     expect_error(PentaModel$new(path = model_path))
 })
 
-test_that("PentaModel prompt an error when model_fit has no historical_data", {
+test_that("PentaModel prompts an error when model_fit has no historical_data", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
     .delete_and_create_dir(model_path)
@@ -142,7 +142,7 @@ test_that("PentaModel promts an error when model_predict has no model/new_data",
     expect_error(mdl$model_predict())
 })
 
-test_that("PentaModel prompt an error when model_fit has no formula", {
+test_that("PentaModel prompts an error when model_fit has no formula", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
     .delete_and_create_dir(model_path)
