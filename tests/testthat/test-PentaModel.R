@@ -71,17 +71,10 @@ test_that("PentaModel composes variable roles into formula", {
 })
 
 test_that("PentaModel composes row ids in the absence of role_pk", {
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
-    expect_silent(mdl <- PentaModel$new(path = model_path))
-    expect_null(mdl$set_historical_data(mtcars[1:22,]))
-    expect_null(mdl$set_new_data(mtcars[23:32,]))
+    attach(test_env)
+    mdl <- valid_mdl$clone()
 
     expect_null(mdl$set_role_pk(NULL))
-    expect_null(mdl$set_role_input("cyl"))
-    expect_null(mdl$set_role_target("mpg"))
     expect_null(mdl$model_init())
     expect_null(mdl$model_fit())
     # expect_null(mdl$model_predict())
