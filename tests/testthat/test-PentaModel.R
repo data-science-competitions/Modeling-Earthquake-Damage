@@ -2,6 +2,8 @@ context("unit test for PentaModel object")
 
 # Setup -------------------------------------------------------------------
 testthat::setup({
+    assign("test_env", testthat::test_env(), envir = parent.frame())
+
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
 
@@ -17,7 +19,7 @@ testthat::setup({
         valid_mdl$set_role_target("mpg")
     })
 
-    assign("test_env", environment(), envir = parent.frame())
+    test_env$valid_mdl <- valid_mdl
 })
 
 # Successful Modeling Process ---------------------------------------------
@@ -58,11 +60,8 @@ test_that("PentaModel can be preset with a model object", {
 })
 
 test_that("PentaModel composes variable roles into formula", {
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
-    expect_silent(mdl <- PentaModel$new(path = model_path))
+    attach(test_env)
+    mdl <- valid_mdl$clone()
 
     expect_null(mdl$set_role_pk(NULL))
     expect_null(mdl$set_role_none("wt"))
