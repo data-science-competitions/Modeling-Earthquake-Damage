@@ -2,8 +2,6 @@ context("unit test for PentaModel object")
 
 # Setup -------------------------------------------------------------------
 testthat::setup({
-    assign("test_env", testthat::test_env(), envir = parent.frame())
-
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
 
@@ -11,23 +9,26 @@ testthat::setup({
     .create_valid_mock_pentamodel(model_path)
 
     expect_silent({
-        mdl <- PentaModel$new(path = model_path)
-        mdl$set_historical_data(mtcars[1:22,])
-        mdl$set_new_data(mtcars[23:32,])
-        mdl$set_role_none("wt")
-        mdl$set_role_input("cyl")
-        mdl$set_role_target("mpg")
+        valid_mdl <- PentaModel$new(path = model_path)
+        valid_mdl$set_historical_data(mtcars[1:22,])
+        valid_mdl$set_new_data(mtcars[23:32,])
+        valid_mdl$set_role_none("wt")
+        valid_mdl$set_role_input("cyl")
+        valid_mdl$set_role_target("mpg")
     })
 
-    test_env$valid_mdl <- mdl
+    assign("test_env", environment(), envir = parent.frame())
 })
 
 # Successful Modeling Process ---------------------------------------------
+test_that("PentaModel mock is in an isolated environment", {
+    attach(test_env)
+    expect_true(exists("valid_mdl"))
+})
+
 test_that("PentaModel loads model component to an isolated environment", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
 
     expect_class(mdl <- PentaModel$new(path = model_path), "PentaModel")
     expect_identical(mdl$model_name, model_name)
@@ -40,11 +41,8 @@ test_that("PentaModel loads model component to an isolated environment", {
 })
 
 test_that("PentaModel can be preset with a model object", {
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
-    expect_silent(mdl <- PentaModel$new(path = model_path))
+    attach(test_env)
+    mdl <- valid_mdl$clone()
 
     historical_data <- mtcars[1:22,]
     new_data <- mtcars[23:32,]
@@ -218,4 +216,4 @@ test_that("PentaModel fails because role_pk is defined but doesn't exist in new_
     # Give sugeestion of nullfing role_pk
 })
 
-
+testthat::teardown(test_env <- NULL)
