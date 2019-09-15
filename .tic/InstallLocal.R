@@ -23,6 +23,7 @@ InstallLocal <- R6::R6Class(
                 force = FALSE,
                 build = FALSE,
                 build_opts = "--no-multiarch --with-keep.source --no-build-vignettes",
+                Ncpus = parallel::detectCores(),
                 repos = "https://cloud.r-project.org"
             )
         }
