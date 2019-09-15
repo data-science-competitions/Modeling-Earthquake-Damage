@@ -29,7 +29,16 @@ after_script: R -q -e 'tic::after_script()'
 
 # Header
 language: r
-r: rocker/tidyverse:3.5.3
+r: 3.5.3
+r_packages:
+  - covr
+  - desc
+  - devtools
+  - roxygen2
+  - testthat
+  - tidyverse
+repos:
+  CRAN: https://mran.microsoft.com/snapshot/2019-04-15
 sudo: false
 dist: xenial
 cache: packages
