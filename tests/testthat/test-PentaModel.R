@@ -109,32 +109,10 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
 # })
 
 # Unsuccessful Modeling Process -------------------------------------------
-test_that("PentaModel fails due to missing input arguments / files", {
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-
-    ## No model path
-    expect_error(PentaModel$new())
-    ## No model components in model path
-    expect_error(PentaModel$new(path = model_path))
-    ## Invalid component
-    .create_invalid_mock_pentamodel(model_path)
-    expect_error(PentaModel$new(path = model_path))
-})
-
 test_that("PentaModel prompts an error when model_fit has no historical_data", {
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
-    expect_silent(mdl <- PentaModel$new(path = model_path))
-
-    historical_data <- mtcars[1:22,]
-    new_data <- mtcars[23:32,]
-    mdl_object <- lm(mpg ~ ., historical_data)
-    y_hat <- predict(mdl_object, new_data)
-
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    mdl$set_historical_data(NULL)
     expect_error(mdl$model_fit())
 })
 
@@ -145,32 +123,25 @@ test_that("PentaModel prompts an error when model_fit has role_input defined but
     # expect_error(mdl$model_fit())
 })
 
-
-test_that("PentaModel promts an error when model_predict has no model/new_data", {
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
-    expect_silent(mdl <- PentaModel$new(path = model_path))
-
-    historical_data <- mtcars[1:22,]
-    new_data <- mtcars[23:32,]
-    mdl_object <- lm(mpg ~ ., historical_data)
-
+test_that("PentaModel promts an error when model_predict has no new_data", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    mdl$set_new_data(NULL)
     expect_error(mdl$model_predict())
+})
 
-    expect_null(mdl$set_new_data(new_data))
+test_that("PentaModel promts an error when model_predict has no model", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
     expect_error(mdl$model_predict())
 })
 
 test_that("PentaModel prompts an error when model_fit has no formula", {
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
-    expect_silent(mdl <- PentaModel$new(path = model_path))
+    attach(test_env)
+    mdl <- valid_mdl$clone()
 
-    mdl$set_historical_data(mtcars[1:22,])
+    mdl$set_role_input(NULL)
+    mdl$set_role_target(NULL)
     expect_error(mdl$model_fit())
 
     mdl$set_role_input("mpg")
@@ -181,21 +152,15 @@ test_that("PentaModel prompts an error when model_fit has no formula", {
 })
 
 test_that("PentaModel model_predict outputs fewer predictions than there are in the new_data", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
     na.action <- getOption("na.action")
     on.exit(options(na.action = na.action))
-    model_name <- "mockModel"
-    model_path <- file.path(.get_temp_dir(), model_name)
-    .delete_and_create_dir(model_path)
-    .create_valid_mock_pentamodel(model_path)
-    expect_silent(mdl <- PentaModel$new(path = model_path))
 
-    historical_data <- mtcars[1:22,]
     new_data <- mtcars[23:32,]
     new_data[1, 2] <- NA
-    mdl_object <- lm(mpg ~ ., historical_data)
-
-    expect_null(mdl$set_new_data(new_data))
-    expect_null(mdl$set_model(mdl_object))
+    mdl$set_new_data(new_data)
+    expect_null(mdl$model_fit())
 
     options(na.action = "na.pass")
     expect_error(mdl$model_predict())
@@ -206,6 +171,20 @@ test_that("PentaModel model_predict outputs fewer predictions than there are in 
 
 test_that("PentaModel fails because role_pk is defined but doesn't exist in new_data", {
     # Give sugeestion of nullfing role_pk
+})
+
+test_that("PentaModel fails due to missing input arguments / files", {
+    model_name <- "invalidMockModel"
+    model_path <- file.path(.get_temp_dir(), model_name)
+    .delete_and_create_dir(model_path)
+
+    ## No model path
+    expect_error(PentaModel$new())
+    ## No model components in model path
+    expect_error(PentaModel$new(path = model_path))
+    ## Invalid component
+    .create_invalid_mock_pentamodel(model_path)
+    expect_error(PentaModel$new(path = model_path))
 })
 
 testthat::teardown(test_env <- NULL)
