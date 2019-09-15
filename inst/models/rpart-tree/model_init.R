@@ -23,5 +23,9 @@ model_init <- function(){
         sapply(x, .minmax, lb = lb, ub = ub)
     }
 
+    # Parameters --------------------------------------------------------------
+    rpart_control <- rpart::rpart.control(maxdepth = 3, minsplit = 10, maxcompete = 2)
+    assign("rpart_control", rpart_control, envir = parent.frame())
+
     return(invisible())
 }
