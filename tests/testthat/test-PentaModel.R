@@ -2,24 +2,24 @@ context("unit test for PentaModel object")
 
 # Setup -------------------------------------------------------------------
 testthat::setup({
-    # assign("test_env", testthat::test_env(), envir = parent.frame())
-    #
-    # model_name <- "mockModel"
-    # model_path <- file.path(.get_temp_dir(), model_name)
-    #
-    # .delete_and_create_dir(model_path)
-    # .create_valid_mock_pentamodel(model_path)
-    #
-    # expect_silent({
-    #     mdl <- PentaModel$new(path = model_path)
-    #     mdl$set_historical_data(mtcars[1:22,])
-    #     mdl$set_new_data(mtcars[23:32,])
-    #     mdl$set_role_none("wt")
-    #     mdl$set_role_input("cyl")
-    #     mdl$set_role_target("mpg")
-    # })
-    #
-    # test_env$valid_mdl <- mdl
+    assign("test_env", testthat::test_env(), envir = parent.frame())
+
+    model_name <- "mockModel"
+    model_path <- file.path(.get_temp_dir(), model_name)
+
+    .delete_and_create_dir(model_path)
+    .create_valid_mock_pentamodel(model_path)
+
+    expect_silent({
+        mdl <- PentaModel$new(path = model_path)
+        mdl$set_historical_data(mtcars[1:22,])
+        mdl$set_new_data(mtcars[23:32,])
+        mdl$set_role_none("wt")
+        mdl$set_role_input("cyl")
+        mdl$set_role_target("mpg")
+    })
+
+    test_env$valid_mdl <- mdl
 })
 
 # Successful Modeling Process ---------------------------------------------
