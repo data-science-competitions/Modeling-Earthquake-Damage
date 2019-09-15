@@ -37,6 +37,7 @@ r_packages:
   - roxygen2
   - testthat
   - tidyverse
+# getOption("repos")
 repos:
   CRAN: https://mran.microsoft.com/snapshot/2019-04-15
 sudo: false
