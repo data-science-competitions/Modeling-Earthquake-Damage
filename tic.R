@@ -3,7 +3,7 @@ invisible(sapply(list.files("./.tic", full.names = TRUE), source))
 
 # Stage: Before Install --------------------------------------------------------
 get_stage("before_install") %>%
-    # add_step(step_install_development_tools()) %>%
+    add_step(step_install_development_tools()) %>%
     add_step(step_install_deps())
 
 # Stage: Install
