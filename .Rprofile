@@ -1,20 +1,5 @@
 .First <- function(){
     # Helper Functions --------------------------------------------------------
-    .install_package <- function(pkg){
-        is_package_installed <- function(pkg) pkg %in% rownames(utils::installed.packages())
-
-        if(is_package_installed(pkg)) return(invisible())
-
-        message("--> Installing {", pkg, "}")
-        utils::install.packages(
-            pkg,
-            repos = "https://cloud.r-project.org",
-            dependencies = TRUE
-        )
-
-        return(invisible())
-    }
-
     copy_CONFIGURATION_from_root_to_inst <- function(){
         source <- "CONFIGURATION"
         target <- file.path("inst", "CONFIGURATION")
@@ -23,19 +8,12 @@
     }
 
     # Main --------------------------------------------------------------------
-    try({ # The expectation is needed when using Travis
-        .install_package("devtools")
-        .install_package("roxygen2")
+    sink(tempfile())
+    suppressMessages(devtools::load_all(export_all = FALSE, helpers = FALSE))
+    sink()
 
-        sink(tempfile())
-        suppressMessages(devtools::document())
-        suppressMessages(devtools::load_all(export_all = FALSE, helpers = FALSE))
-        sink()
-
-        .install_package("config")
-        config::get(file = file.path(rprojroot::find_rstudio_root_file(), "CONFIGURATION"))
-        copy_CONFIGURATION_from_root_to_inst()
-    }, silent = TRUE)
+    config::get(file = file.path(rprojroot::find_rstudio_root_file(), "CONFIGURATION"))
+    copy_CONFIGURATION_from_root_to_inst()
 }
 
 .Last <- function(){
