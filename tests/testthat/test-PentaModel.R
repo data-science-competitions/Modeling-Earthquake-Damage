@@ -4,7 +4,7 @@ context("unit test for PentaModel object")
 testthat::setup({
     assign("test_env", testthat::test_env(), envir = parent.frame())
 
-    model_name <- "mockModel"
+    model_name <- "validMockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
 
     .delete_and_create_dir(model_path)
@@ -29,7 +29,7 @@ test_that("PentaModel mock is in an isolated environment", {
 })
 
 test_that("PentaModel loads model component to an isolated environment", {
-    model_name <- "mockModel"
+    model_name <- "validMockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
 
     expect_class(mdl <- PentaModel$new(path = model_path), "PentaModel")
