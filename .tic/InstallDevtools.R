@@ -15,7 +15,7 @@ InstallDevtools <- R6::R6Class(
             install_package("roxygen2")
             install_package("testthat")
             install_package("covr")
-            install_package("karthik/holepunch")
+            install_package("karthik/holepunch@6284df32b428960d151c46fff8f713383b86f748")
         }
     )
 )

@@ -40,8 +40,7 @@ install_package <- function(pkg){
         utils::install.packages(
             pkg,
             repos = "https://cloud.r-project.org",
-            dependencies = TRUE,
-            Ncpus = parallel::detectCores()
+            dependencies = TRUE
         )
     }
 
