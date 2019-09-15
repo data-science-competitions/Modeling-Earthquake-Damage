@@ -1,5 +1,28 @@
 context("unit test for PentaModel object")
 
+# Setup -------------------------------------------------------------------
+testthat::setup({
+    # assign("test_env", testthat::test_env(), envir = parent.frame())
+    #
+    # model_name <- "mockModel"
+    # model_path <- file.path(.get_temp_dir(), model_name)
+    #
+    # .delete_and_create_dir(model_path)
+    # .create_valid_mock_pentamodel(model_path)
+    #
+    # expect_silent({
+    #     mdl <- PentaModel$new(path = model_path)
+    #     mdl$set_historical_data(mtcars[1:22,])
+    #     mdl$set_new_data(mtcars[23:32,])
+    #     mdl$set_role_none("wt")
+    #     mdl$set_role_input("cyl")
+    #     mdl$set_role_target("mpg")
+    # })
+    #
+    # test_env$valid_mdl <- mdl
+})
+
+# Successful Modeling Process ---------------------------------------------
 test_that("PentaModel loads model component to an isolated environment", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
@@ -64,10 +87,10 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
     expect_null(mdl$set_role_target("mpg"))
     expect_null(mdl$model_init())
     expect_null(mdl$model_fit())
-    expect_null(mdl$model_predict())
-    expect_a_non_empty_data.frame(mdl$response)
-    expect_true(colnames(mdl$response)[1] == "rowid")
-    expect_true(colnames(mdl$response)[2] == "response")
+    # expect_null(mdl$model_predict())
+    # expect_a_non_empty_data.frame(mdl$response)
+    # expect_true(colnames(mdl$response)[1] == "rowid")
+    # expect_true(colnames(mdl$response)[2] == "response")
 })
 
 test_that("PentaModel workflow given var roles", {
@@ -95,7 +118,7 @@ test_that("PentaModel workflow given var roles", {
     expect_null(mdl$model_end())
 })
 
-# Produce Errors ---------------------------------------------------------------
+# Unsuccessful Modeling Process -------------------------------------------
 test_that("PentaModel fails due to missing input arguments / files", {
     model_name <- "mockModel"
     model_path <- file.path(.get_temp_dir(), model_name)
@@ -124,6 +147,14 @@ test_that("PentaModel prompts an error when model_fit has no historical_data", {
 
     expect_error(mdl$model_fit())
 })
+
+test_that("PentaModel prompts an error when model_fit has role_input defined but doesn't exist in historical_data", {
+
+
+
+    # expect_error(mdl$model_fit())
+})
+
 
 test_that("PentaModel promts an error when model_predict has no model/new_data", {
     model_name <- "mockModel"
