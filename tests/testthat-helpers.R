@@ -120,10 +120,10 @@ expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c
     suppressWarnings({
         if(!require(package, character.only = TRUE)){
             message("--> Installing {", package, "}")
-            utils::install.packages(package,
-                                    repos = "https://cloud.r-project.org",
-                                    dependencies = TRUE,
-                                    Ncpus = parallel::detectCores()
+            utils::install.packages(
+                package,
+                repos = "https://cloud.r-project.org",
+                dependencies = TRUE
             )
         }
     })
