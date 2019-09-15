@@ -34,6 +34,11 @@ test_set <-
 
 # Run model ---------------------------------------------------------------
 pm <- PentaModel$new(path = file.path(.Options$path_models, "rpart-tree"))
+pm$set_historical_data(train_set)
+pm$set_role_input(role_input)
+pm$set_role_target(role_target)
 
 pm$model_init()
 pm$model_fit()
+pm$model_formula
+pm$model_predict()

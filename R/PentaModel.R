@@ -76,8 +76,13 @@ PentaModel <- R6::R6Class(
 }
 
 .model_fit <- function(private){
-    .check_model_fit_input_arguments(private)
+    # .check_data_has_all_formula_components <- function(data, formula){
+    #
+    # }
 
+
+    .check_model_fit_input_arguments(private)
+    # .check_data_has_all_formula_components(data, formula)
     private$.model_object <-
         base::get("model_fit", envir = private$.env)(
             historical_data = private$.historical_data,
@@ -117,8 +122,8 @@ PentaModel <- R6::R6Class(
     if(is.null(private$.historical_data))
         stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
 
-    # if(is.null(private$.role_pk))
-    #     stop("Primary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
+    if(is.null(private$.role_pk))
+        warning("Primary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
 
     if(is.null(private$.role_input))
         stop("Input variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")

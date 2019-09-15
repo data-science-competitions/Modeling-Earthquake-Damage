@@ -49,10 +49,10 @@ plot_datasets_overview <- function(x){
     if(.is_package_installed(pkg)) return(invisible())
 
     message("--> Installing {", pkg, "}")
-    utils::install.packages(pkg,
-                            repos = "https://cloud.r-project.org",
-                            dependencies = TRUE,
-                            Ncpus = parallel::detectCores()
+    utils::install.packages(
+        pkg,
+        repos = "https://cloud.r-project.org",
+        dependencies = TRUE
     )
 
     return(invisible())
