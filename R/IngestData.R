@@ -47,8 +47,8 @@ IngestData <- R6::R6Class(
     path <- private$.path
     dir.create(path, showWarnings = FALSE, recursive = TRUE)
 
-    project <- "mockdb/db-modeling.earthquake.damage"
-    file_path <- "data.zip"
+    project <- "mockdb/db-misc"
+    file_path <- "modeling-earthquake-damage.zip"
     target <- file.path(path, file_path)
 
     if(identical(file.exists(target), FALSE)){#nocov start
