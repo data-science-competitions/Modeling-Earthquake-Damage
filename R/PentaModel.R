@@ -122,17 +122,19 @@ PentaModel <- R6::R6Class(
     if(is.null(private$.historical_data))
         stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
 
-    if(is.null(private$.role_pk))
-        warning("Primary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
+    # if(is.null(private$.role_pk))
+    #     warning("\nPrimary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
 
     if(is.null(private$.role_input))
-        stop("Input variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")
+        stop("\nInput variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")
 
     if(is.null(private$.role_target)){
-        stop("Target variable is unset;\nDid you forget to use PentaModelObj$set_role_target(<var-name>)?")
+        stop("\nTarget variable is unset;\nDid you forget to use PentaModelObj$set_role_target(<var-name>)?")
     } else if (!identical(length(private$.role_target), 1L)){
-        stop("More than one target variable are set")
+        stop("\nMore than one target variable are set")
     }
+
+    .assert_columns_are_in_table(private$.historical_data, private$.role_input)
 }
 
 .check_model_predict_input_arguments <- function(private){
@@ -175,15 +177,6 @@ PentaModel <- R6::R6Class(
 }
 
 # Low-Level Helper-Functions ---------------------------------------------------
-.assert_all_components_files_exist <- function(object){
-    assertive::assert_all_are_existing_files(object$.component_paths)
-}
-
-.assert_all_components_are_in_env <- function(object){
-    function_names_in_env <- utils::lsf.str(envir = object$.env)
-    assertive::assert_all_are_true(object$.component_names %in% function_names_in_env)
-}
-
 .remove_model_components_from_env <- function(object){
     suppressWarnings(rm(list = object$.component_names, envir = object$.env))
 }
@@ -203,4 +196,26 @@ PentaModel <- R6::R6Class(
     y <- role_target
 
     stats::formula(paste(y, "~", paste(X, collapse = " + ")))
+}
+
+# Assertions --------------------------------------------------------------
+.assert_all_components_files_exist <- function(object){
+    assertive::assert_all_are_existing_files(object$.component_paths)
+}
+
+.assert_all_components_are_in_env <- function(object){
+    function_names_in_env <- utils::lsf.str(envir = object$.env)
+    assertive::assert_all_are_true(object$.component_names %in% function_names_in_env)
+}
+
+.assert_columns_are_in_table <- function(.data, col_names){
+    if(.is_subset(col_names, colnames(.data))) return(invisible())
+    table_name <- deparse(substitute(.data))
+    table_name <- gsub("^.*\\$", "", table_name)
+    stop("\n", table_name, " doesn't contain the following columns: ", paste0(setdiff(col_names, colnames(.data)), collapse = ", "))
+}
+
+# Predicates --------------------------------------------------------------
+.is_subset <- function(x, y){
+    return(length(setdiff(x, y)) == 0)
 }

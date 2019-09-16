@@ -116,11 +116,11 @@ test_that("PentaModel prompts an error when model_fit has no historical_data", {
     expect_error(mdl$model_fit())
 })
 
-test_that("PentaModel prompts an error when model_fit has role_input defined but doesn't exist in historical_data", {
-
-
-
-    # expect_error(mdl$model_fit())
+test_that("PentaModel prompts an error when model_fit has role_input which are not in historical_data", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    mdl$set_role_input(c("hp","dummy"))
+    expect_error(mdl$model_fit())
 })
 
 test_that("PentaModel promts an error when model_predict has no new_data", {
@@ -133,6 +133,7 @@ test_that("PentaModel promts an error when model_predict has no new_data", {
 test_that("PentaModel promts an error when model_predict has no model", {
     attach(test_env)
     mdl <- valid_mdl$clone()
+    mdl$set_model(NULL)
     expect_error(mdl$model_predict())
 })
 
