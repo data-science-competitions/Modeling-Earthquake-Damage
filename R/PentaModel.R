@@ -55,6 +55,7 @@ PentaModel <- R6::R6Class(
     ),
 
     active = list(
+        model_environment = function() private$.env,
         model_name = function() private$.model_name,
         model_path = function() private$.model_path,
         model_object = function() private$.model_object,
@@ -92,6 +93,10 @@ PentaModel <- R6::R6Class(
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
     base::get("model_init", envir = private$.env)()
+
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
+
     return(invisible())
 }
 

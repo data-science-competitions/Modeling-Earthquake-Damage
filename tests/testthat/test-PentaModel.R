@@ -58,7 +58,7 @@ test_that("PentaModel model_init appends its environment to the object environme
     attach(test_env)
     mdl <- valid_mdl$clone()
     expect_null(mdl$model_init())
-
+    expect_subset("params", ls(mdl$model_environment, all.names=TRUE))
 })
 
 # model_fit ---------------------------------------------------------------
