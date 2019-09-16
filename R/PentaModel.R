@@ -125,7 +125,7 @@ PentaModel <- R6::R6Class(
         stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
 
     # if(is.null(private$.role_pk))
-    #     warning("\nPrimary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
+    #     stop("\nPrimary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
 
     if(is.null(private$.role_input))
         stop("\nInput variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")
