@@ -118,6 +118,7 @@ test_that("PentaModel prompts an error when roles overlap", {
     expect_error(valid_mdl$set_role_input(c("wt", "mpg")))
 })
 
+# Unsuccessful model_fit --------------------------------------------------
 test_that("PentaModel prompts an error when model_fit has no role_input", {
     attach(test_env)
     mdl <- valid_mdl$clone()
@@ -153,13 +154,7 @@ test_that("PentaModel prompts an error when model_fit has role_input which are n
     expect_error(mdl$model_fit())
 })
 
-test_that("PentaModel promts an error when model_predict has no new_data", {
-    attach(test_env)
-    mdl <- valid_mdl$clone()
-    mdl$set_new_data(NULL)
-    expect_error(mdl$model_predict())
-})
-
+# Unsuccessful model_predict ----------------------------------------------
 test_that("PentaModel promts an error when model_predict has no model", {
     attach(test_env)
     mdl <- valid_mdl$clone()
@@ -167,10 +162,17 @@ test_that("PentaModel promts an error when model_predict has no model", {
     expect_error(mdl$model_predict())
 })
 
-test_that("PentaModel fails because role_pk is defined but doesn't exist in new_data", {
-    # Give sugeestion of nullfing role_pk
+test_that("PentaModel promts an error when model_predict has no new_data", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    mdl$model_fit()
+    mdl$set_new_data(NULL)
+    expect_error(mdl$model_predict())
 })
 
+test_that("PentaModel prompts an error when model_predict has role_input which are not in new_data", {
+    # Give sugeestion of nullfing role_pk
+})
 
 test_that("PentaModel model_predict outputs fewer predictions than there are in the new_data", {
     attach(test_env)
