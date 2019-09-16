@@ -108,16 +108,6 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
 #     expect_null(mdl$model_end())
 # })
 
-# Unsuccessful Modeling Process -------------------------------------------
-test_that("PentaModel prompts an error when roles overlap", {
-    attach(test_env)
-    mdl <- valid_mdl$clone()
-    valid_mdl$set_role_none("wt")
-    valid_mdl$set_role_target("mpg")
-    expect_error(valid_mdl$set_role_input("wt"))
-    expect_error(valid_mdl$set_role_input(c("wt", "mpg")))
-})
-
 # Unsuccessful model_fit --------------------------------------------------
 test_that("PentaModel prompts an error when model_fit has no role_input", {
     attach(test_env)
@@ -150,7 +140,7 @@ test_that("PentaModel prompts an error when model_fit has no historical_data", {
 test_that("PentaModel prompts an error when model_fit has role_input which are not in historical_data", {
     attach(test_env)
     mdl <- valid_mdl$clone()
-    mdl$set_role_input(c("hp","dummy"))
+    mdl$set_role_input(c("hp", "dummy"))
     expect_error(mdl$model_fit())
 })
 
@@ -171,7 +161,11 @@ test_that("PentaModel promts an error when model_predict has no new_data", {
 })
 
 test_that("PentaModel prompts an error when model_predict has role_input which are not in new_data", {
-    # Give sugeestion of nullfing role_pk
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    mdl$model_fit()
+    mdl$set_role_input(c("hp", "dummy"))
+    expect_error(mdl$model_predict())
 })
 
 test_that("PentaModel model_predict outputs fewer predictions than there are in the new_data", {
@@ -190,6 +184,16 @@ test_that("PentaModel model_predict outputs fewer predictions than there are in 
 
     options(na.action = "na.exclude")
     expect_error(mdl$model_predict())
+})
+
+# Unsuccessful Modeling Process -------------------------------------------
+test_that("PentaModel prompts an error when roles overlap", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    valid_mdl$set_role_none("wt")
+    valid_mdl$set_role_target("mpg")
+    expect_error(valid_mdl$set_role_input("wt"))
+    expect_error(valid_mdl$set_role_input(c("wt", "mpg")))
 })
 
 test_that("PentaModel fails due to missing input arguments / files", {
