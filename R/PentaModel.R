@@ -204,6 +204,7 @@ PentaModel <- R6::R6Class(
     stats::formula(paste(y, "~", paste(X, collapse = " + ")))
 }
 
+#nocov start
 # Assertions --------------------------------------------------------------
 .assert_all_components_files_exist <- function(object){
     assertive::assert_all_are_existing_files(object$.component_paths)
@@ -233,4 +234,4 @@ PentaModel <- R6::R6Class(
 }
 
 .is_not_null <- function(x) isFALSE(is.null(x))
-
+#nocov end
