@@ -69,6 +69,26 @@ PentaModel <- R6::R6Class(
     return(invisible())
 }
 
+.update_formula_variables <- function(private, key, value){
+    roles <- c(".role_pk", ".role_none", ".role_input", ".role_target")
+    other_roles <- setdiff(roles, key)
+    for(other_role in other_roles)
+        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])))
+            stop("\n", paste0(intersect(value, private[[other_role]]), collapse = ", "), " already in ", other_role)
+
+    .set_private_variable(private, key, value)
+
+    try(
+        private$.model_formula <- .compose_formula(
+            role_pk = private$.role_pk,
+            role_none = private$.role_none,
+            role_input = private$.role_input,
+            role_target = private$.role_target
+        ), silent = TRUE)
+
+    return(invisible())
+}
+
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
     base::get("model_init", envir = private$.env)()
@@ -76,13 +96,8 @@ PentaModel <- R6::R6Class(
 }
 
 .model_fit <- function(private){
-    # .check_data_has_all_formula_components <- function(data, formula){
-    #
-    # }
-
-
     .check_model_fit_input_arguments(private)
-    # .check_data_has_all_formula_components(data, formula)
+
     private$.model_object <-
         base::get("model_fit", envir = private$.env)(
             historical_data = private$.historical_data,
@@ -104,42 +119,59 @@ PentaModel <- R6::R6Class(
     return(invisible())
 }
 
-.update_formula_variables <- function(private, key, value){
-    .set_private_variable(private, key, value)
-
-    try(
-        private$.model_formula <- .compose_formula(
-            role_pk = private$.role_pk,
-            role_none = private$.role_none,
-            role_input = private$.role_input,
-            role_target = private$.role_target
-        ), silent = TRUE)
-
-    return(invisible())
-}
-
+# checks ------------------------------------------------------------------
 .check_model_fit_input_arguments <- function(private){
     if(is.null(private$.historical_data))
         stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
 
-    if(is.null(private$.role_pk))
-        warning("Primary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
+    # if(is.null(private$.role_pk))
+    #     stop("\nPrimary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
 
     if(is.null(private$.role_input))
-        stop("Input variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")
+        stop("\nInput variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")
 
     if(is.null(private$.role_target)){
-        stop("Target variable is unset;\nDid you forget to use PentaModelObj$set_role_target(<var-name>)?")
+        stop("\nTarget variable is unset;\nDid you forget to use PentaModelObj$set_role_target(<var-name>)?")
     } else if (!identical(length(private$.role_target), 1L)){
-        stop("More than one target variable are set")
+        stop("\nMore than one target variable are set")
     }
+
+    .assert_columns_are_in_table(private$.historical_data, private$.role_input)
+    .assert_columns_are_in_table(private$.historical_data, private$.role_target)
 }
 
 .check_model_predict_input_arguments <- function(private){
     if(is.null(private$.new_data))
         stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
+
     if(is.null(private$.model_object))
         stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
+
+    .assert_columns_are_in_table(private$.new_data, private$.role_input)
+    .assert_columns_are_in_table(private$.new_data, private$.role_target)
+}
+
+.check_model_predict_output_arguments <- function(private){
+    if(any(is.na(private$.response)))
+        stop("model_predict produced NA values.\nSee PentaModelObj$response")
+    if(.nrecord(private$.response) != .nrecord(private$.new_data))
+        stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
+}
+
+# High-Level Helper-Functions --------------------------------------------------
+.load_model_components <- function(object){
+    .assert_all_components_files_exist(object)
+    .remove_model_components_from_env(object)
+    sapply(object$.component_paths, source, local = object$.env)
+    .assert_all_components_are_in_env(object)
+}
+
+.pack_model_predict_output_arguments <- function(private){
+    private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
+    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response)
+    colnames(private$.response) <- gsub("^private\\$\\.", "", colnames(private$.response))
+    colnames(private$.response)[1] <- private$.role_pk
+    invisible(private)
 }
 
 .add_rowid_to_new_data <- function(private){
@@ -151,39 +183,7 @@ PentaModel <- R6::R6Class(
     invisible(private)
 }
 
-.check_model_predict_output_arguments <- function(private){
-    if(any(is.na(private$.response)))
-        stop("model_predict produced NA values.\nSee PentaModelObj$response")
-    if(.nrecord(private$.response) != .nrecord(private$.new_data))
-        stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
-}
-
-.pack_model_predict_output_arguments <- function(private){
-    private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
-    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response)
-    colnames(private$.response) <- gsub("^private\\$\\.", "", colnames(private$.response))
-    colnames(private$.response)[1] <- private$.role_pk
-    invisible(private)
-}
-
-# High-Level Helper-Functions --------------------------------------------------
-.load_model_components <- function(object){
-    .assert_all_components_files_exist(object)
-    .remove_model_components_from_env(object)
-    sapply(object$.component_paths, source, local = object$.env)
-    .assert_all_components_are_in_env(object)
-}
-
 # Low-Level Helper-Functions ---------------------------------------------------
-.assert_all_components_files_exist <- function(object){
-    assertive::assert_all_are_existing_files(object$.component_paths)
-}
-
-.assert_all_components_are_in_env <- function(object){
-    function_names_in_env <- utils::lsf.str(envir = object$.env)
-    assertive::assert_all_are_true(object$.component_names %in% function_names_in_env)
-}
-
 .remove_model_components_from_env <- function(object){
     suppressWarnings(rm(list = object$.component_names, envir = object$.env))
 }
@@ -204,3 +204,35 @@ PentaModel <- R6::R6Class(
 
     stats::formula(paste(y, "~", paste(X, collapse = " + ")))
 }
+
+#nocov start
+# Assertions --------------------------------------------------------------
+.assert_all_components_files_exist <- function(object){
+    assertive::assert_all_are_existing_files(object$.component_paths)
+}
+
+.assert_all_components_are_in_env <- function(object){
+    function_names_in_env <- utils::lsf.str(envir = object$.env)
+    assertive::assert_all_are_true(object$.component_names %in% function_names_in_env)
+}
+
+.assert_columns_are_in_table <- function(.data, col_names){
+    if(.is_subset(col_names, colnames(.data))) return(invisible())
+    table_name <- deparse(substitute(.data))
+    table_name <- gsub("^.*\\$", "", table_name)
+    stop("\n", table_name, " doesn't contain the following columns: ", paste0(setdiff(col_names, colnames(.data)), collapse = ", "))
+}
+
+# Predicates --------------------------------------------------------------
+.are_disjoint_sets <- function(x, y){
+    if(is.null(x) | is.null(y)) return(FALSE)
+    return(length(intersect(x, y)) == 0)
+}
+
+.is_subset <- function(x, y){
+    if(is.null(x) | is.null(y)) return(FALSE)
+    return(length(setdiff(x, y)) == 0)
+}
+
+.is_not_null <- function(x) isFALSE(is.null(x))
+#nocov end
