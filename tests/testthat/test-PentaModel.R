@@ -109,6 +109,16 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
 # })
 
 # Unsuccessful Modeling Process -------------------------------------------
+test_that("PentaModel prompts an error when roles overlap", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    valid_mdl$set_role_none("wt")
+    valid_mdl$set_role_target("mpg")
+
+    expect_error(valid_mdl$set_role_input("wt"))
+    expect_error(valid_mdl$set_role_input(c("wt", "mpg")))
+})
+
 test_that("PentaModel prompts an error when model_fit has no historical_data", {
     attach(test_env)
     mdl <- valid_mdl$clone()

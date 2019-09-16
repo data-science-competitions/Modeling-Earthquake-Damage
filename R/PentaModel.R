@@ -105,6 +105,12 @@ PentaModel <- R6::R6Class(
 }
 
 .update_formula_variables <- function(private, key, value){
+    roles <- c(".role_pk", ".role_none", ".role_input", ".role_target")
+    other_roles <- setdiff(roles, key)
+    for(other_role in other_roles)
+        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])))
+            stop("\n", paste0(intersect(value, private[[other_role]]), collapse = ", "), " already in ", other_role)
+
     .set_private_variable(private, key, value)
 
     try(
@@ -216,6 +222,15 @@ PentaModel <- R6::R6Class(
 }
 
 # Predicates --------------------------------------------------------------
+.are_disjoint_sets <- function(x, y){
+    if(is.null(x) | is.null(y)) return(FALSE)
+    return(length(intersect(x, y)) == 0)
+}
+
 .is_subset <- function(x, y){
+    if(is.null(x) | is.null(y)) return(FALSE)
     return(length(setdiff(x, y)) == 0)
 }
+
+.is_not_null <- function(x) isFALSE(is.null(x))
+
