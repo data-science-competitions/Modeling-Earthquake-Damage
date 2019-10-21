@@ -21,10 +21,10 @@ evaluate_model <- function(data, truth, estimate){
     # Regression Metrics
     data[, truth] <- data[, truth] %>% as.character() %>% as.numeric()
     regression_metrics <- tibble::tibble()
-    criteria <- c("rmse", "mae")
+    criteria <- c("rmse", "mae", "unknown_metric")
     for(criterion in criteria){
         command <- paste0("yardstick::", criterion, "(data, !!truth, !!estimate)")
-        regression_metric <- try(eval(expr = parse(text = command)))
+        regression_metric <- try(eval(expr = parse(text = command)), silent = TRUE)
         if("try-error" %in% class(regression_metric)) next()
         regression_metrics <- dplyr::bind_rows(regression_metrics, regression_metric)
     }
@@ -35,6 +35,6 @@ evaluate_model <- function(data, truth, estimate){
 
     # Return
     metrics <- dplyr::bind_rows(regression_metrics, classification_metrics)
-    return(metrics)
+    return(metrics %>% as.data.frame(stringsAsFactors = FALSE))
 }
 
