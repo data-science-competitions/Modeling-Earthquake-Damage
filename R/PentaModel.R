@@ -213,12 +213,16 @@ PentaModel <- R6::R6Class(
 #nocov start
 # Assertions --------------------------------------------------------------
 .assert_all_components_files_exist <- function(object){
-    assertive::assert_all_are_existing_files(object$.component_paths)
+    for(component_path in object$.component_paths)
+        if(isFALSE(file.exists(component_path)))
+            stop(component_path, " doesn't exist")
 }
 
 .assert_all_components_are_in_env <- function(object){
     function_names_in_env <- utils::lsf.str(envir = object$.env)
-    assertive::assert_all_are_true(object$.component_names %in% function_names_in_env)
+    for(component_name in object$.component_names)
+        if(isFALSE(component_name %in% function_names_in_env))
+            stop(component_name, " doesn't exist")
 }
 
 .assert_columns_are_in_table <- function(.data, col_names){
