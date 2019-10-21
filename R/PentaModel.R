@@ -173,7 +173,7 @@ PentaModel <- R6::R6Class(
 
 .pack_model_predict_output_arguments <- function(private){
     private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
-    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response)
+    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response, stringsAsFactors = FALSE)
     colnames(private$.response) <- gsub("^private\\$\\.", "", colnames(private$.response))
     colnames(private$.response)[1] <- private$.role_pk
     invisible(private)
