@@ -16,7 +16,7 @@ historical_data <-
 # Sample the Data --------------------------------------------------------------
 set.seed(1936)
 rset_obj <- sample_the_data(historical_data)
-role_pk <- "building_id" # private key
+role_pk <- "building_id"
 role_none <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_"))
 role_input <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("has_"))
 role_target <- "damage_grade"
@@ -33,6 +33,7 @@ test_set <-
 pm <- PentaModel$new(path = file.path(.Options$path_models, "rpart-tree"))
 pm$set_historical_data(train_set)
 pm$set_new_data(test_set)
+pm$set_role_pk(role_pk)
 pm$set_role_input(role_input)
 pm$set_role_target(role_target)
 
