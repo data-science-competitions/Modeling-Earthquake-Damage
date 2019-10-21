@@ -41,4 +41,8 @@ pm$model_init()
 pm$model_fit()
 pm$model_predict()
 
+# Evaluate Model ----------------------------------------------------------
+truth <- test_set %>% dplyr::select(role_pk, role_target)
+predicted <- pm$response
+
 ls(pm, all.names=TRUE)

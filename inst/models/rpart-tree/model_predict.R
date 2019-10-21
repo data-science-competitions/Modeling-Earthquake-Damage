@@ -20,5 +20,5 @@ model_predict <- function(new_data, model_object)
         y <- y * 2 + 1
     }
 
-    new_data %>% predict_function(model_object) %>% link_function()
+    data.frame(response = new_data %>% predict_function(model_object) %>% link_function())
 }
