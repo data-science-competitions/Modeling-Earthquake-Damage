@@ -42,14 +42,17 @@ pm$model_fit()
 pm$model_predict()
 
 # Evaluate Model ----------------------------------------------------------
+data <- dplyr::right_join(test_set, pm$response, by = role_pk)
 results <- evaluate_model(
-    data = dplyr::right_join(test_set, pm$response, by = role_pk),
+    data = data,
     truth = role_target,
     estimate = colnames(pm$response)[2],
     metrics = c("rmse", "mae", "rsq", "ccc")
 )
-
 print(results)
+
+# Visualisation -----------------------------------------------------------
+visualise_ccc(data, truth = role_target, estimate = colnames(pm$response)[2])
 
 # Cleanup -----------------------------------------------------------------
 ls(pm, all.names = TRUE)
