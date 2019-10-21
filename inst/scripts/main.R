@@ -42,13 +42,14 @@ pm$model_fit()
 pm$model_predict()
 
 # Evaluate Model ----------------------------------------------------------
-metrics <- evaluate_model(
+results <- evaluate_model(
     data = dplyr::right_join(test_set, pm$response, by = role_pk),
     truth = role_target,
-    estimate = colnames(pm$response)[2]
+    estimate = colnames(pm$response)[2],
+    metrics = c("rmse", "mae", "rsq", "ccc")
 )
 
-print(metrics)
+print(results)
 
 # Cleanup -----------------------------------------------------------------
 ls(pm, all.names = TRUE)

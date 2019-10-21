@@ -12,8 +12,21 @@ testthat::setup({
 # evaluate_model ----------------------------------------------------------
 test_that("evaluate_model works", {
     attach(test_env)
-    expect_silent(results <- evaluate_model(data = dataset, truth = "mpg", estimate = "mpg_copy"))
-    expect_class(results, "data.frame")
+
+    # Some known metrics
+    metrics <- c("rmse", "mae", "unknown_metric")
+    expect_silent(results <- evaluate_model(data = dataset, truth = "mpg", estimate = "mpg_copy", metrics))
+    expect_a_non_empty_data.frame(results)
     expect_table_has_col_names(results, c(".metric", ".estimator", ".estimate"))
+
+    # Only unknown metrics
+    metrics <- c("unknown_metric_1", "unknown_metric_2")
+    expect_an_empty_data.frame(evaluate_model(data = dataset, truth = "mpg", estimate = "mpg_copy", metrics))
+})
+
+test_that("evaluate_model fails because of invalid input arguments", {
+    attach(test_env)
+    # No metrics
+    expect_error(evaluate_model(data = dataset, truth = "mpg", estimate = "mpg_copy"))
 })
 

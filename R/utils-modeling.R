@@ -6,7 +6,8 @@
 #'
 #' @param data (`data.frame`) A table containing the \code{truth} and\code{estimate} columns.
 #' @param truth (`character`) The column identifier for the true results.
-#' @param estimate (`character`) The column identifier for the predictedresults.
+#' @param estimate (`character`) The column identifier for the predicted results.
+#' @param metrics (`character`) Metrics to use for the evaluation; see options at \url{https://tidymodels.github.io/yardstick/articles/metric-types.html}.
 #'
 #' @return (`data.frame`) A table with columns .metric, .estimator, and
 #'   .estimate and 1 row of values. For grouped data frames, the number of rows
@@ -15,15 +16,14 @@
 #' @family modeling utility functions
 #' @export
 #'
-evaluate_model <- function(data, truth, estimate){
+evaluate_model <- function(data, truth, estimate, metrics){
     stopifnot(all(c(truth, estimate) %in% colnames(data)))
 
     # Regression Metrics
     data[, truth] <- data[, truth] %>% as.character() %>% as.numeric()
     regression_metrics <- tibble::tibble()
-    criteria <- c("rmse", "mae", "unknown_metric")
-    for(criterion in criteria){
-        command <- paste0("yardstick::", criterion, "(data, !!truth, !!estimate)")
+    for(metric in metrics){
+        command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
         regression_metric <- try(eval(expr = parse(text = command)), silent = TRUE)
         if("try-error" %in% class(regression_metric)) next()
         regression_metrics <- dplyr::bind_rows(regression_metrics, regression_metric)
