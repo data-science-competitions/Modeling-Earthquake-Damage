@@ -45,7 +45,6 @@ pm$model_predict()
 library(yardstick)
 evaluate_model <- function(data, truth, estimate){
     stopifnot(all(c(truth, estimate) %in% colnames(data)))
-    metrics <- list()
 
     # Regression Metrics
     data[, truth] <- data[, truth] %>% as.character() %>% as.numeric()
