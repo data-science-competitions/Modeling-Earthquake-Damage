@@ -42,7 +42,38 @@ pm$model_fit()
 pm$model_predict()
 
 # Evaluate Model ----------------------------------------------------------
-truth <- test_set %>% dplyr::select(role_pk, role_target)
-predicted <- pm$response
+library(yardstick)
+evaluate_model <- function(data, truth, estimate){
+    stopifnot(all(c(truth, estimate) %in% colnames(data)))
+    metrics <- list()
 
-ls(pm, all.names=TRUE)
+    # Regression Metrics
+    data[, truth] <- data[, truth] %>% as.character() %>% as.numeric()
+    regression_metrics <- tibble::tibble()
+    criteria <- c("rmse", "mae", "iic")
+    for(criterion in criteria){
+        command <- paste0("yardstick::", criterion, "(data, !!truth, !!estimate)")
+        regression_metric <- try(eval(expr = parse(text = command)))
+        if("try-error" %in% class(regression_metric)) next()
+        regression_metrics <- dplyr::bind_rows(regression_metrics, regression_metric)
+    }
+
+    # Classification Metrics
+    data[, truth] <- data[, truth] %>% as.factor()
+    classification_metrics <- tibble::tibble()
+
+    # Return
+    metrics <- dplyr::bind_rows(regression_metrics, classification_metrics)
+    return(metrics)
+}
+
+metrics <- evaluate_model(
+    data = dplyr::right_join(test_set, pm$response, by = role_pk),
+    truth = role_target,
+    estimate = colnames(pm$response)[2]
+)
+
+print(metrics)
+
+# Cleanup -----------------------------------------------------------------
+ls(pm, all.names = TRUE)
