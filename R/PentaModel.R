@@ -196,7 +196,7 @@ PentaModel <- R6::R6Class(
 .nrecord <- function(x) {
     if(isTRUE("data.frame" %in% class(x))){
         return(nrow(x))
-    } else if ("matrix" %in% isTRUE(class(x))) {
+    } else if (isTRUE("matrix" %in% class(x))) {
         return(dim(x)[1])
     } else {
         return(length(x))

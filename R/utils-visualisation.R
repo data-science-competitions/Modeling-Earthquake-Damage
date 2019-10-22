@@ -14,7 +14,7 @@
 #'
 visualise_ccc <- function(data, truth, estimate){
     graphics::par(pty = "s")
-    graphics::plot(data[, truth], data[, estimate])
+    graphics::plot(data[[truth]], data[[estimate]], xlab = "", ylab = "")
     graphics::title(
         main = "Ground Truth vs Predicted Values",
         xlab = "Ground Truth", ylab = "Predicted Values"
