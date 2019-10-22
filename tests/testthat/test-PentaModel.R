@@ -22,6 +22,15 @@ testthat::setup({
     test_env$valid_mdl <- valid_mdl
 })
 
+# General Behaviour -------------------------------------------------------
+test_that("PentaModel gives access to model environment", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+
+    # expect_null(mdl$object_to_environment(mtcars = mtcars)) # command
+    # expect_identical(mdl$object_from_environment("mtcars"), mtcars) # query
+})
+
 # Successful Modeling Process ---------------------------------------------
 test_that("PentaModel mock is in an isolated environment", {
     attach(test_env)
