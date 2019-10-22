@@ -13,3 +13,11 @@ test_that("Yardstick constructor works", {
     expect_class(Yardstick$new(data = data, truth = "mpg", estimate = "mpg_hat"), "Yardstick")
 })
 
+# metrics -----------------------------------------------------------------
+test_that("Yardstick metrics are available", {
+    attach(test_env)
+
+    expect_silent(metrics <- Yardstick$new(data = data, truth = "mpg", estimate = "mpg_hat"))
+    for(metric in c("rmse", "mae", "rsq", "ccc"))
+        expect_a_non_empty_data.frame(metrics[[metric]])
+})
