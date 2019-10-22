@@ -35,7 +35,7 @@ PentaModel <- R6::R6Class(
         set_role_none = function(value) .update_formula_variables(private, ".role_none", value),
         set_role_input = function(value) .update_formula_variables(private, ".role_input", value),
         set_role_target = function(value) .update_formula_variables(private, ".role_target", value),
-        object_to_environment = function(object) assign(x = deparse(substitute(object)), value = object, envir = private$.env)
+        object_to_environment = function(...) {assign(x = deparse(substitute(...)), value = ..., envir = private$.env); invisible()}
     ),
 
     private = list(

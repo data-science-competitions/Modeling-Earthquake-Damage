@@ -22,10 +22,16 @@ testthat::setup({
     test_env$valid_mdl <- valid_mdl
 })
 
-# General Behaviour -------------------------------------------------------
-test_that("PentaModel gives access to model environment", {
+# Store/Retrieve objects in model environment -----------------------------
+test_that("PentaModel allows to store/retrieve objects in model environment", {
     attach(test_env)
     mdl <- valid_mdl$clone()
+
+    expect_null(mdl$object_to_environment(mtcars))
+    expect_true("mtcars" %in% ls(mdl$model_environment))
+
+    # expect_null(mdl$object_to_environment("mtcars2" = mtcars))
+    # expect_true("mtcars2" %in% ls(mdl$model_environment))
 
     # expect_null(mdl$object_to_environment(mtcars = mtcars)) # command
     # expect_identical(mdl$object_from_environment("mtcars"), mtcars) # query
