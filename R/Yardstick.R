@@ -2,6 +2,8 @@
 #
 #' @title Methods for Measuring Model Performance
 #'
+#' @name Yardstick
+#'
 #' @description Encapsulate `yardstick` functions in an `R6` object.
 #'
 #' @section Constructor Arguments:
