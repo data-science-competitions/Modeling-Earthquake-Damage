@@ -2,18 +2,14 @@
 #
 #' @title Methods for Measuring Model Performance
 #'
-#' @description NA
+#' @description Encapsulate `yardstick` functions in an `R6` object.
 #'
-#' @details
-#' 1. rmse
-#' 2. xxx
+#' @section Constructor Arguments:
+#' * \code{data} (`data.frame`) A table containing the \code{truth} and\code{estimate} columns.
+#' * \code{truth} (`character`) The column identifier for the true results.
+#' * \code{estimate} (`character`) The column identifier for the predicted results.
 #'
-#' @param data (`data.frame`) A table containing the \code{truth} and\code{estimate} columns.
-#' @param truth (`character`) The column identifier for the true results.
-#' @param estimate (`character`) The column identifier for the predicted results.
-#'
-#' @return (`Yardstick`) A PentaModel API.
-#' @export
+#' @return (`Yardstick`) A Yardstick object.
 #'
 #' @seealso \url{https://tidymodels.github.io/yardstick/}
 #'
@@ -25,6 +21,9 @@
 #' metrics <- Yardstick$new(data = data, truth = mpg, estimate = mpg_hat)
 #' metrics$rmse
 #' }
+#'
+#' @import yardstick
+#' @export
 #'
 Yardstick <- R6::R6Class(
     classname = "Yardstick",
