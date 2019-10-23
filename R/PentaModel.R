@@ -96,10 +96,10 @@ PentaModel <- R6::R6Class(
 .model_init <- function(private){
     base::get("model_init", envir = private$.env)()
 
-    # Get all the obejcts in the current environment excluding the private environment
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
         assign(n, get(n, environment()), private$.env)
-
     return(invisible())
 }
 
@@ -112,6 +112,10 @@ PentaModel <- R6::R6Class(
             model_formula = private$.model_formula
         )
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 
@@ -124,12 +128,20 @@ PentaModel <- R6::R6Class(
     .check_model_predict_output_arguments(private)
     .pack_model_predict_output_arguments(private)
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 
 .model_store <- function(private){
     base::get("model_store", envir = private$.env)()
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 

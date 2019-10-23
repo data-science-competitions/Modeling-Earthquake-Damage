@@ -114,7 +114,9 @@ test_that("PentaModel fetches model_store with access to the model environment",
     mdl <- valid_mdl$clone()
     expect_null(mdl$model_init())
     expect_null(mdl$model_fit())
+
     expect_null(mdl$model_store())
+    expect_identical(mdl$object_from_environment("artifacts"), letters)
 })
 
 # model_end ---------------------------------------------------------------
