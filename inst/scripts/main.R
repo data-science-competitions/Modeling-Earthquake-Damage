@@ -40,6 +40,7 @@ pm$set_role_target(role_target)
 pm$model_init()
 pm$model_fit()
 pm$model_predict()
+pm$model_store()
 
 # Evaluate Model ----------------------------------------------------------
 data <- dplyr::right_join(test_set, pm$response, by = role_pk)
