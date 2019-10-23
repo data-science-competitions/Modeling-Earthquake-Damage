@@ -26,7 +26,7 @@ PentaModel <- R6::R6Class(
         model_init = function() .model_init(private),
         model_fit = function() .model_fit(private),
         model_predict = function() .model_predict(private),
-        model_store = function() base::get("model_store", envir = private$.env)(),
+        model_store = function() .model_store(private),
         model_end = function() base::get("model_end", envir = private$.env)(),
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
@@ -34,7 +34,9 @@ PentaModel <- R6::R6Class(
         set_role_pk = function(value) .update_formula_variables(private, ".role_pk", value),
         set_role_none = function(value) .update_formula_variables(private, ".role_none", value),
         set_role_input = function(value) .update_formula_variables(private, ".role_input", value),
-        set_role_target = function(value) .update_formula_variables(private, ".role_target", value)
+        set_role_target = function(value) .update_formula_variables(private, ".role_target", value),
+        object_to_environment = function(...) {assign(x = deparse(substitute(...)), value = ..., envir = private$.env); invisible()},
+        object_from_environment = function(...) get(x = ..., envir = private$.env)
     ),
 
     private = list(
@@ -55,6 +57,7 @@ PentaModel <- R6::R6Class(
     ),
 
     active = list(
+        model_environment = function() private$.env,
         model_name = function() private$.model_name,
         model_path = function() private$.model_path,
         model_object = function() private$.model_object,
@@ -73,7 +76,7 @@ PentaModel <- R6::R6Class(
     roles <- c(".role_pk", ".role_none", ".role_input", ".role_target")
     other_roles <- setdiff(roles, key)
     for(other_role in other_roles)
-        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])))
+        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])) & isFALSE(is.null(private[[other_role]])))
             stop("\n", paste0(intersect(value, private[[other_role]]), collapse = ", "), " already in ", other_role)
 
     .set_private_variable(private, key, value)
@@ -92,6 +95,11 @@ PentaModel <- R6::R6Class(
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
     base::get("model_init", envir = private$.env)()
+
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 
@@ -104,6 +112,10 @@ PentaModel <- R6::R6Class(
             model_formula = private$.model_formula
         )
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 
@@ -116,6 +128,20 @@ PentaModel <- R6::R6Class(
     .check_model_predict_output_arguments(private)
     .pack_model_predict_output_arguments(private)
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
+    return(invisible())
+}
+
+.model_store <- function(private){
+    base::get("model_store", envir = private$.env)()
+
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 
@@ -168,7 +194,7 @@ PentaModel <- R6::R6Class(
 
 .pack_model_predict_output_arguments <- function(private){
     private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
-    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response)
+    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response, stringsAsFactors = FALSE)
     colnames(private$.response) <- gsub("^private\\$\\.", "", colnames(private$.response))
     colnames(private$.response)[1] <- private$.role_pk
     invisible(private)
@@ -189,9 +215,9 @@ PentaModel <- R6::R6Class(
 }
 
 .nrecord <- function(x) {
-    if(isTRUE(class(x) %in% "data.frame")){
+    if(isTRUE("data.frame" %in% class(x))){
         return(nrow(x))
-    } else if (isTRUE(class(x) %in% "matrix")) {
+    } else if (isTRUE("matrix" %in% class(x))) {
         return(dim(x)[1])
     } else {
         return(length(x))
@@ -208,12 +234,16 @@ PentaModel <- R6::R6Class(
 #nocov start
 # Assertions --------------------------------------------------------------
 .assert_all_components_files_exist <- function(object){
-    assertive::assert_all_are_existing_files(object$.component_paths)
+    for(component_path in object$.component_paths)
+        if(isFALSE(file.exists(component_path)))
+            stop(component_path, " doesn't exist")
 }
 
 .assert_all_components_are_in_env <- function(object){
     function_names_in_env <- utils::lsf.str(envir = object$.env)
-    assertive::assert_all_are_true(object$.component_names %in% function_names_in_env)
+    for(component_name in object$.component_names)
+        if(isFALSE(component_name %in% function_names_in_env))
+            stop(component_name, " doesn't exist")
 }
 
 .assert_columns_are_in_table <- function(.data, col_names){

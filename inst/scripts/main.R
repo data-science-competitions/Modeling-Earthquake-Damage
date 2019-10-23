@@ -16,29 +16,44 @@ historical_data <-
 # Sample the Data --------------------------------------------------------------
 set.seed(1936)
 rset_obj <- sample_the_data(historical_data)
-role_pk <- "building_id" # private key
-role_none <- c(
-    tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_")),
-    tidyselect::vars_select(names(historical_data), dplyr::starts_with("has_"))
-)
-role_input <- names(historical_data)
+role_pk <- "building_id"
+role_none <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_"))
+role_input <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("has_"))
 role_target <- "damage_grade"
 
 train_set <-
     get_rsample_training_set(rset_obj, split = 1) %>%
-    dplyr::select(role_pk, role_input, role_target, -role_none)
+    dplyr::select(role_pk, role_input, role_target, role_none)
 
 test_set <-
     get_rsample_test_set(rset_obj, split = 1) %>%
-    dplyr::select(role_pk, role_input, role_target, -role_none)
+    dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Run model ---------------------------------------------------------------
 pm <- PentaModel$new(path = file.path(.Options$path_models, "rpart-tree"))
 pm$set_historical_data(train_set)
+pm$set_new_data(test_set)
+pm$set_role_pk(role_pk)
 pm$set_role_input(role_input)
 pm$set_role_target(role_target)
 
 pm$model_init()
 pm$model_fit()
-pm$model_formula
 pm$model_predict()
+pm$model_store()
+
+# Evaluate Model ----------------------------------------------------------
+data <- dplyr::right_join(test_set, pm$response, by = role_pk)
+results <- evaluate_model(
+    data = data,
+    truth = role_target,
+    estimate = colnames(pm$response)[2],
+    metrics = c("rmse", "mae", "rsq", "ccc")
+)
+print(results)
+
+# Visualisation -----------------------------------------------------------
+visualise_ccc(data, truth = role_target, estimate = colnames(pm$response)[2])
+
+# Cleanup -----------------------------------------------------------------
+ls(pm, all.names = TRUE)

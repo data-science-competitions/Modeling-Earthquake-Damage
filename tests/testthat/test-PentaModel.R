@@ -22,6 +22,19 @@ testthat::setup({
     test_env$valid_mdl <- valid_mdl
 })
 
+# Store/Retrieve objects in model environment -----------------------------
+test_that("PentaModel allows to store/retrieve objects in/from model environment", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+
+    # Command
+    expect_null(mdl$object_to_environment(mtcars))
+    expect_true("mtcars" %in% ls(mdl$model_environment))
+
+    # Query
+    expect_identical(mdl$object_from_environment("mtcars"), mtcars)
+})
+
 # Successful Modeling Process ---------------------------------------------
 test_that("PentaModel mock is in an isolated environment", {
     attach(test_env)
@@ -42,6 +55,28 @@ test_that("PentaModel loads model component to an isolated environment", {
     expect_false(exists("model_end"))
 })
 
+test_that("PentaModel composes variable roles into formula", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+
+    expect_null(mdl$set_role_pk(NULL))
+    expect_null(mdl$set_role_none("wt"))
+    expect_null(mdl$set_role_input("cyl"))
+    expect_null(mdl$set_role_target("mpg"))
+    expect_equal(mdl$model_formula, formula(mpg ~ cyl))
+})
+
+# model_init --------------------------------------------------------------
+test_that("PentaModel model_init appends its environment to the object environment", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    expect_null(mdl$model_init())
+    expect_subset("params", ls(mdl$model_environment, all.names=TRUE))
+})
+
+# model_fit ---------------------------------------------------------------
+
+# model_predict -----------------------------------------------------------
 test_that("PentaModel can be preset with a model object", {
     attach(test_env)
     mdl <- valid_mdl$clone()
@@ -59,17 +94,6 @@ test_that("PentaModel can be preset with a model object", {
     expect_equal(mdl$response[["response"]], y_hat %>% unname())
 })
 
-test_that("PentaModel composes variable roles into formula", {
-    attach(test_env)
-    mdl <- valid_mdl$clone()
-
-    expect_null(mdl$set_role_pk(NULL))
-    expect_null(mdl$set_role_none("wt"))
-    expect_null(mdl$set_role_input("cyl"))
-    expect_null(mdl$set_role_target("mpg"))
-    expect_equal(mdl$model_formula, formula(mpg ~ cyl))
-})
-
 test_that("PentaModel composes row ids in the absence of role_pk", {
     attach(test_env)
     mdl <- valid_mdl$clone()
@@ -81,7 +105,22 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
     expect_a_non_empty_data.frame(mdl$response)
     expect_true(colnames(mdl$response)[1] == "rowid")
     expect_true(colnames(mdl$response)[2] == "response")
+    expect_class(mdl$response$rowid, "character")
 })
+
+# model_store -------------------------------------------------------------
+test_that("PentaModel fetches model_store with access to the model environment", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    expect_null(mdl$model_init())
+    expect_null(mdl$model_fit())
+
+    expect_null(mdl$model_store())
+    expect_identical(mdl$object_from_environment("artifacts"), letters)
+})
+
+# model_end ---------------------------------------------------------------
+
 
 # test_that("PentaModel workflow given var roles", {
 #     model_name <- "mockModel"

@@ -1,32 +1,10 @@
 #' @title Prepare everything the prediction model needs
 model_init <- function(){
-    # Helper Functions ---------------------------------------------------------
-    calc_confusion_matrix <- function(actual, predicted){
-        suppressWarnings(
-            caret::confusionMatrix(
-                data = predicted %>% as.factor(),
-                reference = actual %>% as.factor()
-            )
-        )
-    }
+    params <- list()
+    params$maxdepth <- 3
+    params$minsplit <- 10
+    params$maxcompete <- 2
 
-    compose_formula <- function(role_pk = NULL, role_none = NULL, role_input, role_target){
-        X <- role_input %>% setdiff(role_none) %>% setdiff(role_pk) %>% setdiff(role_target)
-        y <- role_target
-
-        formula(paste(y, "~", paste(X, collapse = " + ")))
-    }
-
-    minmax <- function(x, lb, ub) {
-        stopifnot(lb < ub)
-        .minmax <- function(x, lb, ub) min(ub, max(x, lb))
-        sapply(x, .minmax, lb = lb, ub = ub)
-    }
-
-    # Parameters --------------------------------------------------------------
-    rpart_control <- rpart::rpart.control(maxdepth = 3, minsplit = 10, maxcompete = 2)
-
-    # Return ------------------------------------------------------------------
-    for(n in ls(environment(), all.names=TRUE)) assign(n, get(n, environment()), parent.frame())
+    assign('params', params, parent.frame())
     return(invisible())
 }
