@@ -66,9 +66,9 @@ expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c
 
     try({
         sink(tempfile())
+        on.exit(sink())
         suppressMessages(devtools::document())
         suppressMessages(devtools::load_all(export_all = FALSE, helpers = FALSE))
-        sink()
     })
     invisible()
 }
