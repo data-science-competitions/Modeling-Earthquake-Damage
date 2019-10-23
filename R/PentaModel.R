@@ -76,7 +76,7 @@ PentaModel <- R6::R6Class(
     roles <- c(".role_pk", ".role_none", ".role_input", ".role_target")
     other_roles <- setdiff(roles, key)
     for(other_role in other_roles)
-        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])))
+        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])) & isFALSE(is.null(private[[other_role]])))
             stop("\n", paste0(intersect(value, private[[other_role]]), collapse = ", "), " already in ", other_role)
 
     .set_private_variable(private, key, value)
