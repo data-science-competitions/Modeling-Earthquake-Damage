@@ -26,7 +26,7 @@ PentaModel <- R6::R6Class(
         model_init = function() .model_init(private),
         model_fit = function() .model_fit(private),
         model_predict = function() .model_predict(private),
-        model_store = function() base::get("model_store", envir = private$.env)(),
+        model_store = function() .model_store(private),
         model_end = function() base::get("model_end", envir = private$.env)(),
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
@@ -76,7 +76,7 @@ PentaModel <- R6::R6Class(
     roles <- c(".role_pk", ".role_none", ".role_input", ".role_target")
     other_roles <- setdiff(roles, key)
     for(other_role in other_roles)
-        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])))
+        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])) & isFALSE(is.null(private[[other_role]])))
             stop("\n", paste0(intersect(value, private[[other_role]]), collapse = ", "), " already in ", other_role)
 
     .set_private_variable(private, key, value)
@@ -96,9 +96,10 @@ PentaModel <- R6::R6Class(
 .model_init <- function(private){
     base::get("model_init", envir = private$.env)()
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
         assign(n, get(n, environment()), private$.env)
-
     return(invisible())
 }
 
@@ -111,6 +112,10 @@ PentaModel <- R6::R6Class(
             model_formula = private$.model_formula
         )
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 
@@ -123,6 +128,20 @@ PentaModel <- R6::R6Class(
     .check_model_predict_output_arguments(private)
     .pack_model_predict_output_arguments(private)
 
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
+    return(invisible())
+}
+
+.model_store <- function(private){
+    base::get("model_store", envir = private$.env)()
+
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$.env)
     return(invisible())
 }
 

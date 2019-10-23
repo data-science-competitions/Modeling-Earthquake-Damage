@@ -66,9 +66,9 @@ expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c
 
     try({
         sink(tempfile())
+        on.exit(sink())
         suppressMessages(devtools::document())
         suppressMessages(devtools::load_all(export_all = FALSE, helpers = FALSE))
-        sink()
     })
     invisible()
 }
@@ -199,7 +199,7 @@ expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c
     writeLines("model_init <- function(){params <- 1:3; assign('params', params, parent.frame()); return()}", file.path(path, "model_init.R"))
     writeLines("model_fit <- function(historical_data, model_formula) lm(model_formula, historical_data)", file.path(path, "model_fit.R"))
     writeLines("model_predict <- function(new_data, model_object) predict(model_object, new_data, na.action = .Options$na.action)", file.path(path, "model_predict.R"))
-    writeLines("model_store <- function() NULL", file.path(path, "model_store.R"))
+    writeLines("model_store <- function() assign('artifacts', letters, parent.frame())", file.path(path, "model_store.R"))
     writeLines("model_end <- function() NULL", file.path(path, "model_end.R"))
 }
 

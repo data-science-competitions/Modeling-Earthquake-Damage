@@ -108,6 +108,20 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
     expect_class(mdl$response$rowid, "character")
 })
 
+# model_store -------------------------------------------------------------
+test_that("PentaModel fetches model_store with access to the model environment", {
+    attach(test_env)
+    mdl <- valid_mdl$clone()
+    expect_null(mdl$model_init())
+    expect_null(mdl$model_fit())
+
+    expect_null(mdl$model_store())
+    expect_identical(mdl$object_from_environment("artifacts"), letters)
+})
+
+# model_end ---------------------------------------------------------------
+
+
 # test_that("PentaModel workflow given var roles", {
 #     model_name <- "mockModel"
 #     model_path <- file.path(.get_temp_dir(), model_name)
