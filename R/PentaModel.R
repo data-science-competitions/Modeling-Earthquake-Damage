@@ -265,4 +265,23 @@ PentaModel <- R6::R6Class(
 }
 
 .is_not_null <- function(x) isFALSE(is.null(x))
+
+
+# Shared Environment CRUD API ---------------------------------------------
+.create_shared_env <- function(){
+    invisible()
+}
+
+.read_shared_env <- function(){
+    invisible()
+}
+
+.update_shared_env <- function(){
+    invisible()
+}
+
+.delete_shared_env <- function(){
+    invisible()
+}
+
 #nocov end
