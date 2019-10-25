@@ -266,21 +266,46 @@ PentaModel <- R6::R6Class(
 
 .is_not_null <- function(x) isFALSE(is.null(x))
 
-
 # Shared Environment CRUD API ---------------------------------------------
-.create_shared_env <- function(){
+#' @title Create Object in Shared Evnironment
+#' @param key (`character`) The name of the object.
+#' @param value (`?`) The object.
+#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @family Shared Environment CRUD API
+#' @keywords internal
+#' @noRd
+.create_shared_env <- function(key, value){
+    stopifnot(is.character(key))
+    assign(key, value, envir = shared_env)
     invisible()
 }
 
-.read_shared_env <- function(){
+#' @title Read Object from Shared Evnironment
+#' @inheritParams .create_shared_env
+#' @return The queried object.
+#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @family Shared Environment CRUD API
+#' @noRd
+.read_shared_env <- function(key){
+    stopifnot(is.character(key))
+    get(key, envir = shared_env)
+}
+
+#' @title Update Object Within Shared Evnironment
+#' @inheritParams .create_shared_env
+#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @family Shared Environment CRUD API
+#' @noRd
+.update_shared_env <- function(key, value){
     invisible()
 }
 
-.update_shared_env <- function(){
-    invisible()
-}
-
-.delete_shared_env <- function(){
+#' @title Update Object Within Shared Evnironment
+#' @inheritParams .create_shared_env
+#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @family Shared Environment CRUD API
+#' @noRd
+.delete_shared_env <- function(key){
     invisible()
 }
 
