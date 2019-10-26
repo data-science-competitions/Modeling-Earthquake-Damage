@@ -45,4 +45,4 @@ test_that("CRUD deletes an object", {
     expect_silent(.delete_shared_env(key_without_value))
 })
 
-# reading non existing object
+testthat::teardown(test_env <- NULL)
