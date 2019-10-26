@@ -29,7 +29,7 @@ PentaModel <- R6::R6Class(
         model_predict = function() .model_predict(private),
         model_store = function() .model_store(private),
         model_end = function() base::get("model_end", envir = private$shared_env)(),
-        set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
+        set_historical_data = function(value) .set_shared_object("historical_data", value, private$shared_env),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
         set_role_pk = function(value) .update_formula_variables(private, "role_pk", value),
@@ -49,7 +49,6 @@ PentaModel <- R6::R6Class(
         .model_object = NULL,
         .model_formula = NULL,
         .response = NULL,
-        .historical_data = NULL,
         .new_data = NULL
     ),
 
@@ -112,7 +111,7 @@ PentaModel <- R6::R6Class(
     model_fit <- base::get("model_fit", envir = private$shared_env)
 
     private$.model_object <- model_fit(
-        historical_data = private$.historical_data,
+        historical_data = private$shared_env$historical_data,
         model_formula = private$.model_formula
     )
 
@@ -152,7 +151,7 @@ PentaModel <- R6::R6Class(
 
 # checks ------------------------------------------------------------------
 .check_model_fit_input_arguments <- function(private){
-    if(is.null(private$.historical_data))
+    if(is.null(private$shared_env$historical_data))
         stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
 
     if(is.null(private$shared_env$role_input))
@@ -164,8 +163,8 @@ PentaModel <- R6::R6Class(
     if(length(private$shared_env$role_target) > 1)
         stop("\nMore than one target variable are set")
 
-    .assert_columns_are_in_table(private$.historical_data, private$shared_env$role_input)
-    .assert_columns_are_in_table(private$.historical_data, private$shared_env$role_target)
+    .assert_columns_are_in_table(private$shared_env$historical_data, private$shared_env$role_input)
+    .assert_columns_are_in_table(private$shared_env$historical_data, private$shared_env$role_target)
 }
 
 .check_model_predict_input_arguments <- function(private){
