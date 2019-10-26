@@ -17,8 +17,6 @@ PentaModel <- R6::R6Class(
         ## Public Methods
         initialize = function(path)
         {
-            private$.model_name <- basename(path)
-
             .set_shared_object("model_path", path, private$shared_env)
             .set_shared_object("model_name", basename(path), private$shared_env)
 
@@ -46,14 +44,13 @@ PentaModel <- R6::R6Class(
         shared_env = new.env(),
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
         .component_paths = character(0),
-        .model_name = character(0),
         .model_object = NULL,
         .model_formula = NULL
     ),
 
     active = list(
         model_environment = function() private$shared_env,
-        model_name = function() private$.model_name,
+        model_name = function() private$shared_env$model_name,
         model_path = function() private$shared_env$model_path,
         model_object = function() private$.model_object,
         model_formula = function() private$.model_formula,
