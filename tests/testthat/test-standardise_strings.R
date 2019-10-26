@@ -1,4 +1,4 @@
-context("unit tests for standardise_strings")
+context("unit test for standardise_strings")
 
 # standardise_strings ----------------------------------------------------------
 test_that("standardise_strings fails when given invalid input arguments", {

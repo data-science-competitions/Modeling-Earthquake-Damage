@@ -1,4 +1,4 @@
-context("unit test utils-modeling")
+context("unit test for utils-modeling")
 
 # Setup -------------------------------------------------------------------
 testthat::setup({

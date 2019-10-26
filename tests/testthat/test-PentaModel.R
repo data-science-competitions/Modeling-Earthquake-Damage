@@ -1,4 +1,4 @@
-context("unit test for PentaModel object")
+context("unit test for PentaModel")
 
 # Setup -------------------------------------------------------------------
 testthat::setup({
