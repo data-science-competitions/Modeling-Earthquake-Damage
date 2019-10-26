@@ -12,6 +12,7 @@
 #'
 PentaModel <- R6::R6Class(
     classname = "PentaModel",
+    cloneable = FALSE,
     public = list(
         ## Public Methods
         initialize = function(path, env = as.environment(-1))
