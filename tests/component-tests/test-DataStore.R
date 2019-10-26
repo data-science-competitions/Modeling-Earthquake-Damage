@@ -1,4 +1,4 @@
-context("component test for DataStore object")
+context("component test for DataStore")
 
 testthat::setup({
     assign("test_env", testthat::test_env(), envir = parent.frame())
