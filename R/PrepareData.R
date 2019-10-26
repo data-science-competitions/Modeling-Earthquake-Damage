@@ -24,9 +24,7 @@ PrepareData <- R6::R6Class(
 
         # Private Methods ------------------------------------------------------
         import_data.frames_from_Ingest = function() .import_data.frames_from_Ingest(private),
-        cast_data = function() .cast_data(private),
-        clean_data = function() .clean_data(private),
-        enrich_data = function() .enrich_data(private)
+        cast_data = function() .cast_data(private)
     ),
 
     active = list(
@@ -38,7 +36,6 @@ PrepareData <- R6::R6Class(
 
 # Private Methods: High-level Functions ----------------------------------------
 .cast_data <- function(private){
-    message("-> Casting Data")
     starts_with_has <- function(.data) .data %>% colnames() %>% stringr::str_detect("^has_") %>% which()
 
     table <- dplyr::bind_rows(train = private$.historical_data, test = private$.new_data, .id = "Source")
@@ -70,15 +67,5 @@ PrepareData <- R6::R6Class(
     private$.historical_data <- table %>% dplyr::filter(Source == "train") %>% dplyr::select(-Source)
     private$.new_data <- table %>% dplyr::filter(Source == "test") %>% dplyr::select(-Source)
 
-    invisible(private)
-}
-
-.clean_data <- function(private){
-    message("-> Cleaning Data")
-    invisible(private)
-}
-
-.enrich_data <- function(private){
-    message("-> Enriching Data")
     invisible(private)
 }
