@@ -1,3 +1,5 @@
+# Ingest ------------------------------------------------------------------
+#nocov start
 #' @title Data Ingestion Interface for Non-Real-Time Analytic Applications
 #'
 #' @description Data ingestion is the process used to load data records from one
@@ -47,9 +49,9 @@ Ingest <- R6::R6Class(
     cloneable = FALSE,
     lock_objects = FALSE,
     public = list(
-        # Public Variables -----------------------------------------------------
+        # Public Variables
 
-        # Public Methods -------------------------------------------------------
+        # Public Methods
         initialize = function(path = getOption("path_dropzone", default = tempdir()))
         {
             message("Ingesting Data")
@@ -59,13 +61,13 @@ Ingest <- R6::R6Class(
         }),
 
     private = list(
-        # Private Variables ----------------------------------------------------
+        # Private Variables
         .path = character(0),
-        .historical_data = data.frame(),
-        .new_data = data.frame(),
-        .submission_format = data.frame(),
+        .historical_data = tibble::tibble(),
+        .new_data = tibble::tibble(),
+        .submission_format = tibble::tibble(),
 
-        # Private Methods ------------------------------------------------------
+        # Private Methods
         pull_data = function() invisible(private),
         import_data = function() invisible(private)
     ),
@@ -76,3 +78,9 @@ Ingest <- R6::R6Class(
         submission_format = function() private$.submission_format
     )
 )#end Ingest
+
+# Shared Helper Functions ------------------------------------------------------
+.download_files_from_the_internet <- function(source, target){
+    utils::download.file(source, target)
+}
+#nocov end

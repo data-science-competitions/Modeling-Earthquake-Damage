@@ -1,3 +1,5 @@
+# Prepare -----------------------------------------------------------------
+#nocov start
 #' @title Data Preparation Interface for Non-Real-Time Analytic Applications
 #'
 #' @description Data preprocessing is a data mining technique that involves
@@ -18,9 +20,9 @@ Prepare <- R6::R6Class(
     cloneable = FALSE,
     lock_objects = FALSE,
     public = list(
-        # Public Variables -----------------------------------------------------
+        # Public Variables
 
-        # Public Methods -------------------------------------------------------
+        # Public Methods
         initialize = function()
         {
             message("Instantiating ", private$.ingest)
@@ -28,20 +30,29 @@ Prepare <- R6::R6Class(
 
             message("Preparing Data")
             private$import_data.frames_from_Ingest()
+            message("-> Casting Data")
             private$cast_data()
+            message("-> Cleaning Data")
             private$clean_data()
+            message("-> Transforming Data")
+            private$transform_data()
+            message("-> Enriching Data")
             private$enrich_data()
+            message("-> Validating Data")
+            private$validate_data()
         }),
 
     private = list(
-        # Private Variables ----------------------------------------------------
-        .ingest = getOption("dataflows.ingest.abstract", "Ingest"),
+        # Private Variables
+        .ingest = "Ingest",
 
-        # Private Methods ------------------------------------------------------
+        # Private Methods
         import_data.frames_from_Ingest = function() .import_data.frames_from_Ingest(private),
         cast_data = function() invisible(private),
         clean_data = function() invisible(private),
-        enrich_data = function() invisible(private)
+        transform_data = function() invisible(private),
+        enrich_data = function() invisible(private),
+        validate_data = function() invisible(private)
     ),
 
     active = list(
@@ -51,12 +62,11 @@ Prepare <- R6::R6Class(
     )
 )#end Prepare
 
-# Helper Functions -------------------------------------------------------------
+# Shared Helper Functions ------------------------------------------------------
 #' @title Import Data Frames from Ingest to Prepare
 #' @section Operations:
-#' 1. Extract the data frames from ingest;
-#' 2. Add unique identifier (UID) for each row; and
-#' 3. Standardise column names.
+#' 1. Detect tabels in Ingest and import them to Prepare; and
+#' 2. Standardise column names.
 #' @noRd
 .import_data.frames_from_Ingest <- function(private){
     .standardise_col_names <- function(.data){
@@ -68,9 +78,11 @@ Prepare <- R6::R6Class(
         if(is.data.frame(private$.ingest[[element]])){
             private[[paste0(".", element)]] <-
                 private$.ingest[[element]] %>%
-                .standardise_col_names()
+                .standardise_col_names() %>%
+                as.data.frame(stringsAsFactors = FALSE)
         }
     }
 
     invisible(private)
 }
+#nocov end
