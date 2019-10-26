@@ -14,7 +14,13 @@ testthat::setup({
 test_that("CRUD creates a new object", {
     attach(test_env)
     expect_null(.create_shared_env(key, value))
+})
+
+test_that("CRUD reads an object", {
+    attach(test_env)
+    expect_null(.create_shared_env(key, value))
     expect_identical(.read_shared_env(key), value)
+    expect_identical(.read_shared_env(key_without_value), NULL)
 })
 
 test_that("CRUD updates a new object", {

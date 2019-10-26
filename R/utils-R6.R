@@ -27,7 +27,7 @@ utils::globalVariables("shared_env")
 .read_shared_env <- function(key){
     stopifnot(is.character(key), length(key) == 1)
     stopifnot(exists("shared_env"), is.environment(shared_env))
-    get(key, envir = shared_env)
+    tryCatch(get(key, envir = shared_env), error = function(e) invisible())
 }
 
 #' @title Update Object Within Shared Evnironment
