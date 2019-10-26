@@ -31,10 +31,10 @@ PentaModel <- R6::R6Class(
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
-        set_role_pk = function(value) .update_formula_variables(private, ".role_pk", value),
-        set_role_none = function(value) .update_formula_variables(private, ".role_none", value),
-        set_role_input = function(value) .update_formula_variables(private, ".role_input", value),
-        set_role_target = function(value) .update_formula_variables(private, ".role_target", value),
+        set_role_pk = function(value) .update_formula_variables(private, "role_pk", value),
+        set_role_none = function(value) .update_formula_variables(private, "role_none", value),
+        set_role_input = function(value) .update_formula_variables(private, "role_input", value),
+        set_role_target = function(value) .update_formula_variables(private, "role_target", value),
         object_to_environment = function(key, value) .set_shared_object(key, value, private$shared_env),
         object_from_environment = function(key) .get_shared_object(key, private$shared_env)
     ),
@@ -49,11 +49,7 @@ PentaModel <- R6::R6Class(
         .model_formula = NULL,
         .response = NULL,
         .historical_data = NULL,
-        .new_data = NULL,
-        .role_pk = NULL,
-        .role_none = NULL,
-        .role_input = NULL,
-        .role_target = NULL
+        .new_data = NULL
     ),
 
     active = list(
@@ -73,20 +69,26 @@ PentaModel <- R6::R6Class(
 }
 
 .update_formula_variables <- function(private, key, value){
-    roles <- c(".role_pk", ".role_none", ".role_input", ".role_target")
+    roles <- c("role_pk", "role_none", "role_input", "role_target")
     other_roles <- setdiff(roles, key)
-    for(other_role in other_roles)
-        if(isFALSE(.are_disjoint_sets(value, private[[other_role]])) & isFALSE(is.null(private[[other_role]])))
-            stop("\n", paste0(intersect(value, private[[other_role]]), collapse = ", "), " already in ", other_role)
 
-    .set_private_variable(private, key, value)
+    for(other_role in other_roles){
+        this_role_value <- value
+        other_role_value <- .get_shared_object(other_role, private$shared_env)
+        intersecting_values <- intersect(this_role_value, other_role_value)
+        if(is.null(intersecting_values)) next()
+        if(length(intersecting_values) == 0) next()
+        stop("\n", paste0(intersecting_values, collapse = ", "), " already in ", other_role)
+    }
+
+    .set_shared_object(key, value, private$shared_env)
 
     try(
         private$.model_formula <- .compose_formula(
-            role_pk = private$.role_pk,
-            role_none = private$.role_none,
-            role_input = private$.role_input,
-            role_target = private$.role_target
+            role_pk = .get_shared_object("role_pk", private$shared_env),
+            role_none = .get_shared_object("role_none", private$shared_env),
+            role_input = .get_shared_object("role_input", private$shared_env),
+            role_target = .get_shared_object("role_target", private$shared_env)
         ), silent = TRUE)
 
     return(invisible())
@@ -106,11 +108,12 @@ PentaModel <- R6::R6Class(
 .model_fit <- function(private){
     .check_model_fit_input_arguments(private)
 
-    private$.model_object <-
-        base::get("model_fit", envir = private$shared_env)(
-            historical_data = private$.historical_data,
-            model_formula = private$.model_formula
-        )
+    model_fit <- base::get("model_fit", envir = private$shared_env)
+
+    private$.model_object <- model_fit(
+        historical_data = private$.historical_data,
+        model_formula = private$.model_formula
+    )
 
     # Get all the objects in the current environment excluding the private
     # environment and assign them to the model environment
@@ -123,7 +126,8 @@ PentaModel <- R6::R6Class(
     .check_model_predict_input_arguments(private)
     .add_rowid_to_new_data(private)
 
-    private$.response <- base::get("model_predict", envir = private$shared_env)(new_data = private$.new_data, model_object = private$.model_object)
+    model_predict <- base::get("model_predict", envir = private$shared_env)
+    private$.response <- model_predict(new_data = private$.new_data, model_object = private$.model_object)
 
     .check_model_predict_output_arguments(private)
     .pack_model_predict_output_arguments(private)
@@ -150,20 +154,17 @@ PentaModel <- R6::R6Class(
     if(is.null(private$.historical_data))
         stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
 
-    # if(is.null(private$.role_pk))
-    #     stop("\nPrimary Key variable is unset;\nDid you forget to use PentaModelObj$set_role_pk(<var-name>)?")
-
-    if(is.null(private$.role_input))
+    if(is.null(private$shared_env$role_input))
         stop("\nInput variables are unset;\nDid you forget to use PentaModelObj$set_role_input(<var-names>)?")
 
-    if(is.null(private$.role_target)){
+    if(is.null(private$shared_env$role_target))
         stop("\nTarget variable is unset;\nDid you forget to use PentaModelObj$set_role_target(<var-name>)?")
-    } else if (!identical(length(private$.role_target), 1L)){
-        stop("\nMore than one target variable are set")
-    }
 
-    .assert_columns_are_in_table(private$.historical_data, private$.role_input)
-    .assert_columns_are_in_table(private$.historical_data, private$.role_target)
+    if(length(private$shared_env$role_target) > 1)
+        stop("\nMore than one target variable are set")
+
+    .assert_columns_are_in_table(private$.historical_data, private$shared_env$role_input)
+    .assert_columns_are_in_table(private$.historical_data, private$shared_env$role_target)
 }
 
 .check_model_predict_input_arguments <- function(private){
@@ -173,8 +174,8 @@ PentaModel <- R6::R6Class(
     if(is.null(private$.model_object))
         stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
 
-    .assert_columns_are_in_table(private$.new_data, private$.role_input)
-    .assert_columns_are_in_table(private$.new_data, private$.role_target)
+    .assert_columns_are_in_table(private$.new_data, private$shared_env$role_input)
+    .assert_columns_are_in_table(private$.new_data, private$shared_env$role_target)
 }
 
 .check_model_predict_output_arguments <- function(private){
@@ -194,16 +195,16 @@ PentaModel <- R6::R6Class(
 
 .pack_model_predict_output_arguments <- function(private){
     private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
-    private$.response <- cbind(private$.new_data[, private$.role_pk], private$.response, stringsAsFactors = FALSE)
+    private$.response <- cbind(private$.new_data[, private$shared_env$role_pk],private$.response, stringsAsFactors = FALSE)
     colnames(private$.response) <- gsub("^private\\$\\.", "", colnames(private$.response))
-    colnames(private$.response)[1] <- private$.role_pk
+    colnames(private$.response)[1] <- private$shared_env$role_pk
     invisible(private)
 }
 
 .add_rowid_to_new_data <- function(private){
-    if(is.null(private$.role_pk)){
+    if(is.null(private$shared_env$role_pk)){
         private$.new_data <-  private$.new_data %>% tibble::rownames_to_column("rowid")
-        .update_formula_variables(private, ".role_pk", "rowid")
+        .update_formula_variables(private, "role_pk", "rowid")
     }
 
     invisible(private)
