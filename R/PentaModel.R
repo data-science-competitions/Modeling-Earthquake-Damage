@@ -16,9 +16,9 @@ PentaModel <- R6::R6Class(
         ## Public Methods
         initialize = function(path, env = as.environment(-1))
         {
+            private$shared_env <- env
             private$.model_path <- path
             private$.model_name <- basename(path)
-            private$.env <- env
             private$.component_paths <- file.path(private$.model_path, paste0(private$.component_names,".R"))
 
             .load_model_components(private)
@@ -27,7 +27,7 @@ PentaModel <- R6::R6Class(
         model_fit = function() .model_fit(private),
         model_predict = function() .model_predict(private),
         model_store = function() .model_store(private),
-        model_end = function() base::get("model_end", envir = private$.env)(),
+        model_end = function() base::get("model_end", envir = private$shared_env)(),
         set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
         set_new_data = function(value) .set_private_variable(private, ".new_data", value),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
@@ -35,11 +35,12 @@ PentaModel <- R6::R6Class(
         set_role_none = function(value) .update_formula_variables(private, ".role_none", value),
         set_role_input = function(value) .update_formula_variables(private, ".role_input", value),
         set_role_target = function(value) .update_formula_variables(private, ".role_target", value),
-        object_to_environment = function(...) {assign(x = deparse(substitute(...)), value = ..., envir = private$.env); invisible()},
-        object_from_environment = function(...) get(x = ..., envir = private$.env)
+        object_to_environment = function(...) {assign(x = deparse(substitute(...)), value = ..., envir = private$shared_env); invisible()},
+        object_from_environment = function(...) get(x = ..., envir = private$shared_env)
     ),
 
     private = list(
+        shared_env = environment(),
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
         .component_paths = character(0),
         .model_name = character(0),
@@ -47,7 +48,6 @@ PentaModel <- R6::R6Class(
         .model_object = NULL,
         .model_formula = NULL,
         .response = NULL,
-        .env = environment(),
         .historical_data = NULL,
         .new_data = NULL,
         .role_pk = NULL,
@@ -57,7 +57,7 @@ PentaModel <- R6::R6Class(
     ),
 
     active = list(
-        model_environment = function() private$.env,
+        model_environment = function() private$shared_env,
         model_name = function() private$.model_name,
         model_path = function() private$.model_path,
         model_object = function() private$.model_object,
@@ -94,12 +94,12 @@ PentaModel <- R6::R6Class(
 
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
-    base::get("model_init", envir = private$.env)()
+    base::get("model_init", envir = private$shared_env)()
 
     # Get all the objects in the current environment excluding the private
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
-        assign(n, get(n, environment()), private$.env)
+        assign(n, get(n, environment()), private$shared_env)
     return(invisible())
 }
 
@@ -107,7 +107,7 @@ PentaModel <- R6::R6Class(
     .check_model_fit_input_arguments(private)
 
     private$.model_object <-
-        base::get("model_fit", envir = private$.env)(
+        base::get("model_fit", envir = private$shared_env)(
             historical_data = private$.historical_data,
             model_formula = private$.model_formula
         )
@@ -115,7 +115,7 @@ PentaModel <- R6::R6Class(
     # Get all the objects in the current environment excluding the private
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
-        assign(n, get(n, environment()), private$.env)
+        assign(n, get(n, environment()), private$shared_env)
     return(invisible())
 }
 
@@ -123,7 +123,7 @@ PentaModel <- R6::R6Class(
     .check_model_predict_input_arguments(private)
     .add_rowid_to_new_data(private)
 
-    private$.response <- base::get("model_predict", envir = private$.env)(new_data = private$.new_data, model_object = private$.model_object)
+    private$.response <- base::get("model_predict", envir = private$shared_env)(new_data = private$.new_data, model_object = private$.model_object)
 
     .check_model_predict_output_arguments(private)
     .pack_model_predict_output_arguments(private)
@@ -131,17 +131,17 @@ PentaModel <- R6::R6Class(
     # Get all the objects in the current environment excluding the private
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
-        assign(n, get(n, environment()), private$.env)
+        assign(n, get(n, environment()), private$shared_env)
     return(invisible())
 }
 
 .model_store <- function(private){
-    base::get("model_store", envir = private$.env)()
+    base::get("model_store", envir = private$shared_env)()
 
     # Get all the objects in the current environment excluding the private
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
-        assign(n, get(n, environment()), private$.env)
+        assign(n, get(n, environment()), private$shared_env)
     return(invisible())
 }
 
@@ -188,7 +188,7 @@ PentaModel <- R6::R6Class(
 .load_model_components <- function(object){
     .assert_all_components_files_exist(object)
     .remove_model_components_from_env(object)
-    sapply(object$.component_paths, source, local = object$.env)
+    sapply(object$.component_paths, source, local = object$shared_env)
     .assert_all_components_are_in_env(object)
 }
 
@@ -211,7 +211,7 @@ PentaModel <- R6::R6Class(
 
 # Low-Level Helper-Functions ---------------------------------------------------
 .remove_model_components_from_env <- function(object){
-    suppressWarnings(rm(list = object$.component_names, envir = object$.env))
+    suppressWarnings(rm(list = object$.component_names, envir = object$shared_env))
 }
 
 .nrecord <- function(x) {
@@ -240,7 +240,7 @@ PentaModel <- R6::R6Class(
 }
 
 .assert_all_components_are_in_env <- function(object){
-    function_names_in_env <- utils::lsf.str(envir = object$.env)
+    function_names_in_env <- utils::lsf.str(envir = object$shared_env)
     for(component_name in object$.component_names)
         if(isFALSE(component_name %in% function_names_in_env))
             stop(component_name, " doesn't exist")
