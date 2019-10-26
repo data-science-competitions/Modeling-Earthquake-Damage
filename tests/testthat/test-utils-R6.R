@@ -36,6 +36,7 @@ test_that("CRUD deletes an existing object", {
 
     expect_null(.create_shared_env(key, value))
     expect_null(.delete_shared_env(key))
+    expect_identical(.read_shared_env(key), NULL)
 })
 
 # reading non existing object
