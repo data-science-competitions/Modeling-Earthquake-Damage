@@ -267,6 +267,8 @@ PentaModel <- R6::R6Class(
 .is_not_null <- function(x) isFALSE(is.null(x))
 
 # Shared Environment CRUD API ---------------------------------------------
+utils::globalVariables("shared_env")
+
 #' @title Create Object in Shared Evnironment
 #' @param key (`character`) The name of the object.
 #' @param value (`?`) The object.
@@ -276,6 +278,7 @@ PentaModel <- R6::R6Class(
 #' @noRd
 .create_shared_env <- function(key, value){
     stopifnot(is.character(key))
+    stopifnot(exists("shared_env"), is.environment(shared_env))
     assign(key, value, envir = shared_env)
     invisible()
 }
@@ -288,6 +291,7 @@ PentaModel <- R6::R6Class(
 #' @noRd
 .read_shared_env <- function(key){
     stopifnot(is.character(key))
+    stopifnot(exists("shared_env"), is.environment(shared_env))
     get(key, envir = shared_env)
 }
 
@@ -296,7 +300,8 @@ PentaModel <- R6::R6Class(
 #' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
 #' @family Shared Environment CRUD API
 #' @noRd
-.update_shared_env <- function(key, value){
+.update_shared_env <- function(){
+    stopifnot(exists("shared_env"), is.environment(shared_env))
     invisible()
 }
 
@@ -305,7 +310,8 @@ PentaModel <- R6::R6Class(
 #' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
 #' @family Shared Environment CRUD API
 #' @noRd
-.delete_shared_env <- function(key){
+.delete_shared_env <- function(){
+    stopifnot(exists("shared_env"), is.environment(shared_env))
     invisible()
 }
 
