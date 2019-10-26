@@ -15,9 +15,8 @@ PentaModel <- R6::R6Class(
     cloneable = FALSE,
     public = list(
         ## Public Methods
-        initialize = function(path, env = as.environment(-1))
+        initialize = function(path)
         {
-            private$shared_env <- env
             private$.model_path <- path
             private$.model_name <- basename(path)
             private$.component_paths <- file.path(private$.model_path, paste0(private$.component_names,".R"))
@@ -41,7 +40,7 @@ PentaModel <- R6::R6Class(
     ),
 
     private = list(
-        shared_env = environment(),
+        shared_env = new.env(),
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
         .component_paths = character(0),
         .model_name = character(0),
