@@ -46,8 +46,7 @@ PentaModel <- R6::R6Class(
         .model_name = character(0),
         .model_path = character(0),
         .model_object = NULL,
-        .model_formula = NULL,
-        .response = NULL
+        .model_formula = NULL
     ),
 
     active = list(
@@ -56,7 +55,7 @@ PentaModel <- R6::R6Class(
         model_path = function() private$.model_path,
         model_object = function() private$.model_object,
         model_formula = function() private$.model_formula,
-        response = function() private$.response
+        response = function() .get_shared_object("response", private$shared_env)
     )
 )
 
@@ -125,7 +124,7 @@ PentaModel <- R6::R6Class(
     .add_rowid_to_new_data(private)
 
     model_predict <- base::get("model_predict", envir = private$shared_env)
-    private$.response <- model_predict(
+    private$shared_env$response <- model_predict(
         new_data = private$shared_env$new_data,
         model_object = private$.model_object
     )
@@ -180,9 +179,9 @@ PentaModel <- R6::R6Class(
 }
 
 .check_model_predict_output_arguments <- function(private){
-    if(any(is.na(private$.response)))
+    if(any(is.na(private$shared_env$response)))
         stop("model_predict produced NA values.\nSee PentaModelObj$response")
-    if(.nrecord(private$.response) != .nrecord(private$shared_env$new_data))
+    if(.nrecord(private$shared_env$response) != .nrecord(private$shared_env$new_data))
         stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
 }
 
@@ -197,10 +196,10 @@ PentaModel <- R6::R6Class(
 .pack_model_predict_output_arguments <- function(private){
     y_id <- private$shared_env$new_data[, private$shared_env$role_pk]
 
-    private$.response <-
-        tibble::tibble(private$.response) %>%
+    private$shared_env$response <-
+        tibble::tibble(private$shared_env$response) %>%
         tibble::add_column(rowid = y_id, .before = 0) %>%
-        dplyr::rename_all(function(colname) gsub("^private\\$\\.", "", colname)) %>%
+        dplyr::rename_all(function(colname) gsub(".*\\$", "", colname)) %>%
         dplyr::rename_at("rowid", function(.) private$shared_env$role_pk)
 
     invisible(private)
