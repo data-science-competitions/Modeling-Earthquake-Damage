@@ -35,8 +35,8 @@ PentaModel <- R6::R6Class(
         set_role_none = function(value) .update_formula_variables(private, ".role_none", value),
         set_role_input = function(value) .update_formula_variables(private, ".role_input", value),
         set_role_target = function(value) .update_formula_variables(private, ".role_target", value),
-        object_to_environment = function(...) {assign(x = deparse(substitute(...)), value = ..., envir = private$shared_env); invisible()},
-        object_from_environment = function(...) get(x = ..., envir = private$shared_env)
+        object_to_environment = function(key, value) .set_shared_object(key, value, private$shared_env),
+        object_from_environment = function(key) .get_shared_object(key, private$shared_env)
     ),
 
     private = list(
@@ -266,4 +266,17 @@ PentaModel <- R6::R6Class(
 
 .is_not_null <- function(x) isFALSE(is.null(x))
 
+# CRUD API for Shared Environment -----------------------------------------
+.set_shared_object <- function(key, value, envir){
+    stopifnot(is.character(key), length(key) == 1)
+    stopifnot(is.environment(envir))
+    assign(x = key, value = value, envir = envir)
+    invisible()
+}
+
+.get_shared_object <- function(key, envir){
+    stopifnot(is.character(key), length(key) == 1)
+    stopifnot(is.environment(envir))
+    tryCatch(get(x = key, envir = envir), error = function(e) invisible())
+}
 #nocov end

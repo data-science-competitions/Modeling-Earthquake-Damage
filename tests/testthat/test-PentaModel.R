@@ -22,13 +22,13 @@ testthat::setup({
     test_env$valid_mdl <- valid_mdl
 })
 
-# Store/Retrieve objects in model environment -----------------------------
+# Set/Get Shared Objects --------------------------------------------------
 test_that("PentaModel allows to store/retrieve objects in/from model environment", {
     attach(test_env)
     mdl <- valid_mdl$clone()
 
     # Command
-    expect_null(mdl$object_to_environment(mtcars))
+    expect_null(mdl$object_to_environment("mtcars", mtcars))
     expect_true("mtcars" %in% ls(mdl$model_environment))
 
     # Query
