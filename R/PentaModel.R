@@ -12,6 +12,7 @@
 #'
 PentaModel <- R6::R6Class(
     classname = "PentaModel",
+    cloneable = FALSE,
     public = list(
         ## Public Methods
         initialize = function(path, env = as.environment(-1))
@@ -28,8 +29,8 @@ PentaModel <- R6::R6Class(
         model_predict = function() .model_predict(private),
         model_store = function() .model_store(private),
         model_end = function() base::get("model_end", envir = private$shared_env)(),
-        set_historical_data = function(value) .set_private_variable(private, ".historical_data", value),
-        set_new_data = function(value) .set_private_variable(private, ".new_data", value),
+        set_historical_data = function(value) .set_shared_object("historical_data", value, private$shared_env),
+        set_new_data = function(value) .set_shared_object("new_data", value, private$shared_env),
         set_model = function(value) .set_private_variable(private, ".model_object", value),
         set_role_pk = function(value) .update_formula_variables(private, "role_pk", value),
         set_role_none = function(value) .update_formula_variables(private, "role_none", value),
@@ -47,9 +48,7 @@ PentaModel <- R6::R6Class(
         .model_path = character(0),
         .model_object = NULL,
         .model_formula = NULL,
-        .response = NULL,
-        .historical_data = NULL,
-        .new_data = NULL
+        .response = NULL
     ),
 
     active = list(
@@ -111,7 +110,7 @@ PentaModel <- R6::R6Class(
     model_fit <- base::get("model_fit", envir = private$shared_env)
 
     private$.model_object <- model_fit(
-        historical_data = private$.historical_data,
+        historical_data = private$shared_env$historical_data,
         model_formula = private$.model_formula
     )
 
@@ -127,7 +126,10 @@ PentaModel <- R6::R6Class(
     .add_rowid_to_new_data(private)
 
     model_predict <- base::get("model_predict", envir = private$shared_env)
-    private$.response <- model_predict(new_data = private$.new_data, model_object = private$.model_object)
+    private$.response <- model_predict(
+        new_data = private$shared_env$new_data,
+        model_object = private$.model_object
+    )
 
     .check_model_predict_output_arguments(private)
     .pack_model_predict_output_arguments(private)
@@ -151,7 +153,7 @@ PentaModel <- R6::R6Class(
 
 # checks ------------------------------------------------------------------
 .check_model_fit_input_arguments <- function(private){
-    if(is.null(private$.historical_data))
+    if(is.null(private$shared_env$historical_data))
         stop("\nhistorical_data is unset;\nDid you forget to use PentaModelObj$set_historical_data(<data-frame>)?")
 
     if(is.null(private$shared_env$role_input))
@@ -163,25 +165,25 @@ PentaModel <- R6::R6Class(
     if(length(private$shared_env$role_target) > 1)
         stop("\nMore than one target variable are set")
 
-    .assert_columns_are_in_table(private$.historical_data, private$shared_env$role_input)
-    .assert_columns_are_in_table(private$.historical_data, private$shared_env$role_target)
+    .assert_columns_are_in_table(private$shared_env$historical_data, private$shared_env$role_input)
+    .assert_columns_are_in_table(private$shared_env$historical_data, private$shared_env$role_target)
 }
 
 .check_model_predict_input_arguments <- function(private){
-    if(is.null(private$.new_data))
+    if(is.null(private$shared_env$new_data))
         stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
 
     if(is.null(private$.model_object))
         stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
 
-    .assert_columns_are_in_table(private$.new_data, private$shared_env$role_input)
-    .assert_columns_are_in_table(private$.new_data, private$shared_env$role_target)
+    .assert_columns_are_in_table(private$shared_env$new_data, private$shared_env$role_input)
+    .assert_columns_are_in_table(private$shared_env$new_data, private$shared_env$role_target)
 }
 
 .check_model_predict_output_arguments <- function(private){
     if(any(is.na(private$.response)))
         stop("model_predict produced NA values.\nSee PentaModelObj$response")
-    if(.nrecord(private$.response) != .nrecord(private$.new_data))
+    if(.nrecord(private$.response) != .nrecord(private$shared_env$new_data))
         stop("model_predict produced less/more values than in new_data.\nSee PentaModelObj$response")
 }
 
@@ -194,16 +196,22 @@ PentaModel <- R6::R6Class(
 }
 
 .pack_model_predict_output_arguments <- function(private){
-    private$.response <- as.data.frame(private$.response, stringsAsFactors = FALSE)
-    private$.response <- cbind(private$.new_data[, private$shared_env$role_pk],private$.response, stringsAsFactors = FALSE)
-    colnames(private$.response) <- gsub("^private\\$\\.", "", colnames(private$.response))
-    colnames(private$.response)[1] <- private$shared_env$role_pk
+    y_id <- private$shared_env$new_data[, private$shared_env$role_pk]
+
+    private$.response <-
+        tibble::tibble(private$.response) %>%
+        tibble::add_column(rowid = y_id, .before = 0) %>%
+        dplyr::rename_all(function(colname) gsub("^private\\$\\.", "", colname)) %>%
+        dplyr::rename_at("rowid", function(.) private$shared_env$role_pk)
+
     invisible(private)
 }
 
 .add_rowid_to_new_data <- function(private){
     if(is.null(private$shared_env$role_pk)){
-        private$.new_data <-  private$.new_data %>% tibble::rownames_to_column("rowid")
+        private$shared_env$new_data <-
+            private$shared_env$new_data %>%
+            tibble::rownames_to_column("rowid")
         .update_formula_variables(private, "role_pk", "rowid")
     }
 
