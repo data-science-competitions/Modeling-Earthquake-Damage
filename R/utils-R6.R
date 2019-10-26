@@ -29,3 +29,16 @@ utils::globalVariables("shared_env")
     stopifnot(exists("shared_env"), is.environment(shared_env))
     get(key, envir = shared_env)
 }
+
+#' @title Update Object Within Shared Evnironment
+#' @inheritParams .create_shared_env
+#' @inheritSection .create_shared_env CRUD
+#' @family Shared Environment CRUD API
+#' @keywords internal
+#' @export
+#' @noRd
+.update_shared_env <- function(key, value){
+    stopifnot(exists("shared_env"), is.environment(shared_env))
+    .create_shared_env(key, value)
+    invisible()
+}
