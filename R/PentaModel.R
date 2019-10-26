@@ -272,9 +272,10 @@ utils::globalVariables("shared_env")
 #' @title Create Object in Shared Evnironment
 #' @param key (`character`) The name of the object.
 #' @param value (`?`) The object.
-#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @section CRUD: \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
 #' @family Shared Environment CRUD API
 #' @keywords internal
+#' @export
 #' @noRd
 .create_shared_env <- function(key, value){
     stopifnot(is.character(key))
@@ -286,8 +287,10 @@ utils::globalVariables("shared_env")
 #' @title Read Object from Shared Evnironment
 #' @inheritParams .create_shared_env
 #' @return The queried object.
-#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @inheritSection .create_shared_env CRUD
 #' @family Shared Environment CRUD API
+#' @keywords internal
+#' @export
 #' @noRd
 .read_shared_env <- function(key){
     stopifnot(is.character(key))
@@ -297,8 +300,10 @@ utils::globalVariables("shared_env")
 
 #' @title Update Object Within Shared Evnironment
 #' @inheritParams .create_shared_env
-#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @inheritSection .create_shared_env CRUD
 #' @family Shared Environment CRUD API
+#' @keywords internal
+#' @export
 #' @noRd
 .update_shared_env <- function(){
     stopifnot(exists("shared_env"), is.environment(shared_env))
@@ -307,8 +312,10 @@ utils::globalVariables("shared_env")
 
 #' @title Update Object Within Shared Evnironment
 #' @inheritParams .create_shared_env
-#' @seealso \url{https://en.wikipedia.org/wiki/Create,_read,_update_and_delete}
+#' @inheritSection .create_shared_env CRUD
 #' @family Shared Environment CRUD API
+#' @keywords internal
+#' @export
 #' @noRd
 .delete_shared_env <- function(){
     stopifnot(exists("shared_env"), is.environment(shared_env))
