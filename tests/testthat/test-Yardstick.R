@@ -1,4 +1,4 @@
-context("unit test Yardstick")
+context("unit test for Yardstick")
 
 # Setup -------------------------------------------------------------------
 testthat::setup({

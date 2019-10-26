@@ -265,4 +265,5 @@ PentaModel <- R6::R6Class(
 }
 
 .is_not_null <- function(x) isFALSE(is.null(x))
+
 #nocov end

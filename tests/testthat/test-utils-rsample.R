@@ -1,4 +1,4 @@
-context("test-utils-rsample")
+context("unit test for utils-rsample")
 
 test_that("get_rsample_num_of_splits works", {
     ## Setup
