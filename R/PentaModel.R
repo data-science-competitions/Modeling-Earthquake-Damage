@@ -43,8 +43,7 @@ PentaModel <- R6::R6Class(
     private = list(
         shared_env = new.env(),
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
-        .component_paths = character(0),
-        .model_formula = NULL
+        .component_paths = character(0)
     ),
 
     active = list(
@@ -52,7 +51,7 @@ PentaModel <- R6::R6Class(
         model_name = function() private$shared_env$model_name,
         model_path = function() private$shared_env$model_path,
         model_object = function() private$shared_env$model_object,
-        model_formula = function() private$.model_formula,
+        model_formula = function() private$shared_env$model_formula,
         response = function() .get_shared_object("response", private$shared_env)
     )
 )
@@ -79,7 +78,7 @@ PentaModel <- R6::R6Class(
     .set_shared_object(key, value, private$shared_env)
 
     try(
-        private$.model_formula <- .compose_formula(
+        private$shared_env$model_formula <- .compose_formula(
             role_pk = .get_shared_object("role_pk", private$shared_env),
             role_none = .get_shared_object("role_none", private$shared_env),
             role_input = .get_shared_object("role_input", private$shared_env),
@@ -107,7 +106,7 @@ PentaModel <- R6::R6Class(
 
     private$shared_env$model_object <- model_fit(
         historical_data = private$shared_env$historical_data,
-        model_formula = private$.model_formula
+        model_formula = private$shared_env$model_formula
     )
 
     # Get all the objects in the current environment excluding the private
