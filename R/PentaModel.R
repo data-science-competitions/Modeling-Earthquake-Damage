@@ -31,7 +31,7 @@ PentaModel <- R6::R6Class(
         model_end = function() base::get("model_end", envir = private$shared_env)(),
         set_historical_data = function(value) .set_shared_object("historical_data", value, private$shared_env),
         set_new_data = function(value) .set_shared_object("new_data", value, private$shared_env),
-        set_model = function(value) .set_private_variable(private, ".model_object", value),
+        set_model = function(value) .set_shared_object("model_object", value, private$shared_env),
         set_role_pk = function(value) .update_formula_variables(private, "role_pk", value),
         set_role_none = function(value) .update_formula_variables(private, "role_none", value),
         set_role_input = function(value) .update_formula_variables(private, "role_input", value),
@@ -43,17 +43,15 @@ PentaModel <- R6::R6Class(
     private = list(
         shared_env = new.env(),
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
-        .component_paths = character(0),
-        .model_object = NULL,
-        .model_formula = NULL
+        .component_paths = character(0)
     ),
 
     active = list(
         model_environment = function() private$shared_env,
         model_name = function() private$shared_env$model_name,
         model_path = function() private$shared_env$model_path,
-        model_object = function() private$.model_object,
-        model_formula = function() private$.model_formula,
+        model_object = function() private$shared_env$model_object,
+        model_formula = function() private$shared_env$model_formula,
         response = function() .get_shared_object("response", private$shared_env)
     )
 )
@@ -80,7 +78,7 @@ PentaModel <- R6::R6Class(
     .set_shared_object(key, value, private$shared_env)
 
     try(
-        private$.model_formula <- .compose_formula(
+        private$shared_env$model_formula <- .compose_formula(
             role_pk = .get_shared_object("role_pk", private$shared_env),
             role_none = .get_shared_object("role_none", private$shared_env),
             role_input = .get_shared_object("role_input", private$shared_env),
@@ -106,9 +104,9 @@ PentaModel <- R6::R6Class(
 
     model_fit <- base::get("model_fit", envir = private$shared_env)
 
-    private$.model_object <- model_fit(
+    private$shared_env$model_object <- model_fit(
         historical_data = private$shared_env$historical_data,
-        model_formula = private$.model_formula
+        model_formula = private$shared_env$model_formula
     )
 
     # Get all the objects in the current environment excluding the private
@@ -125,7 +123,7 @@ PentaModel <- R6::R6Class(
     model_predict <- base::get("model_predict", envir = private$shared_env)
     private$shared_env$response <- model_predict(
         new_data = private$shared_env$new_data,
-        model_object = private$.model_object
+        model_object = private$shared_env$model_object
     )
 
     .check_model_predict_output_arguments(private)
@@ -170,7 +168,7 @@ PentaModel <- R6::R6Class(
     if(is.null(private$shared_env$new_data))
         stop("\nnew_data is an empty data frame.\nDid you forget to use PentaModelObj$set_new_data(.data)?")
 
-    if(is.null(private$.model_object))
+    if(is.null(private$shared_env$model_object))
         stop("\nmodel_object is an empty model.\nEither train a model with PentaModelObj$model_predict() OR preset a model with PentaModelObj$set_model(model_object)")
 
     .assert_columns_are_in_table(private$shared_env$new_data, private$shared_env$role_input)
@@ -194,12 +192,13 @@ PentaModel <- R6::R6Class(
 
 .pack_model_predict_output_arguments <- function(private){
     y_id <- private$shared_env$new_data[, private$shared_env$role_pk]
-
+    response <- private$shared_env$response
     private$shared_env$response <-
-        tibble::tibble(private$shared_env$response) %>%
+        tibble::tibble(response) %>%
         tibble::add_column(rowid = y_id, .before = 0) %>%
+        dplyr::rename_at("rowid", function(.) private$shared_env$role_pk) %>%
         dplyr::rename_all(function(colname) gsub(".*\\$", "", colname)) %>%
-        dplyr::rename_at("rowid", function(.) private$shared_env$role_pk)
+        as.data.frame(stringsAsFactors = FALSE)
 
     invisible(private)
 }
