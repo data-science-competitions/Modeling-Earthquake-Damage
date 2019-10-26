@@ -42,3 +42,16 @@ utils::globalVariables("shared_env")
     .create_shared_env(key, value)
     invisible()
 }
+
+#' @title Delete an Object Within Shared Evnironment
+#' @inheritParams .create_shared_env
+#' @inheritSection .create_shared_env CRUD
+#' @family Shared Environment CRUD API
+#' @keywords internal
+#' @export
+#' @noRd
+.delete_shared_env <- function(key){
+    stopifnot(exists("shared_env"), is.environment(shared_env))
+    rm(list = key, envir = shared_env)
+    invisible()
+}
