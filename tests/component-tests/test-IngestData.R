@@ -1,4 +1,4 @@
-context("component test for Ingest concrete class (IngestData)")
+context("component test for IngestData")
 
 test_that("IngestData implements its interface method signatures", {
     expect_class(db <- IngestData$new(), "Ingest")

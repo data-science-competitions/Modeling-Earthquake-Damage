@@ -4,10 +4,10 @@ context("unit test for utils-R6")
 testthat::setup({
     assign("test_env", testthat::test_env(), envir = parent.frame())
     test_env$shared_env <- new.env()
-    test_env$key_without_value <- "vegetable"
-    test_env$key <- "fruit"
-    test_env$value <- "Apple"
-    test_env$new_value <- "Papaya"
+    test_env$key_without_value <- "dogs"
+    test_env$key <- "cats"
+    test_env$value <- "Persian"
+    test_env$new_value <- "Sphynx"
 })
 
 # Shared Environment CRUD API ---------------------------------------------
