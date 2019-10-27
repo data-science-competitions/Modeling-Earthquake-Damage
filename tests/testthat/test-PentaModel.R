@@ -29,16 +29,36 @@ testthat::setup({
 })
 
 # Set/Get Shared Objects --------------------------------------------------
-test_that("PentaModel allows to store/retrieve objects in/from model environment", {
+test_that("PentaModel allows to store/retrieve link_function", {
     attach(test_env)
     mdl <- get_fresh_model()
 
-    # Command
-    expect_null(mdl$object_to_environment("mtcars", mtcars))
-    expect_true("mtcars" %in% ls(mdl$model_environment))
+    # Query the Default link function
+    Identity <- function(x) x
+    expect_equal(mdl$link_function, Identity)
 
-    # Query
-    expect_identical(mdl$object_from_environment("mtcars"), mtcars)
+    # Change link function
+    ReLU  <- function(x) max(0,x)
+    expect_null(mdl$set_link_function(ReLU))
+
+    # Query updated link function
+    expect_identical(mdl$link_function, ReLU)
+})
+
+test_that("PentaModel allows to store/retrieve predict_function", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+
+    # Query the Default predict function
+    generic_predict <- function(model, new_data) predict(model, new_data)
+    expect_equal(mdl$predict_function, generic_predict)
+
+    # Change predict function
+    predict_CI  <- function(model, new_data) predict(model, new_data, interval = "prediction")
+    expect_null(mdl$set_predict_function(predict_CI))
+
+    # Query updated predict function
+    expect_identical(mdl$predict_function, predict_CI)
 })
 
 # Successful Modeling Process ---------------------------------------------
@@ -117,12 +137,10 @@ test_that("PentaModel fetches model_store with access to the model environment",
     expect_null(mdl$model_fit())
 
     expect_null(mdl$model_store())
-    expect_identical(mdl$object_from_environment("artifacts"), letters)
+    expect_identical(mdl$model_environment$artifacts, letters)
 })
 
 # model_end ---------------------------------------------------------------
-
-
 # test_that("PentaModel workflow given var roles", {
 #     model_name <- "mockModel"
 #     model_path <- file.path(.get_temp_dir(), model_name)
