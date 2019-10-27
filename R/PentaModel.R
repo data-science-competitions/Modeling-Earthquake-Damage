@@ -20,9 +20,12 @@ PentaModel <- R6::R6Class(
             .set_shared_object("model_path", path, private$shared_env)
             .set_shared_object("model_name", basename(path), private$shared_env)
 
-            .set_shared_object("link_function", function(x) x, private$shared_env)
-            # .set_shared_object("predict_function", function(model, new_data) predict(model, new_data), private$shared_env)
-            #
+            identity_link <- function(x) x
+            .set_shared_object("link_function", identity_link, private$shared_env)
+
+            generic_predict <- function(model, new_data) predict(model, new_data)
+            .set_shared_object("predict_function", generic_predict, private$shared_env)
+
             private$.component_paths <- file.path(private$shared_env$model_path, paste0(private$.component_names,".R"))
 
             .load_model_components(private)
@@ -33,6 +36,7 @@ PentaModel <- R6::R6Class(
         model_store = function() .model_store(private),
         model_end = function() base::get("model_end", envir = private$shared_env)(),
         set_link_function = function(value) .set_shared_object("link_function", value, private$shared_env),
+        set_predict_function = function(value) .set_shared_object("predict_function", value, private$shared_env),
         set_historical_data = function(value) .set_shared_object("historical_data", value, private$shared_env),
         set_new_data = function(value) .set_shared_object("new_data", value, private$shared_env),
         set_model = function(value) .set_shared_object("model_object", value, private$shared_env),
@@ -55,6 +59,7 @@ PentaModel <- R6::R6Class(
         model_object = function() private$shared_env$model_object,
         model_formula = function() private$shared_env$model_formula,
         link_function = function() .get_shared_object("link_function", private$shared_env),
+        predict_function = function() .get_shared_object("predict_function", private$shared_env),
         response = function() .get_shared_object("response", private$shared_env)
     )
 )

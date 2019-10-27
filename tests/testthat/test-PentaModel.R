@@ -49,16 +49,16 @@ test_that("PentaModel allows to store/retrieve predict_function", {
     attach(test_env)
     mdl <- get_fresh_model()
 
-    # Query the Default link function
-    # predict_function <- function(model, new_data) predict(model, new_data)
-    # expect_equal(mdl$predict_function, predict_function)
+    # Query the Default predict function
+    generic_predict <- function(model, new_data) predict(model, new_data)
+    expect_equal(mdl$predict_function, generic_predict)
 
-    # Change link function
-    # ReLU  <- function(x) max(0,x)
-    # expect_null(mdl$set_link_function(ReLU))
+    # Change predict function
+    predict_CI  <- function(model, new_data) predict(model, new_data, interval = "prediction")
+    expect_null(mdl$set_predict_function(predict_CI))
 
-    # Query updated link function
-    # expect_identical(mdl$link_function, ReLU)
+    # Query updated predict function
+    expect_identical(mdl$predict_function, predict_CI)
 })
 
 # Successful Modeling Process ---------------------------------------------
