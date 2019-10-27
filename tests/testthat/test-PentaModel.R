@@ -41,6 +41,22 @@ test_that("PentaModel allows to store/retrieve objects in/from model environment
     expect_identical(mdl$object_from_environment("mtcars"), mtcars)
 })
 
+# Getters and Setters -----------------------------------------------------
+test_that("PentaModel allows to store/retrieve link_function", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+
+    # Query the Default link function
+    expect_equal(mdl$link_function, function(x) x)
+
+    # Change link function
+    ReLU  <- function(x) max(0,x)
+    expect_null(mdl$set_link_function(ReLU))
+
+    # Query updated link function
+    expect_identical(mdl$link_function, ReLU)
+})
+
 # Successful Modeling Process ---------------------------------------------
 test_that("PentaModel loads model component to an isolated environment", {
     model_name <- "validMockModel"
