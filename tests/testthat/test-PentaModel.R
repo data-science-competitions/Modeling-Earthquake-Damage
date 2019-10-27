@@ -34,7 +34,8 @@ test_that("PentaModel allows to store/retrieve link_function", {
     mdl <- get_fresh_model()
 
     # Query the Default link function
-    expect_equal(mdl$link_function, function(x) x)
+    Identity <- function(x) x
+    expect_equal(mdl$link_function, Identity)
 
     # Change link function
     ReLU  <- function(x) max(0,x)
@@ -42,6 +43,22 @@ test_that("PentaModel allows to store/retrieve link_function", {
 
     # Query updated link function
     expect_identical(mdl$link_function, ReLU)
+})
+
+test_that("PentaModel allows to store/retrieve predict_function", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+
+    # Query the Default link function
+    # predict_function <- function(model, new_data) predict(model, new_data)
+    # expect_equal(mdl$predict_function, predict_function)
+
+    # Change link function
+    # ReLU  <- function(x) max(0,x)
+    # expect_null(mdl$set_link_function(ReLU))
+
+    # Query updated link function
+    # expect_identical(mdl$link_function, ReLU)
 })
 
 # Successful Modeling Process ---------------------------------------------
@@ -124,8 +141,6 @@ test_that("PentaModel fetches model_store with access to the model environment",
 })
 
 # model_end ---------------------------------------------------------------
-
-
 # test_that("PentaModel workflow given var roles", {
 #     model_name <- "mockModel"
 #     model_path <- file.path(.get_temp_dir(), model_name)
