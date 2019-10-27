@@ -29,19 +29,6 @@ testthat::setup({
 })
 
 # Set/Get Shared Objects --------------------------------------------------
-test_that("PentaModel allows to store/retrieve objects in/from model environment", {
-    attach(test_env)
-    mdl <- get_fresh_model()
-
-    # Command
-    expect_null(mdl$object_to_environment("mtcars", mtcars))
-    expect_true("mtcars" %in% ls(mdl$model_environment))
-
-    # Query
-    expect_identical(mdl$object_from_environment("mtcars"), mtcars)
-})
-
-# Getters and Setters -----------------------------------------------------
 test_that("PentaModel allows to store/retrieve link_function", {
     attach(test_env)
     mdl <- get_fresh_model()
@@ -133,7 +120,7 @@ test_that("PentaModel fetches model_store with access to the model environment",
     expect_null(mdl$model_fit())
 
     expect_null(mdl$model_store())
-    expect_identical(mdl$object_from_environment("artifacts"), letters)
+    expect_identical(mdl$model_environment$artifacts, letters)
 })
 
 # model_end ---------------------------------------------------------------
