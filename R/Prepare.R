@@ -25,7 +25,6 @@ Prepare <- R6::R6Class(
         # Public Methods
         initialize = function()
         {
-            message("Instantiating ", private$.ingest)
             private$.ingest <- base::get(private$.ingest)$new()
 
             message("Preparing Data")
