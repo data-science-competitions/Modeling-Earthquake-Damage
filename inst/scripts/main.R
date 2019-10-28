@@ -6,6 +6,12 @@ sample_the_data <- function(.data){
         rsample::initial_split(prop = 0.7, strata = "damage_grade")
 }
 
+# Setup ------------------------------------------------------------------------
+ds <- DataStore$new()
+model_name <- c("arithmetic-mean", "rpart")[2]
+output_dir <- file.path(getOption("path_archive"), model_name)
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
 # Get the Data -----------------------------------------------------------------
 historical_data <-
     DataStore$new()$data_model %>%
@@ -30,6 +36,7 @@ test_set <-
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Run model ---------------------------------------------------------------
+
 pm <- PentaModel$new(path = file.path(.Options$path_models, "rpart-tree"))
 pm$set_historical_data(train_set)
 pm$set_new_data(test_set)
