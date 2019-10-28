@@ -18,7 +18,10 @@ model_predict <- function(new_data, model_object)
 
         y <- x %>% minmax(1, 3) %>% scale() %>% normalize()
         y <- y * 2 + 1
+
+        as.vector(y)
     }
 
-    data.frame(response = new_data %>% predict_function(model_object) %>% link_function())
+    response <- new_data %>% predict_function(model_object) %>% link_function()
+    return(response)
 }
