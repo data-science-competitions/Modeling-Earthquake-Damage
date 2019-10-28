@@ -5,6 +5,7 @@ default:
     - !expr options(path_project   = tryCatch(rprojroot::find_rstudio_root_file(), error=function(e) getwd()))
     - !expr options(path_inst      = file.path(.Options$path_project, "inst"))
     - !expr options(path_analysis  = file.path(.Options$path_inst, "analysis"))
+    - !expr options(path_archive   = file.path(.Options$path_inst, "archive"))
     - !expr options(path_scripts   = file.path(.Options$path_inst, "scripts"))
     - !expr options(path_data      = file.path(.Options$path_inst, "data"))
     - !expr options(path_docs      = file.path(.Options$path_inst, "docs"))

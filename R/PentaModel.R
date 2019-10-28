@@ -98,7 +98,8 @@ PentaModel <- R6::R6Class(
 
 # Private Methods --------------------------------------------------------------
 .model_init <- function(private){
-    base::get("model_init", envir = private$shared_env)()
+    model_init <- base::get("model_init", envir = private$shared_env)
+    model_init()
 
     # Get all the objects in the current environment excluding the private
     # environment and assign them to the model environment

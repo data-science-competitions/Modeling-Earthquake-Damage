@@ -6,9 +6,15 @@ sample_the_data <- function(.data){
         rsample::initial_split(prop = 0.7, strata = "damage_grade")
 }
 
+# Setup ------------------------------------------------------------------------
+ds <- DataStore$new()
+model_name <- c("arithmetic-mean", "rpart")[1]
+output_dir <- file.path(getOption("path_archive"), model_name)
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
 # Get the Data -----------------------------------------------------------------
 historical_data <-
-    DataStore$new()$data_model %>%
+    ds$data_model %>%
     dm::cdm_get_tables() %>%
     .$historical_data %>%
     as.data.frame(stringsAsFactors = FALSE)
@@ -30,7 +36,7 @@ test_set <-
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Run model ---------------------------------------------------------------
-pm <- PentaModel$new(path = file.path(.Options$path_models, "rpart-tree"))
+pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
 pm$set_historical_data(train_set)
 pm$set_new_data(test_set)
 pm$set_role_pk(role_pk)
@@ -43,17 +49,11 @@ pm$model_predict()
 pm$model_store()
 
 # Evaluate Model ----------------------------------------------------------
-data <- dplyr::right_join(test_set, pm$response, by = role_pk)
-results <- evaluate_model(
-    data = data,
-    truth = role_target,
-    estimate = colnames(pm$response)[2],
-    metrics = c("rmse", "mae", "rsq", "ccc")
-)
-print(results)
-
-# Visualisation -----------------------------------------------------------
-visualise_ccc(data, truth = role_target, estimate = colnames(pm$response)[2])
+truth <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth" = !!role_target)
+estimate <- pm$response %>% dplyr::rename("estimate" = "response")
+data <- dplyr::right_join(truth, estimate, by = role_pk)
+metrics <- Yardstick$new(data, "truth", estimate = "estimate")
+model_performance <- dplyr::bind_rows(metrics$rmse, metrics$mae, metrics$rsq, metrics$ccc)
 
 # Cleanup -----------------------------------------------------------------
 ls(pm, all.names = TRUE)
