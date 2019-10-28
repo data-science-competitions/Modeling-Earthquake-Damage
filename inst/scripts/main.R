@@ -8,7 +8,7 @@ sample_the_data <- function(.data){
 
 # Setup ------------------------------------------------------------------------
 ds <- DataStore$new()
-model_name <- c("arithmetic-mean", "rpart")[2]
+model_name <- c("arithmetic-mean", "rpart")[1]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
