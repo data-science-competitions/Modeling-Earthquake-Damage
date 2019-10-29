@@ -200,7 +200,7 @@ PentaModel <- R6::R6Class(
 }
 
 .pack_model_predict_output_arguments <- function(private){
-    y_id <- private$shared_env$new_data[, private$shared_env$role_pk]
+    y_id <- private$shared_env$new_data[[private$shared_env$role_pk]]
     response <- private$shared_env$response
     private$shared_env$response <-
         tibble::tibble(response) %>%
