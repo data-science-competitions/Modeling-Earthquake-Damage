@@ -202,8 +202,10 @@ PentaModel <- R6::R6Class(
 .pack_model_predict_output_arguments <- function(private){
     y_id <- private$shared_env$new_data[[private$shared_env$role_pk]]
     response <- private$shared_env$response
+    if(isFALSE(is.data.frame(response))) response <- as.data.frame(response, stringsAsFactors = FALSE)
+
     private$shared_env$response <-
-        tibble::tibble(response) %>%
+        response %>%
         tibble::add_column(rowid = y_id, .before = 0) %>%
         dplyr::rename_at("rowid", function(.) private$shared_env$role_pk) %>%
         dplyr::rename_all(function(colname) gsub(".*\\$", "", colname)) %>%
@@ -213,7 +215,12 @@ PentaModel <- R6::R6Class(
 }
 
 .add_rowid_to_new_data <- function(private){
-    if(is.null(private$shared_env$role_pk)){
+    role_pk <- is.null(private$shared_env$role_pk)
+    is_column_in_data <- function(data, column)
+        if(is.null(column)) FALSE else any(column %in% colnames(data))
+
+
+    if(!is_column_in_data(private$shared_env$new_data, role_pk)){
         private$shared_env$new_data <-
             private$shared_env$new_data %>%
             tibble::rownames_to_column("rowid")
