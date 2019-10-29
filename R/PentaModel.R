@@ -215,10 +215,8 @@ PentaModel <- R6::R6Class(
 }
 
 .add_rowid_to_new_data <- function(private){
-    role_pk <- is.null(private$shared_env$role_pk)
-    is_column_in_data <- function(data, column)
-        if(is.null(column)) FALSE else any(column %in% colnames(data))
-
+    role_pk <- private$shared_env$role_pk
+    is_column_in_data <- function(data, column) if(is.null(column)) FALSE else any(column %in% colnames(data))
 
     if(!is_column_in_data(private$shared_env$new_data, role_pk)){
         private$shared_env$new_data <-

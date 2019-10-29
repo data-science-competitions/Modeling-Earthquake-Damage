@@ -98,6 +98,24 @@ test_that("PentaModel model_init appends its environment to the object environme
 # model_fit ---------------------------------------------------------------
 
 # model_predict -----------------------------------------------------------
+test_that("PentaModel uses a given primary key", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+
+    historical_data <- mtcars[1:22,] %>% tibble::rownames_to_column("uid")
+    new_data <- mtcars[23:32,] %>% tibble::rownames_to_column("uid")
+
+    expect_null({
+        mdl$set_role_pk("uid")
+        mdl$set_historical_data(historical_data)
+        mdl$set_new_data(new_data)
+        mdl$model_fit()
+        mdl$model_predict()
+    })
+
+    expect_table_has_col_names(mdl$response, "uid")
+})
+
 test_that("PentaModel can be preset with a model object", {
     attach(test_env)
     mdl <- get_fresh_model()
