@@ -59,3 +59,12 @@ test_that("Yardstick adds attributes to results", {
     expect_table_has_col_names(results, c(".set", ".metric", ".estimator", ".estimate"))
 })
 
+# remove attributes -------------------------------------------------------
+test_that("Yardstick allows to remove attributes", {
+    attach(test_env)
+
+    expect_silent(metrics <- Yardstick$new(data = data, truth = "mpg", estimate = "mpg_hat"))
+    expect_silent(metrics$delete_label(key = ".metric"))
+    # expect_identical(metrics$keys, c(".estimator", ".estimate"))
+})
+

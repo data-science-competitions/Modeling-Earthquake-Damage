@@ -45,7 +45,8 @@ Yardstick <- R6::R6Class(
             private$.truth <- truth
             private$.estimate <- estimate
         },
-        insert_label = function(key, value) .insert_label(key, value, private)
+        insert_label = function(key, value) .insert_label(key, value, private),
+        delete_label = function(key) .delete_label(key, private)
     ),
     private = list(
         ## Private Variables
@@ -69,6 +70,11 @@ Yardstick <- R6::R6Class(
 .insert_label <- function(key, value, private){
     new_entry <- data.frame(key = key, value = value, stringsAsFactors = FALSE)
     private$.dictionary <- rbind(new_entry, private$.dictionary) %>% dplyr::distinct(key, .keep_all = TRUE)
+    invisible()
+}
+
+.delete_label <- function(key, private){
+
     invisible()
 }
 
