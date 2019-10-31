@@ -49,7 +49,7 @@ Yardstick <- R6::R6Class(
     ),
     private = list(
         ## Private Variables
-        .keys = c(".metric", ".estimator", ".estimate"),
+        .dictionary = data.frame(key = c(".metric", ".estimator", ".estimate"), value = NA_character_, stringsAsFactors = FALSE),
         .data = data.frame(stringsAsFactors = FALSE),
         .truth = character(0),
         .estimate = character(0),
@@ -57,7 +57,7 @@ Yardstick <- R6::R6Class(
         call_metric = function(metric) .call_metric(private, metric)
     ),
     active = list(
-        keys = function() private$.keys,
+        keys = function() private$.dictionary$key,
         rmse = function() private$call_metric(metric = "rmse"),
         mae = function() private$call_metric(metric = "mae"),
         rsq = function() private$call_metric(metric = "rsq"),
@@ -67,7 +67,8 @@ Yardstick <- R6::R6Class(
 
 # Public Methods ----------------------------------------------------------
 .insert_label <- function(key, value, private){
-    private$.keys <- c(key, setdiff(private$.keys, key))
+    new_entry <- data.frame(key = key, value = value, stringsAsFactors = FALSE)
+    private$.dictionary <- rbind(new_entry, private$.dictionary) %>% dplyr::distinct(key, .keep_all = TRUE)
     invisible()
 }
 
