@@ -11,6 +11,10 @@
 #' * \code{truth} (`character`) The column identifier for the true results.
 #' * \code{estimate} (`character`) The column identifier for the predicted results.
 #'
+#' @section Public Methods:
+#' * \code{insert_label}
+#' * \code{delete_label}
+#'
 #' @return (`Yardstick`) A Yardstick object.
 #'
 #' @seealso \url{https://tidymodels.github.io/yardstick/}
@@ -33,17 +37,20 @@ Yardstick <- R6::R6Class(
     lock_objects = FALSE,
     public = list(
         ## Public Methods
-        initialize = function(data, truth, estimate)
-        {
+        initialize = function(data, truth, estimate){
             is.a.character <- function(x) identical(is.character(x) & length(x) == 1, TRUE)
             stopifnot(is.data.frame(data), is.a.character(truth), is.a.character(estimate))
 
             private$.data <- data
             private$.truth <- truth
             private$.estimate <- estimate
-        }),
+        },
+        insert_label = function(key, value) .insert_label(key, value, private),
+        delete_label = function(key) .delete_label(key, private)
+    ),
     private = list(
         ## Private Variables
+        .dictionary = data.frame(key = c(".metric", ".estimator", ".estimate"), value = NA_character_, stringsAsFactors = FALSE),
         .data = data.frame(stringsAsFactors = FALSE),
         .truth = character(0),
         .estimate = character(0),
@@ -51,6 +58,7 @@ Yardstick <- R6::R6Class(
         call_metric = function(metric) .call_metric(private, metric)
     ),
     active = list(
+        keys = function() private$.dictionary$key,
         rmse = function() private$call_metric(metric = "rmse"),
         mae = function() private$call_metric(metric = "mae"),
         rsq = function() private$call_metric(metric = "rsq"),
@@ -58,13 +66,38 @@ Yardstick <- R6::R6Class(
     )
 )
 
+# Public Methods ----------------------------------------------------------
+.insert_label <- function(key, value, private){
+    new_entry <- data.frame(key = key, value = value, stringsAsFactors = FALSE)
+    private$.dictionary <- rbind(new_entry, private$.dictionary) %>% dplyr::distinct(key, .keep_all = TRUE)
+    invisible()
+}
+
+.delete_label <- function(key, private){
+    dictionary <- private$.dictionary
+    private$.dictionary <- dictionary[!dictionary$key %in% key, ]
+    invisible()
+}
+
 # Private Methods ---------------------------------------------------------
 .call_metric <- function(private, metric){
+    dictionary <- private$.dictionary
     data <- private$.data
     truth <- private$.truth
     estimate <- private$.estimate
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
-    eval(expr = parse(text = command))
+    results <- eval(expr = parse(text = command))
+
+    for(key in dictionary$key){
+        if(key %in% colnames(results)) {
+            next
+        } else {
+            value <- dictionary %>% dplyr::filter(key == !!key) %>% .$value
+            results <- results %>% tibble::add_column(!!key := value, .before = 0)
+        }# end if-else
+    }# end for loop
+
+    return(results)
 }
 
