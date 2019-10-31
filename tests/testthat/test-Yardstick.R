@@ -56,6 +56,6 @@ test_that("Yardstick adds attributes to results", {
     expect_silent(metrics <- Yardstick$new(data = data, truth = "mpg", estimate = "mpg_hat"))
     expect_silent(metrics$insert_label(key = ".set", value = "train"))
     expect_a_non_empty_data.frame(results <- metrics[["rmse"]])
-    # expect_table_has_col_names(results, c(".set", ".metric", ".estimator", ".estimate"))
+    expect_table_has_col_names(results, c(".set", ".metric", ".estimator", ".estimate"))
 })
 

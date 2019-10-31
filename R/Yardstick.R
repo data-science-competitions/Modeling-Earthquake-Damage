@@ -74,11 +74,23 @@ Yardstick <- R6::R6Class(
 
 # Private Methods ---------------------------------------------------------
 .call_metric <- function(private, metric){
+    dictionary <- private$.dictionary
     data <- private$.data
     truth <- private$.truth
     estimate <- private$.estimate
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
-    eval(expr = parse(text = command))
+    results <- eval(expr = parse(text = command))
+
+    for(key in dictionary$key){
+        if(key %in% colnames(results)) {
+            next
+        } else {
+            value <- dictionary %>% dplyr::filter(key == !!key) %>% .$value
+            results <- results %>% tibble::add_column(!!key := value, .before = 0)
+        }# end if-else
+    }# end for loop
+
+    return(results)
 }
 
