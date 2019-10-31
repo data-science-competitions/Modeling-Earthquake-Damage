@@ -74,7 +74,8 @@ Yardstick <- R6::R6Class(
 }
 
 .delete_label <- function(key, private){
-
+    dictionary <- private$.dictionary
+    private$.dictionary <- dictionary[!dictionary$key %in% key, ]
     invisible()
 }
 

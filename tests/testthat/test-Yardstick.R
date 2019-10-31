@@ -65,6 +65,6 @@ test_that("Yardstick allows to remove attributes", {
 
     expect_silent(metrics <- Yardstick$new(data = data, truth = "mpg", estimate = "mpg_hat"))
     expect_silent(metrics$delete_label(key = ".metric"))
-    # expect_identical(metrics$keys, c(".estimator", ".estimate"))
+    expect_identical(metrics$keys, c(".estimator", ".estimate"))
 })
 
