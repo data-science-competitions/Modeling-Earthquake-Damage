@@ -42,10 +42,20 @@ test_that("Yardstick allows to add attributes", {
     attach(test_env)
 
     expect_silent(metrics <- Yardstick$new(data = data, truth = "mpg", estimate = "mpg_hat"))
-    # expect_silent(metrics$insert_label(key = ".set", value = "train"))
-
-    # expect_a_non_empty_data.frame(results <- metrics[["rmse"]])
+    # Add ".set" for 1st time
+    expect_silent(metrics$insert_label(key = ".set", value = "train"))
+    expect_identical(metrics$keys, c(".set", ".metric", ".estimator", ".estimate"))
+    # Add ".set" for 2nd time (shouldn't have duplicates)
+    expect_silent(metrics$insert_label(key = ".set", value = "train"))
+    expect_identical(metrics$keys, c(".set", ".metric", ".estimator", ".estimate"))
 })
 
+test_that("Yardstick adds attributes to results", {
+    attach(test_env)
 
+    expect_silent(metrics <- Yardstick$new(data = data, truth = "mpg", estimate = "mpg_hat"))
+    expect_silent(metrics$insert_label(key = ".set", value = "train"))
+    expect_a_non_empty_data.frame(results <- metrics[["rmse"]])
+    # expect_table_has_col_names(results, c(".set", ".metric", ".estimator", ".estimate"))
+})
 

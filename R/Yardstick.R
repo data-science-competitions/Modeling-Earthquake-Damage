@@ -44,8 +44,8 @@ Yardstick <- R6::R6Class(
             private$.data <- data
             private$.truth <- truth
             private$.estimate <- estimate
-        }#,
-        # insert_label = function(key, value) .insert_label(key, value, private)
+        },
+        insert_label = function(key, value) .insert_label(key, value, private)
     ),
     private = list(
         ## Private Variables
