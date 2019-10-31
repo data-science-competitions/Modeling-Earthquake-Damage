@@ -88,6 +88,7 @@ Yardstick <- R6::R6Class(
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
     results <- eval(expr = parse(text = command))
+    results <- results[, colnames(results) %in% dictionary$key]
 
     for(key in dictionary$key){
         if(key %in% colnames(results)) {
