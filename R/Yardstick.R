@@ -173,7 +173,7 @@ Yardstick <- R6::R6Class(
     estimate <- private$.estimate
     threshold <- private$.threshold
 
-    ggplot_data <- dplyr::mutate(data, !!truth := factor(truth > threshold) %>% relevel(ref = "TRUE"))
+    ggplot_data <- dplyr::mutate(data, !!truth := factor(truth > threshold) %>% stats::relevel(ref = "TRUE"))
 
     return(ggplot_data)
 }
