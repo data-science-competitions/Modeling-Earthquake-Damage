@@ -4,6 +4,7 @@
 #' @return A vector of predictions
 model_predict <- function(new_data, model_object)
 {
-    response <- predict_function(model_object, new_data) %>% link_function()
+    response <- predict_function(model_object, new_data)
+    response <- apply(response, 2, link_function)
     return(response)
 }
