@@ -3,7 +3,9 @@ model_init <- function(){
     params <- list()
 
     predict_function <- function(model_object, new_data){
-        predict(object = model_object, newdata = new_data)
+        stats::predict.lm(object = model_object, newdata = new_data, interval = "prediction") %>%
+            as.data.frame(stringsAsFactors = FALSE) %>%
+            dplyr::rename("fit" = "fit")
     }
 
     link_function <- function(x) x
