@@ -283,8 +283,6 @@ PentaModel <- R6::R6Class(
     return(length(setdiff(x, y)) == 0)
 }
 
-.is_not_null <- function(x) isFALSE(is.null(x))
-
 # CRUD API for Shared Environment -----------------------------------------
 .set_shared_object <- function(key, value, envir){
     stopifnot(is.character(key), length(key) == 1)
