@@ -52,6 +52,8 @@ pm$model_store()
 truth <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth" = !!role_target)
 estimate <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate" = "fit")
 data <- dplyr::right_join(truth, estimate, by = role_pk)
-metrics <- Yardstick$new(data, truth = "truth", estimate = "estimate")
-metrics$delete_label(".estimator")
+metrics <-
+    Yardstick$
+    new(data, truth = "truth", estimate = "estimate")$
+    delete_label(".estimator")
 model_performance <- dplyr::bind_rows(metrics$rmse, metrics$mae, metrics$rsq, metrics$ccc)

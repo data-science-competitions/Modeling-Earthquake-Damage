@@ -79,19 +79,20 @@ Yardstick <- R6::R6Class(
 # Public Methods ----------------------------------------------------------
 .set_threshold <- function(value, private){
     private$.threshold <- value
-    invisible()
+
+    invisible(get("self", envir = parent.frame()))
 }
 
 .insert_label <- function(key, value, private){
     new_entry <- data.frame(key = key, value = value, stringsAsFactors = FALSE)
     private$.dictionary <- rbind(new_entry, private$.dictionary) %>% dplyr::distinct(key, .keep_all = TRUE)
-    invisible()
+    invisible(get("self", envir = parent.frame()))
 }
 
 .delete_label <- function(key, private){
     dictionary <- private$.dictionary
     private$.dictionary <- dictionary[!dictionary$key %in% key, ]
-    invisible()
+    invisible(get("self", envir = parent.frame()))
 }
 
 .plot_gain_curve <- function(private){

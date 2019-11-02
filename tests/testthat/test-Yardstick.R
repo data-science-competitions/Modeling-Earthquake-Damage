@@ -91,6 +91,22 @@ test_that("Yardstick allows to set a threshold value", {
     expect_silent(metrics$set_threshold(value = 0.5))
 })
 
+# method chaining ---------------------------------------------------------
+test_that("Yardstick allows to chain methods", {
+    attach(test_env)
+    threshold <- 0.5
+
+    expect_silent(
+        metrics <- Yardstick$
+            new(data = data_reg, truth = "mpg", estimate = "mpg_hat")$
+            set_threshold(value = threshold)$
+            delete_label(key = ".metric")$
+            insert_label(key = ".set", value = "train")
+    )
+
+    expect_identical(metrics$keys, c(".set", ".estimator", ".estimate"))
+})
+
 # plot lift curve ---------------------------------------------------------
 test_that("Yardstick plots lift curve when truth is numeric", {
     attach(test_env)
