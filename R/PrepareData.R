@@ -44,9 +44,9 @@ PrepareData <- R6::R6Class(
         table %>%
         dplyr::mutate(
             building_id = as.character(building_id),
-            geo_level_1_id = as.integer(geo_level_1_id),
-            geo_level_2_id = as.integer(geo_level_2_id),
-            geo_level_3_id = as.integer(geo_level_3_id),
+            geo_level_1_id = as.factor(geo_level_1_id),
+            geo_level_2_id = as.factor(geo_level_2_id),
+            geo_level_3_id = as.factor(geo_level_3_id),
             count_floors_pre_eq = as.integer(count_floors_pre_eq),
             age = as.integer(age),
             area_percentage = as.integer(area_percentage),
