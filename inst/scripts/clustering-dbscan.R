@@ -14,8 +14,7 @@ historical_data <-
     ds$data_model %>%
     dm::cdm_get_tables() %>%
     .$historical_data %>%
-    as.data.frame(stringsAsFactors = FALSE) %>%
-    dplyr::sample_n(1000)
+    as.data.frame(stringsAsFactors = FALSE)
 
 # Sample the Data ---------------------------------------------------------
 rset_obj <- sample_the_data(historical_data)
@@ -27,7 +26,8 @@ role_target <- "damage_grade"
 data <-
     historical_data %>%
     dplyr::select(dplyr::starts_with("geo_")) %>%
-    dplyr::select(dplyr::matches("1|2"))
+    dplyr::filter(geo_level_1_id == 6) %>%
+    dplyr::select(dplyr::matches("2|3"))
 
 # Hierarchical DBSCAN -----------------------------------------------------
 cl <- dbscan::hdbscan(data, minPts = 5)
