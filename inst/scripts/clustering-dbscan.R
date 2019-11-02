@@ -9,7 +9,6 @@ output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-set.seed(1738)
 historical_data <-
     ds$data_model %>%
     dm::cdm_get_tables() %>%
@@ -26,6 +25,7 @@ role_target <- "damage_grade"
 data <-
     historical_data %>%
     dplyr::select(dplyr::starts_with("geo_")) %>%
+    purrr::map_dfc(function(x) x %>% as.character() %>% as.numeric()) %>%
     dplyr::filter(geo_level_1_id == 6) %>%
     dplyr::select(dplyr::matches("2|3"))
 
