@@ -58,3 +58,4 @@ metrics <-
     delete_label(".estimator")$
     insert_label(".model", pm$model_name)
 model_performance <- dplyr::bind_rows(metrics$rmse, metrics$mae, metrics$rsq, metrics$ccc)
+print(model_performance)

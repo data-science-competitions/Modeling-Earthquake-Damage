@@ -10,7 +10,7 @@ model_fit <- function(historical_data, model_formula)
         model_formula,
         data = historical_data,
         num.trees = params$num.trees,
-        mtry = params$mtry
+        mtry = eval(parse(text=params$mtry))
     )
 
     return(mdl_obj)
