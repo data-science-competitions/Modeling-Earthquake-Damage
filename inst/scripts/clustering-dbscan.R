@@ -15,13 +15,6 @@ historical_data <-
     .$historical_data %>%
     as.data.frame(stringsAsFactors = FALSE)
 
-# Sample the Data ---------------------------------------------------------
-rset_obj <- sample_the_data(historical_data)
-role_pk <- "building_id"
-role_none <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_"))
-role_input <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("has_"))
-role_target <- "damage_grade"
-
 data <-
     historical_data %>%
     dplyr::select(dplyr::starts_with("geo_")) %>%
