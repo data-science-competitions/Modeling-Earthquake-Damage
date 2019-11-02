@@ -6,6 +6,10 @@ sample_the_data <- function(.data){
         rsample::initial_split(prop = 0.7, strata = "damage_grade")
 }
 
+starts_with <- function(.data, match){
+    tidyselect::vars_select(names(.data), dplyr::starts_with(match))
+}
+
 # Setup ------------------------------------------------------------------------
 ds <- DataStore$new()
 model_name <- c("arithmetic-mean", "rpart", "ranger")[3]
@@ -23,8 +27,8 @@ historical_data <-
 set.seed(1936)
 rset_obj <- sample_the_data(historical_data)
 role_pk <- "building_id"
-role_none <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_"))
-role_input <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("has_"))
+role_none <- starts_with(historical_data, "geo_")
+role_input <- starts_with(historical_data, "has_")
 role_target <- "damage_grade"
 
 train_set <-
