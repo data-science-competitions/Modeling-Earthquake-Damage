@@ -200,9 +200,14 @@ PentaModel <- R6::R6Class(
 }
 
 .pack_model_predict_output_arguments <- function(private){
+    is_not_a_data_frame <- function(x) isFALSE(is.data.frame(x))
+    rename <- function(.data, ...) tryCatch(dplyr::rename(.data, ...), error = function(e) return(.data))
+
     y_id <- private$shared_env$new_data[[private$shared_env$role_pk]]
     response <- private$shared_env$response
-    if(isFALSE(is.data.frame(response))) response <- as.data.frame(response, stringsAsFactors = FALSE)
+
+    if(is_not_a_data_frame(response))
+        response <- as.data.frame(response, stringsAsFactors = FALSE) %>% rename("fit" = "response")
 
     private$shared_env$response <-
         response %>%

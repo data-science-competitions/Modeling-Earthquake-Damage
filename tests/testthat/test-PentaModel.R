@@ -130,7 +130,7 @@ test_that("PentaModel can be preset with a model object", {
 
     expect_null(mdl$set_new_data(new_data))
     expect_null(mdl$model_predict())
-    expect_equal(mdl$response[["response"]], y_hat %>% unname())
+    expect_equal(mdl$response[["fit"]], y_hat %>% unname())
 })
 
 test_that("PentaModel can be handle multiple column response", {
@@ -140,10 +140,13 @@ test_that("PentaModel can be handle multiple column response", {
     new_data <- mtcars[23:32,]
 
     expect_silent({
-        prediction_intervals <- function(mdl_object, new_data) predict(mdl_object, new_data,  interval = "prediction")
-        mdl$set_predict_function(prediction_intervals)
         mdl$set_new_data(new_data)
         mdl$model_fit()
+    })
+
+    expect_silent({
+        prediction_intervals <- function(mdl_object, new_data) predict(mdl_object, new_data,  interval = "prediction")
+        mdl$set_predict_function(prediction_intervals)
     })
 
     expect_null(mdl$model_predict())
@@ -165,7 +168,7 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
     expect_null(mdl$model_predict())
     expect_a_non_empty_data.frame(mdl$response)
     expect_true(colnames(mdl$response)[1] == "rowid")
-    expect_true(colnames(mdl$response)[2] == "response")
+    expect_true(colnames(mdl$response)[2] == "fit")
     expect_class(mdl$response$rowid, "character")
 })
 
