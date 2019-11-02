@@ -1,5 +1,5 @@
 default:
   params:
-    maxdepth: 3
-    minsplit: 10
-    maxcompete: 2
+    num.trees: 10
+    mtry: 3
+

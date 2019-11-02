@@ -5,17 +5,12 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
-    rpart_control <- rpart::rpart.control(
-        maxdepth = params$maxdepth,
-        minsplit = params$minsplit,
-        maxcompete = params$minsplit
-    )
 
-    mdl_obj <- rpart::rpart(
+    mdl_obj <- ranger::ranger(
         model_formula,
         data = historical_data,
-        method = "anova",
-        control = rpart_control
+        num.trees = params$num.trees,
+        mtry = params$mtry
     )
 
     return(mdl_obj)
