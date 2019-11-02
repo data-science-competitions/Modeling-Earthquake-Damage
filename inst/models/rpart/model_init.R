@@ -6,7 +6,9 @@ model_init <- function(){
     params$maxcompete <- 2
 
     predict_function <- function(model_object, new_data){
-        predict(object = model_object, newdata = new_data)
+        predict(object = model_object, newdata = new_data) %>%
+            as.data.frame(stringsAsFactors = FALSE) %>%
+            dplyr::rename("fit" = ".")
     }
 
     link_function <- function(x){ # 1 <= x <= 3
