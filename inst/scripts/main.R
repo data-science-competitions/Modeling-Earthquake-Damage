@@ -27,8 +27,8 @@ historical_data <-
 set.seed(1936)
 rset_obj <- sample_the_data(historical_data)
 role_pk <- "building_id"
-role_none <- matches(historical_data, "^geo_")
-role_input <- matches(historical_data, "^has_")
+role_none <- NULL
+role_input <- matches(historical_data, "^geo_|^has_")
 role_target <- "damage_grade"
 
 train_set <-

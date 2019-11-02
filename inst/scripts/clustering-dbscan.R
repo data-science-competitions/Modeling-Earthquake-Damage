@@ -46,5 +46,3 @@ plot(cl$hc, main = "HDBSCAN Hierarchy")
 
 par(pty = "s")
 plot(data, col = cl$cluster + 1, pch = 20)
-
-
