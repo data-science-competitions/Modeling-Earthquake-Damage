@@ -9,6 +9,7 @@ default:
     - !expr options(path_scripts   = file.path(.Options$path_inst, "scripts"))
     - !expr options(path_data      = file.path(.Options$path_inst, "data"))
     - !expr options(path_docs      = file.path(.Options$path_inst, "docs"))
+    - !expr options(path_mlflow    = file.path(.Options$path_inst, "mlflow"))
     - !expr options(path_functions = file.path(.Options$path_project, "R"))
     - !expr options(path_models    = file.path(.Options$path_inst, "models"))
     - !expr options(path_tests     = file.path(.Options$path_project, "tests"))
