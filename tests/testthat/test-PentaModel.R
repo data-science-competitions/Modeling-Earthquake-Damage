@@ -184,6 +184,11 @@ test_that("PentaModel fetches model_store with access to the model environment",
 })
 
 # model_end ---------------------------------------------------------------
+test_that("PentaModel runs model end", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+    expect_null(mdl$model_end())
+})
 
 # Unsuccessful model_fit --------------------------------------------------
 test_that("PentaModel prompts an error when model_fit has no role_input", {

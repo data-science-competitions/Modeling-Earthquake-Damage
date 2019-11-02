@@ -65,11 +65,6 @@ PentaModel <- R6::R6Class(
 )
 
 # Public Methods ---------------------------------------------------------------
-.set_private_variable <- function(private, key, value){
-    private[[key]] <- value
-    return(invisible())
-}
-
 .update_formula_variables <- function(private, key, value){
     roles <- c("role_pk", "role_none", "role_input", "role_target")
     other_roles <- setdiff(roles, key)
