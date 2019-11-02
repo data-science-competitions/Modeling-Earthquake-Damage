@@ -12,7 +12,7 @@ matches <- function(.data, match){
 
 # Setup ------------------------------------------------------------------------
 ds <- DataStore$new()
-model_name <- c("arithmetic-mean", "rpart", "ranger")[3]
+model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
