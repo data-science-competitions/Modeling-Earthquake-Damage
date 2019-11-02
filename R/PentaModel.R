@@ -65,11 +65,6 @@ PentaModel <- R6::R6Class(
 )
 
 # Public Methods ---------------------------------------------------------------
-.set_private_variable <- function(private, key, value){
-    private[[key]] <- value
-    return(invisible())
-}
-
 .update_formula_variables <- function(private, key, value){
     roles <- c("role_pk", "role_none", "role_input", "role_target")
     other_roles <- setdiff(roles, key)
@@ -287,8 +282,6 @@ PentaModel <- R6::R6Class(
     if(is.null(x) | is.null(y)) return(FALSE)
     return(length(setdiff(x, y)) == 0)
 }
-
-.is_not_null <- function(x) isFALSE(is.null(x))
 
 # CRUD API for Shared Environment -----------------------------------------
 .set_shared_object <- function(key, value, envir){
