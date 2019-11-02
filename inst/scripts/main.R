@@ -55,5 +55,6 @@ data <- dplyr::right_join(truth, estimate, by = role_pk)
 metrics <-
     Yardstick$
     new(data, truth = "truth", estimate = "estimate")$
-    delete_label(".estimator")
+    delete_label(".estimator")$
+    insert_label(".model", pm$model_name)
 model_performance <- dplyr::bind_rows(metrics$rmse, metrics$mae, metrics$rsq, metrics$ccc)

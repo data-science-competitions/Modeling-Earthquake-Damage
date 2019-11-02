@@ -1,16 +1,5 @@
-# Mandatory Fields (auto-generated)
-model_metadata:
-  model_uid: {{model_uid}}
-  model_creation_date: {{model_creation_date}} #UTC Time Zone
-  model_author: {{model_author}}
-  model_parent: {{model_parent}}
-  model_name: {{model_name}}
-# Mandatory Fields (manually-defined)
-data_source:
-  dataset_name: mtcars
-  dataset_key_column: ROWID
-# Optional Fields
-model_parameters:
-  algorithm: {{algorithm}}
-  # See possible tuning values caret::modelLookup(model = caret_algorithm)
-  tuning_parameters: {{tuning_parameters}}
+default:
+  params:
+    maxdepth: 3
+    minsplit: 10
+    maxcompete: 2

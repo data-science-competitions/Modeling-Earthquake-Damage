@@ -1,10 +1,5 @@
 #' @title Prepare everything the prediction model needs
 model_init <- function(){
-    params <- list()
-    params$maxdepth <- 3
-    params$minsplit <- 10
-    params$maxcompete <- 2
-
     predict_function <- function(model_object, new_data){
         predict(object = model_object, newdata = new_data) %>%
             as.data.frame(stringsAsFactors = FALSE) %>%
@@ -22,7 +17,9 @@ model_init <- function(){
         as.vector(y)
     }
 
-    assign('params', params, parent.frame())
+    model_config <- config::get(file = file.path(model_path, "model_config.yml"), use_parent = FALSE)
+
+    list2env(model_config, envir = parent.frame())
     assign("predict_function", predict_function, envir = parent.frame())
     assign("link_function", link_function, envir = parent.frame())
     return(invisible())
