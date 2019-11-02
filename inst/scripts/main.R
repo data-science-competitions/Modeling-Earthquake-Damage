@@ -8,7 +8,7 @@ sample_the_data <- function(.data){
 
 # Setup ------------------------------------------------------------------------
 ds <- DataStore$new()
-model_name <- c("arithmetic-mean", "rpart")[2]
+model_name <- c("arithmetic-mean", "rpart", "ranger")[3]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -58,3 +58,4 @@ metrics <-
     delete_label(".estimator")$
     insert_label(".model", pm$model_name)
 model_performance <- dplyr::bind_rows(metrics$rmse, metrics$mae, metrics$rsq, metrics$ccc)
+print(model_performance)
