@@ -4,11 +4,11 @@
 <!-- badges: start -->
 
 [![Travis build
-status](https://travis-ci.org/data-science-competitions/modeling.earthquake.damage.svg?branch=master)](https://travis-ci.org/data-science-competitions/modeling.earthquake.damage)
+status](https://travis-ci.org/data-science-competitions/Modeling-Earthquake-Damage.svg?branch=master)](https://travis-ci.org/data-science-competitions/Modeling-Earthquake-Damage)
 [![Code coverage
-status](https://codecov.io/gh/data-science-competitions/modeling.earthquake.damage/branch/master/graph/badge.svg)](https://codecov.io/github/data-science-competitions/modeling.earthquake.damage/?branch=master)
+status](https://codecov.io/gh/data-science-competitions/Modeling-Earthquake-Damage/branch/master/graph/badge.svg)](https://codecov.io/github/data-science-competitions/Modeling-Earthquake-Damage/?branch=master)
 [![Launch Rstudio
-Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-science-competitions/modeling.earthquake.damage/master?urlpath=rstudio)
+Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-science-competitions/Modeling-Earthquake-Damage/master?urlpath=rstudio)
 <!-- badges: end -->
 
 <!-- Package Title -->
@@ -52,7 +52,7 @@ devtools::uninstall()
 ### Working in Package Mode (Advised During Production Stage)
 
     install.packages("devtools")
-    devtools::install_github("data-science-competitions/modeling.earthquake.damage")
+    devtools::install_github("data-science-competitions/Modeling-Earthquake-Damage")
 
 ## Datasets
 
@@ -93,9 +93,9 @@ names(ds$data_model)
     ## Observations: 260,601
     ## Variables: 40
     ## $ building_id                            <chr> "802906", "28830", "94947", "590882", "201944", ...
-    ## $ geo_level_1_id                         <int> 6, 8, 21, 22, 11, 8, 9, 20, 0, 26, 17, 17, 12, 1...
-    ## $ geo_level_2_id                         <int> 487, 900, 363, 418, 131, 558, 475, 323, 757, 886...
-    ## $ geo_level_3_id                         <int> 12198, 2812, 8973, 10694, 1488, 6089, 12066, 122...
+    ## $ geo_level_1_id                         <fct> 6, 8, 21, 22, 11, 8, 9, 20, 0, 26, 17, 17, 12, 1...
+    ## $ geo_level_2_id                         <fct> 487, 900, 363, 418, 131, 558, 475, 323, 757, 886...
+    ## $ geo_level_3_id                         <fct> 12198, 2812, 8973, 10694, 1488, 6089, 12066, 122...
     ## $ count_floors_pre_eq                    <int> 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 2, 3, 2, 2, ...
     ## $ age                                    <int> 30, 10, 10, 10, 30, 10, 25, 0, 15, 0, 20, 10, 15...
     ## $ area_percentage                        <int> 6, 8, 5, 6, 8, 9, 3, 8, 8, 13, 9, 8, 6, 7, 7, 4,...

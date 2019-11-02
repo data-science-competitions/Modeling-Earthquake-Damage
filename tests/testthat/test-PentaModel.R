@@ -98,6 +98,24 @@ test_that("PentaModel model_init appends its environment to the object environme
 # model_fit ---------------------------------------------------------------
 
 # model_predict -----------------------------------------------------------
+test_that("PentaModel uses a given primary key", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+
+    historical_data <- mtcars[1:22,] %>% tibble::rownames_to_column("uid")
+    new_data <- mtcars[23:32,] %>% tibble::rownames_to_column("uid")
+
+    expect_null({
+        mdl$set_role_pk("uid")
+        mdl$set_historical_data(historical_data)
+        mdl$set_new_data(new_data)
+        mdl$model_fit()
+        mdl$model_predict()
+    })
+
+    expect_table_has_col_names(mdl$response, "uid")
+})
+
 test_that("PentaModel can be preset with a model object", {
     attach(test_env)
     mdl <- get_fresh_model()
@@ -112,7 +130,32 @@ test_that("PentaModel can be preset with a model object", {
 
     expect_null(mdl$set_new_data(new_data))
     expect_null(mdl$model_predict())
-    expect_equal(mdl$response[["response"]], y_hat %>% unname())
+    expect_equal(mdl$response[["fit"]], y_hat %>% unname())
+})
+
+test_that("PentaModel can be handle multiple column response", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+    historical_data <- mtcars[1:22,]
+    new_data <- mtcars[23:32,]
+
+    expect_silent({
+        mdl$set_new_data(new_data)
+        mdl$model_fit()
+    })
+
+    expect_silent({
+        prediction_intervals <- function(mdl_object, new_data) predict(mdl_object, new_data,  interval = "prediction")
+        mdl$set_predict_function(prediction_intervals)
+    })
+
+    expect_null(mdl$model_predict())
+
+    response <- prediction_intervals(mdl$model_object, new_data)
+    expect_equivalent(
+        mdl$response %>% dplyr::select(-rowid),
+        response %>% as.data.frame(row.names = FALSE)
+    )
 })
 
 test_that("PentaModel composes row ids in the absence of role_pk", {
@@ -125,7 +168,7 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
     expect_null(mdl$model_predict())
     expect_a_non_empty_data.frame(mdl$response)
     expect_true(colnames(mdl$response)[1] == "rowid")
-    expect_true(colnames(mdl$response)[2] == "response")
+    expect_true(colnames(mdl$response)[2] == "fit")
     expect_class(mdl$response$rowid, "character")
 })
 
@@ -141,30 +184,6 @@ test_that("PentaModel fetches model_store with access to the model environment",
 })
 
 # model_end ---------------------------------------------------------------
-# test_that("PentaModel workflow given var roles", {
-#     model_name <- "mockModel"
-#     model_path <- file.path(.get_temp_dir(), model_name)
-#     .delete_and_create_dir(model_path)
-#     .create_valid_mock_pentamodel(model_path)
-#     expect_silent(mdl <- PentaModel$new(path = model_path))
-#
-#     historical_data <- mtcars[1:22,]
-#     new_data <- mtcars[23:32,]
-#     mdl_object <- lm(mpg ~ cyl, historical_data)
-#
-#     expect_null(mdl$set_historical_data(historical_data))
-#     expect_null(mdl$set_new_data(new_data))
-#
-#     expect_null(mdl$set_role_input("cyl"))
-#     expect_null(mdl$set_role_target("mpg"))
-#     expect_null(mdl$model_init())
-#     expect_null(mdl$model_fit())
-#     expect_identical(coef(mdl$model_object), coef(mdl_object))
-#
-#     expect_null(mdl$model_predict())
-#     expect_null(mdl$model_store())
-#     expect_null(mdl$model_end())
-# })
 
 # Unsuccessful model_fit --------------------------------------------------
 test_that("PentaModel prompts an error when model_fit has no role_input", {
@@ -238,17 +257,23 @@ test_that("PentaModel model_predict outputs fewer predictions than there are in 
 
     na.action <- getOption("na.action")
     on.exit(options(na.action = na.action))
+    predict_function <- function(model_object, new_data) predict(model_object, new_data, na.action = .Options$na.action)
 
     new_data <- mtcars[23:32,]
     new_data[1, 2] <- NA
     mdl$set_new_data(new_data)
     expect_null(mdl$model_fit())
+    expect_null(mdl$set_predict_function(predict_function))
 
     options(na.action = "na.pass")
     expect_error(mdl$model_predict())
+    error_na.pass <- capture_error(mdl$model_predict())
 
     options(na.action = "na.exclude")
     expect_error(mdl$model_predict())
+    error_na.exclude <- capture_error(mdl$model_predict())
+
+    expect_not_identical(error_na.pass, error_na.exclude)
 })
 
 # Unsuccessful Modeling Process -------------------------------------------

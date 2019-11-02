@@ -1,0 +1,5 @@
+default:
+  params:
+    num.trees: 50
+    mtry: "role_input %>% length() %>% sqrt() %>% round()"
+

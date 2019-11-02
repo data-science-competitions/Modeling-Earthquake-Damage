@@ -6,9 +6,13 @@ sample_the_data <- function(.data){
         rsample::initial_split(prop = 0.7, strata = "damage_grade")
 }
 
+matches <- function(.data, match){
+    tidyselect::vars_select(names(.data), dplyr::matches(match))
+}
+
 # Setup ------------------------------------------------------------------------
 ds <- DataStore$new()
-model_name <- c("arithmetic-mean", "rpart")[1]
+model_name <- c("arithmetic-mean", "rpart", "ranger")[3]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -23,8 +27,8 @@ historical_data <-
 set.seed(1936)
 rset_obj <- sample_the_data(historical_data)
 role_pk <- "building_id"
-role_none <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("geo_"))
-role_input <- tidyselect::vars_select(names(historical_data), dplyr::starts_with("has_"))
+role_none <- NULL
+role_input <- matches(historical_data, "^geo_|^has_")
 role_target <- "damage_grade"
 
 train_set <-
@@ -50,10 +54,12 @@ pm$model_store()
 
 # Evaluate Model ----------------------------------------------------------
 truth <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth" = !!role_target)
-estimate <- pm$response %>% dplyr::rename("estimate" = "response")
+estimate <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate" = "fit")
 data <- dplyr::right_join(truth, estimate, by = role_pk)
-metrics <- Yardstick$new(data, "truth", estimate = "estimate")
+metrics <-
+    Yardstick$
+    new(data, truth = "truth", estimate = "estimate")$
+    delete_label(".estimator")$
+    insert_label(".model", pm$model_name)
 model_performance <- dplyr::bind_rows(metrics$rmse, metrics$mae, metrics$rsq, metrics$ccc)
-
-# Cleanup -----------------------------------------------------------------
-ls(pm, all.names = TRUE)
+print(model_performance)
