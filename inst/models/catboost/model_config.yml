@@ -10,5 +10,5 @@ default:
     metric_period: 50
     od_wait: 20
     use_best_model: yes
-    train_dir: !expr tempfile("logs")
+    train_dir: !expr tempfile("train_dir.")
 

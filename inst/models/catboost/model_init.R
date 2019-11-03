@@ -13,8 +13,7 @@ model_init <- function(){
     }
 
     predict_function <- function(model_object, new_data){
-        predict(object = model_object, data = new_data, type = "response") %>%
-            ranger::predictions() %>%
+        catboost::catboost.predict(model = model_object, pool = new_data) %>%
             as.data.frame(stringsAsFactors = FALSE) %>%
             dplyr::rename("fit" = ".")
     }
