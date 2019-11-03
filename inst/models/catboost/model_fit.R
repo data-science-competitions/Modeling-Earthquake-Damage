@@ -5,13 +5,13 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    historical_data <-
+        catboost::catboost.load_pool(
+            data = historical_data %>% dplyr::select(role_input),
+            label = historical_data %>% dplyr::select(role_target) %>% unlist()
+        )
 
-    mdl_obj <- ranger::ranger(
-        model_formula,
-        data = historical_data,
-        num.trees = params$num.trees,
-        mtry = eval(parse(text=params$mtry))
-    )
+    mdl_obj <- catboost::catboost.train(learn_pool = historical_data, params = params)
 
     return(mdl_obj)
 }

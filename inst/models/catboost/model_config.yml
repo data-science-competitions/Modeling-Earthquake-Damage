@@ -1,5 +1,14 @@
 default:
+  # https://catboost.ai/docs/concepts/r-reference_catboost-train.html
   params:
-    num.trees: 50
-    mtry: "role_input %>% length() %>% sqrt() %>% round()"
+    iterations: 10
+    learning_rate: 0.01
+    depth: 3
+    loss_function: 'RMSE'
+    eval_metric: 'RMSE'
+    od_type: 'Iter'
+    metric_period: 50
+    od_wait: 20
+    use_best_model: yes
+    train_dir: !expr tempfile("logs")
 
