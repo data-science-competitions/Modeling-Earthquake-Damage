@@ -8,7 +8,11 @@ model_init <- function(){
         ver <- "0.18"
         github_slug <- 'https://github.com/catboost/catboost/releases/download/'
         url <- paste0(github_slug, "v", ver, "/catboost-R-", os, "-", ver, ".tgz")
-        remotes::install_url(url, args = c("--no-multiarch", "--no-test-load"))
+        remotes::install_url(
+            url,
+            args = c("--no-multiarch", "--no-test-load"),
+            dependencies = TRUE, upgrade = "never"
+        )
         # remotes::install_github('catboost/catboost', subdir = 'catboost/R-package')
     }
 
