@@ -1,13 +1,19 @@
 #' @title Prepare everything the prediction model needs
 model_init <- function(){
-    install_non_installed_package <- function(pkg) if(is_package_not_installed(pkg)) install_package(pkg)
     is_package_not_installed <- function(pkg) !pkg %in% rownames(installed.packages())
-    install_package <- function(pkg)  utils::install.packages(pkg, repos = getOption("repos", "https://cloud.r-project.org"), dependencies = TRUE)
-    for(pkg in c("ranger")) install_non_installed_package(pkg)
+
+    if(is_package_not_installed("catboost")){
+        message("Installing catboost; this may take a few minutes")
+        os <- Sys.info()[['sysname']]
+        ver <- "0.18"
+        github_slug <- 'https://github.com/catboost/catboost/releases/download/'
+        url <- paste0(github_slug, "v", ver, "/catboost-R-", os, "-", ver, ".tgz")
+        remotes::install_url(url, args = c("--no-multiarch", "--no-test-load"))
+        # remotes::install_github('catboost/catboost', subdir = 'catboost/R-package')
+    }
 
     predict_function <- function(model_object, new_data){
-        predict(object = model_object, data = new_data, type = "response") %>%
-            ranger::predictions() %>%
+        catboost::catboost.predict(model = model_object, pool = new_data) %>%
             as.data.frame(stringsAsFactors = FALSE) %>%
             dplyr::rename("fit" = ".")
     }

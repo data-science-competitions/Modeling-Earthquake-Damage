@@ -39,7 +39,7 @@ install_package <- function(pkg){
         message("--> Installing {", get_package_name(pkg), "}")
         utils::install.packages(
             pkg,
-            repos = "https://cloud.r-project.org",
+            repos = getOption("repos", "https://cloud.r-project.org"),
             dependencies = TRUE
         )
     }
