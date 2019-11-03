@@ -1,5 +1,10 @@
 #' @title Prepare everything the prediction model needs
 model_init <- function(){
+    install_non_installed_package <- function(pkg) if(is_package_not_installed(pkg)) install_package(pkg)
+    is_package_not_installed <- function(pkg) !pkg %in% rownames(installed.packages())
+    install_package <- function(pkg)  utils::install.packages(pkg, repos = getOption("repos", "https://cloud.r-project.org"), dependencies = TRUE)
+    for(pkg in c("ranger")) install_non_installed_package(pkg)
+
     predict_function <- function(model_object, new_data){
         predict(object = model_object, data = new_data, type = "response") %>%
             ranger::predictions() %>%
