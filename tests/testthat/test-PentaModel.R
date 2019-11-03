@@ -91,7 +91,7 @@ test_that("PentaModel composes variable roles into formula", {
 test_that("PentaModel model_init appends its environment to the object environment", {
     attach(test_env)
     mdl <- get_fresh_model()
-    expect_null(mdl$model_init())
+    expect_class(mdl$model_init(), "PentaModel")
     expect_subset("params", ls(mdl$model_environment, all.names=TRUE))
 })
 
@@ -105,13 +105,13 @@ test_that("PentaModel uses a given primary key", {
     historical_data <- mtcars[1:22,] %>% tibble::rownames_to_column("uid")
     new_data <- mtcars[23:32,] %>% tibble::rownames_to_column("uid")
 
-    expect_null({
+    expect_class({
         mdl$set_role_pk("uid")
         mdl$set_historical_data(historical_data)
         mdl$set_new_data(new_data)
         mdl$model_fit()
         mdl$model_predict()
-    })
+    }, "PentaModel")
 
     expect_table_has_col_names(mdl$response, "uid")
 })
@@ -129,7 +129,7 @@ test_that("PentaModel can be preset with a model object", {
     expect_identical(mdl$model_object, mdl_object)
 
     expect_null(mdl$set_new_data(new_data))
-    expect_null(mdl$model_predict())
+    expect_class(mdl$model_predict(), "PentaModel")
     expect_equal(mdl$response[["fit"]], y_hat %>% unname())
 })
 
@@ -149,7 +149,7 @@ test_that("PentaModel can be handle multiple column response", {
         mdl$set_predict_function(prediction_intervals)
     })
 
-    expect_null(mdl$model_predict())
+    expect_class(mdl$model_predict(), "PentaModel")
 
     response <- prediction_intervals(mdl$model_object, new_data)
     expect_equivalent(
@@ -163,9 +163,9 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
     mdl <- get_fresh_model()
 
     expect_null(mdl$set_role_pk(NULL))
-    expect_null(mdl$model_init())
-    expect_null(mdl$model_fit())
-    expect_null(mdl$model_predict())
+    expect_class(mdl$model_init(), "PentaModel")
+    expect_class(mdl$model_fit(), "PentaModel")
+    expect_class(mdl$model_predict(), "PentaModel")
     expect_a_non_empty_data.frame(mdl$response)
     expect_true(colnames(mdl$response)[1] == "rowid")
     expect_true(colnames(mdl$response)[2] == "fit")
@@ -176,14 +176,34 @@ test_that("PentaModel composes row ids in the absence of role_pk", {
 test_that("PentaModel fetches model_store with access to the model environment", {
     attach(test_env)
     mdl <- get_fresh_model()
-    expect_null(mdl$model_init())
-    expect_null(mdl$model_fit())
+    expect_class(mdl$model_init(), "PentaModel")
+    expect_class(mdl$model_fit(), "PentaModel")
 
-    expect_null(mdl$model_store())
+    expect_class(mdl$model_store(), "PentaModel")
     expect_identical(mdl$model_environment$artifacts, letters)
 })
 
 # model_end ---------------------------------------------------------------
+test_that("PentaModel runs model end", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+    expect_class(mdl$model_end(), "PentaModel")
+})
+
+# model components chaining -----------------------------------------------
+test_that("PentaModel allows to chain model components", {
+    attach(test_env)
+    mdl <- get_fresh_model()
+
+    expect_silent(
+        mdl$
+            model_init()$
+            model_fit()$
+            model_predict()$
+            model_store()$
+            model_end()
+    )
+})
 
 # Unsuccessful model_fit --------------------------------------------------
 test_that("PentaModel prompts an error when model_fit has no role_input", {
@@ -262,7 +282,7 @@ test_that("PentaModel model_predict outputs fewer predictions than there are in 
     new_data <- mtcars[23:32,]
     new_data[1, 2] <- NA
     mdl$set_new_data(new_data)
-    expect_null(mdl$model_fit())
+    expect_class(mdl$model_fit(), "PentaModel")
     expect_null(mdl$set_predict_function(predict_function))
 
     options(na.action = "na.pass")

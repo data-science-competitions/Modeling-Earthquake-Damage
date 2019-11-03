@@ -34,7 +34,7 @@ PentaModel <- R6::R6Class(
         model_fit = function() .model_fit(private),
         model_predict = function() .model_predict(private),
         model_store = function() .model_store(private),
-        model_end = function() base::get("model_end", envir = private$shared_env)(),
+        model_end = function() .model_end(private),
         set_link_function = function(value) .set_shared_object("link_function", value, private$shared_env),
         set_predict_function = function(value) .set_shared_object("predict_function", value, private$shared_env),
         set_historical_data = function(value) .set_shared_object("historical_data", value, private$shared_env),
@@ -49,7 +49,8 @@ PentaModel <- R6::R6Class(
     private = list(
         shared_env = new.env(),
         .component_names = c("model_init", "model_fit", "model_predict", "model_store", "model_end"),
-        .component_paths = character(0)
+        .component_paths = character(0),
+        return = function() invisible(get("self", envir = parent.frame(2)))
     ),
 
     active = list(
@@ -65,11 +66,6 @@ PentaModel <- R6::R6Class(
 )
 
 # Public Methods ---------------------------------------------------------------
-.set_private_variable <- function(private, key, value){
-    private[[key]] <- value
-    return(invisible())
-}
-
 .update_formula_variables <- function(private, key, value){
     roles <- c("role_pk", "role_none", "role_input", "role_target")
     other_roles <- setdiff(roles, key)
@@ -105,7 +101,8 @@ PentaModel <- R6::R6Class(
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
         assign(n, get(n, environment()), private$shared_env)
-    return(invisible())
+
+    private$return()
 }
 
 .model_fit <- function(private){
@@ -122,7 +119,8 @@ PentaModel <- R6::R6Class(
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
         assign(n, get(n, environment()), private$shared_env)
-    return(invisible())
+
+    private$return()
 }
 
 .model_predict <- function(private){
@@ -142,17 +140,32 @@ PentaModel <- R6::R6Class(
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
         assign(n, get(n, environment()), private$shared_env)
-    return(invisible())
+
+    private$return()
 }
 
 .model_store <- function(private){
-    base::get("model_store", envir = private$shared_env)()
+    model_store <- base::get("model_store", envir = private$shared_env)
+    model_store()
 
     # Get all the objects in the current environment excluding the private
     # environment and assign them to the model environment
     for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
         assign(n, get(n, environment()), private$shared_env)
-    return(invisible())
+
+    private$return()
+}
+
+.model_end <- function(private){
+    model_end <- base::get("model_end", envir = private$shared_env)
+    model_end()
+
+    # Get all the objects in the current environment excluding the private
+    # environment and assign them to the model environment
+    for(n in setdiff(ls(environment(), all.names = TRUE), "private"))
+        assign(n, get(n, environment()), private$shared_env)
+
+    private$return()
 }
 
 # checks ------------------------------------------------------------------
@@ -287,8 +300,6 @@ PentaModel <- R6::R6Class(
     if(is.null(x) | is.null(y)) return(FALSE)
     return(length(setdiff(x, y)) == 0)
 }
-
-.is_not_null <- function(x) isFALSE(is.null(x))
 
 # CRUD API for Shared Environment -----------------------------------------
 .set_shared_object <- function(key, value, envir){

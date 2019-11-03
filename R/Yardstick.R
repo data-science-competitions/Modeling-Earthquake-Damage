@@ -65,7 +65,8 @@ Yardstick <- R6::R6Class(
         .truth = character(0),
         .estimate = character(0),
         ## Private Methods
-        call_metric = function(metric) .call_metric(private, metric)
+        call_metric = function(metric) .call_metric(private, metric),
+        return = function() invisible(get("self", envir = parent.frame(2)))
     ),
     active = list(
         keys = function() private$.dictionary$key,
@@ -79,20 +80,19 @@ Yardstick <- R6::R6Class(
 # Public Methods ----------------------------------------------------------
 .set_threshold <- function(value, private){
     private$.threshold <- value
-
-    invisible(get("self", envir = parent.frame()))
+    private$return()
 }
 
 .insert_label <- function(key, value, private){
     new_entry <- data.frame(key = key, value = value, stringsAsFactors = FALSE)
     private$.dictionary <- rbind(new_entry, private$.dictionary) %>% dplyr::distinct(key, .keep_all = TRUE)
-    invisible(get("self", envir = parent.frame()))
+    private$return()
 }
 
 .delete_label <- function(key, private){
     dictionary <- private$.dictionary
     private$.dictionary <- dictionary[!dictionary$key %in% key, ]
-    invisible(get("self", envir = parent.frame()))
+    private$return()
 }
 
 .plot_gain_curve <- function(private){

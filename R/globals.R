@@ -1,6 +1,6 @@
 #' @keywords internal
 ## Required for {tidyverse}
-utils::globalVariables(c(".","Source"))
+utils::globalVariables(c(".","Source", ":="))
 ## Column Names
 utils::globalVariables(c(
     "age", "area_percentage", "building_id", "count_families",
