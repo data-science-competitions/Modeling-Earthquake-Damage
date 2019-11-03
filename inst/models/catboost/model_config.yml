@@ -1,7 +1,7 @@
 default:
   # https://catboost.ai/docs/concepts/r-reference_catboost-train.html
   params:
-    iterations: 10
+    iterations: 500
     learning_rate: 0.01
     depth: 3
     loss_function: 'RMSE'
