@@ -1,4 +1,5 @@
 # Expectations -----------------------------------------------------------------
+error_message <- function(title, failed_values = NULL) paste0(title, paste0(failed_values, collapse = ", "))
 expect_dir_exists_and_not_empty <- function(path){
     expect_dir_exists(path)
     expect_gte(length(list.files(path, pattern = ".*.R$")), 1)
@@ -11,7 +12,7 @@ expect_text_appears_in_document <- function(target, text) expect_true(any(grepl(
 expect_subset <- function(x, y) expect_true(.is_subset(x ,y))
 expect_disjoint_sets <- function(x, y) expect_true(.are_disjoint_sets(x, y))
 expect_equal_sets <- function(x, y) expect_true(.are_set_equal(x, y), label = "Sets are not equal")
-expect_class <- function(object, class) expect_true(any(base::class(object) %in% class), label = paste("object is a", base::class(object), "not", class))
+expect_class <- function(object, class) expect(any(base::class(object) %in% class), error_message(paste("object is a", base::class(object), "not", class)))
 expect_no_duplicates <- function(x) expect_true(.has_no_duplicates(x))
 expect_an_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_equal(nrow(x), 0, label = paste("data.frame is not-empty; "))}
 expect_a_non_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_gt(nrow(x), 0, label = paste("data.frame is empty; "))}
