@@ -7,12 +7,17 @@
 #' @description Encapsulate `yardstick` functions in an `R6` object.
 #'
 #' @section Constructor Arguments:
-#' * \code{data} (`data.frame`) A table containing the \code{truth} and\code{estimate} columns.
+#' * \code{data} (`data.frame`) A table containing the \code{truth} and
+#' \code{estimate} columns.
 #' * \code{truth} (`character`) The column identifier for the true results.
-#' * \code{estimate} (`character`) The column identifier for the predicted results.
+#' * \code{estimate} (`character`) The column identifier for the predicted
+#' results.
 #'
 #' @section Public Methods:
 #' * \code{set_threshold} TRUE if x > threshold; FALSE if x <= threshold.
+#' * \code{set_transformation_function} A function that converts \code{estimate}
+#' into a factor which is comparable to \code{truth}. That means, that factor
+#' levels in the former must be included in the latter.
 #' * \code{insert_label}
 #' * \code{delete_label}
 #' * \code{plot_gain_curve} A cumulative gains curve shows the total number of
@@ -52,6 +57,7 @@ Yardstick <- R6::R6Class(
             private$.estimate <- estimate
         },
         set_threshold = function(value) .set_threshold(value, private),
+        set_transformation_function = function(fun) .set_transformation_function(fun, private),
         insert_label = function(key, value) .insert_label(key, value, private),
         delete_label = function(key) .delete_label(key, private),
         plot_gain_curve = function() .plot_gain_curve(private),
@@ -60,6 +66,7 @@ Yardstick <- R6::R6Class(
     private = list(
         ## Private Variables
         .threshold = NULL,
+        .transformation_function = NULL,
         .dictionary = data.frame(key = c(".metric", ".estimator", ".estimate"), value = NA_character_, stringsAsFactors = FALSE),
         .data = data.frame(stringsAsFactors = FALSE),
         .truth = character(0),
@@ -84,6 +91,12 @@ Yardstick <- R6::R6Class(
 # Public Methods ----------------------------------------------------------
 .set_threshold <- function(value, private){
     private$.threshold <- value
+    private$return()
+}
+
+.set_transformation_function <- function(fun, private){
+    stopifnot(is.function(fun))
+    private$.transformation_function <- fun
     private$return()
 }
 
