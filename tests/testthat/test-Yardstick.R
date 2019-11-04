@@ -149,3 +149,18 @@ test_that("Yardstick plots gain curve when truth is numeric", {
     expect_class(metrics$plot_gain_curve(), "ggplot")
 })
 
+# Class metrics (hard predictions) ----------------------------------------
+# test_that("Given probabilities and hard_treshold_function, when accuracy is called, the function returns accuracy", {
+#     attach(test_env)
+#
+#     expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "setosa.truth", estimate = "setosa.estimate"))
+#     expect_silent(metrics$set_threshold(value = 0.5))
+#     expect_class(metrics$plot_gain_curve(), "ggplot")
+# })
+
+test_that("Yardstick calculates accuracy for predicted labels", {
+    attach(test_env)
+
+    expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species"))
+    expect_a_non_empty_data.frame(metrics$accuracy)
+})
