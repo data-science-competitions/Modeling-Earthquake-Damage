@@ -72,19 +72,20 @@ Yardstick <- R6::R6Class(
         .truth = character(0),
         .estimate = character(0),
         ## Private Methods
-        call_metric = function(metric) .call_metric(private, metric),
+        call_class_metric = function(metric) .call_class_metric(private, metric),
+        call_numeric_metric = function(metric) .call_numeric_metric(private, metric),
         return = function() invisible(get("self", envir = parent.frame(2)))
     ),
     active = list(
         keys = function() private$.dictionary$key,
         # Class metrics (hard predictions)
-        accuracy = function() private$call_metric(metric = "accuracy"),
+        accuracy = function() private$call_class_metric(metric = "accuracy"),
         # Class probability metrics
         # Numeric metrics
-        rmse = function() private$call_metric(metric = "rmse"),
-        mae = function() private$call_metric(metric = "mae"),
-        rsq = function() private$call_metric(metric = "rsq"),
-        ccc = function() private$call_metric(metric = "ccc")
+        rmse = function() private$call_numeric_metric(metric = "rmse"),
+        mae = function() private$call_numeric_metric(metric = "mae"),
+        rsq = function() private$call_numeric_metric(metric = "rsq"),
+        ccc = function() private$call_numeric_metric(metric = "ccc")
     )
 )
 
@@ -144,7 +145,29 @@ Yardstick <- R6::R6Class(
 }
 
 # Private Methods ---------------------------------------------------------
-.call_metric <- function(private, metric){
+.call_numeric_metric <- function(private, metric){
+    dictionary <- private$.dictionary
+    data <- private$.data
+    truth <- private$.truth
+    estimate <- private$.estimate
+
+    command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
+    results <- eval(expr = parse(text = command))
+    results <- results[, colnames(results) %in% dictionary$key]
+
+    for(key in dictionary$key){
+        if(key %in% colnames(results)) {
+            next
+        } else {
+            value <- dictionary %>% dplyr::filter(key == !!key) %>% .$value
+            results <- results %>% tibble::add_column(!!key := value, .before = 0)
+        }# end if-else
+    }# end for loop
+
+    return(results)
+}
+
+.call_class_metric <- function(private, metric){
     dictionary <- private$.dictionary
     data <- private$.data
     truth <- private$.truth
