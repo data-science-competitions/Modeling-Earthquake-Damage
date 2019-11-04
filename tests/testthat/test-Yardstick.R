@@ -96,7 +96,7 @@ test_that("Yardstick allows to set a transformation function", {
     attach(test_env)
 
     expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
-    expect_silent(metrics$set_transformation_function(fun = function(x) x))
+    expect_silent(metrics$set_transformation(fun = function(x) x))
 })
 
 # method chaining ---------------------------------------------------------
@@ -172,6 +172,17 @@ test_that("Yardstick calculates accuracy for predicted probabilities", {
     data_cla <- data_cla %>% dplyr::mutate(setosa.truth = factor_binary(setosa.truth))
 
     expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "setosa.truth", estimate = "setosa.estimate"))
-    # expect_silent(metrics$set_transformation_function)
-    # expect_a_non_empty_data.frame(metrics$accuracy)
+    expect_silent(metrics$set_transformation(fun = hard_treshold_function))
+    expect_a_non_empty_data.frame(metrics$accuracy)
 })
+
+test_that("Yardstick calculates accuracy for predicted probabilities", {
+    attach(test_env)
+    factor_binary <- function(x) factor(x, levels = 0:1, labels = c("No", "Yes"))
+    hard_treshold_function <- function(x) factor_binary(x > 0.5)
+
+    expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "setosa.truth", estimate = "setosa.estimate"))
+    expect_silent(metrics$set_transformation(fun = hard_treshold_function))
+    expect_a_non_empty_data.frame(metrics$accuracy)
+})
+

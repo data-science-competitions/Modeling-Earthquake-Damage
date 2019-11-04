@@ -57,7 +57,7 @@ Yardstick <- R6::R6Class(
             private$.estimate <- estimate
         },
         set_threshold = function(value) .set_threshold(value, private),
-        set_transformation_function = function(fun) .set_transformation_function(fun, private),
+        set_transformation = function(fun) .set_transformation(fun, private),
         insert_label = function(key, value) .insert_label(key, value, private),
         delete_label = function(key) .delete_label(key, private),
         plot_gain_curve = function() .plot_gain_curve(private),
@@ -95,7 +95,7 @@ Yardstick <- R6::R6Class(
     private$return()
 }
 
-.set_transformation_function <- function(fun, private){
+.set_transformation <- function(fun, private){
     stopifnot(is.function(fun))
     private$.transformation_function <- fun
     private$return()
@@ -168,10 +168,25 @@ Yardstick <- R6::R6Class(
 }
 
 .call_class_metric <- function(private, metric){
+    is_not_factor <- function(x) !identical(is.factor(x), TRUE)
+    combine_factors_levels <- function(.data, .truth, .estimate){
+        .data %>%
+            dplyr::mutate(
+                !!.truth := forcats::fct_c(.data[[.truth]], .data[[.estimate]])[1:dplyr::n()],
+                !!.estimate := forcats::fct_c(.data[[.truth]], .data[[.estimate]])[(dplyr::n()+1):(2*dplyr::n())]
+            )
+    }
+
+    transformation_function <- private$.transformation_function
     dictionary <- private$.dictionary
     data <- private$.data
     truth <- private$.truth
     estimate <- private$.estimate
+
+    if(is_not_factor(data[[estimate]])) data <- data %>% dplyr::mutate(!!estimate := transformation_function(estimate))
+    if(is_not_factor(data[[truth]])) data <- data %>% dplyr::mutate(!!truth := transformation_function(truth))
+
+    data <- combine_factors_levels(data, truth, estimate)
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
     results <- eval(expr = parse(text = command))
