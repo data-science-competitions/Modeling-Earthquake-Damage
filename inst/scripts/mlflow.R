@@ -1,21 +1,21 @@
 # <https://github.com/mlflow/mlflow/tree/master/mlflow/R/mlflow>
 # Installation -----------------------------------------------------------------
 mlflow_version <- "1.2.0"
-path_mlflow <- getOption("path_mlflow")
-devtools::install_version(
-    "mlflow", version = mlflow_version, repos = "http://cran.us.r-project.org",
-    dependencies = TRUE, upgrade = "never"
-)
-
-library(reticulate)
-# reticulate::virtualenv_create("r-mlflow")
-reticulate::use_condaenv("r-mlflow")
-reticulate::conda_install("r-mlflow", "mlflow", pip = TRUE)
+envname <- paste0("r-mlflow-", mlflow_version)
+# devtools::install_version(
+#     "mlflow", version = mlflow_version, repos = "http://cran.us.r-project.org",
+#     dependencies = TRUE, upgrade = "never"
+# )
+reticulate::conda_create(envname)
+reticulate::use_condaenv(envname, required = TRUE)
+# reticulate::conda_install("r-mlflow", paste0("mlflow==", mlflow_version), pip = TRUE)
 # system(paste0("pip install --user ", "mlflow==", mlflow_version), intern = TRUE)
-# mlflow::install_mlflow(python_version = "3.7")
+mlflow::install_mlflow(python_version = "3.7")
+
 
 # Tracking ---------------------------------------------------------------------
-library(mlflow)
+path_mlflow <- getOption("path_mlflow")
+
 mlflow::mlflow_ui()
 
 # system("mlflow server --host 0.0.0.0")

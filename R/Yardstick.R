@@ -7,12 +7,17 @@
 #' @description Encapsulate `yardstick` functions in an `R6` object.
 #'
 #' @section Constructor Arguments:
-#' * \code{data} (`data.frame`) A table containing the \code{truth} and\code{estimate} columns.
+#' * \code{data} (`data.frame`) A table containing the \code{truth} and
+#' \code{estimate} columns.
 #' * \code{truth} (`character`) The column identifier for the true results.
-#' * \code{estimate} (`character`) The column identifier for the predicted results.
+#' * \code{estimate} (`character`) The column identifier for the predicted
+#' results.
 #'
 #' @section Public Methods:
 #' * \code{set_threshold} TRUE if x > threshold; FALSE if x <= threshold.
+#' * \code{set_transformation_function} A function that converts \code{estimate}
+#' into a factor which is comparable to \code{truth}. That means, that factor
+#' levels in the former must be included in the latter.
 #' * \code{insert_label}
 #' * \code{delete_label}
 #' * \code{plot_gain_curve} A cumulative gains curve shows the total number of
@@ -52,6 +57,7 @@ Yardstick <- R6::R6Class(
             private$.estimate <- estimate
         },
         set_threshold = function(value) .set_threshold(value, private),
+        set_transformation = function(fun) .set_transformation(fun, private),
         insert_label = function(key, value) .insert_label(key, value, private),
         delete_label = function(key) .delete_label(key, private),
         plot_gain_curve = function() .plot_gain_curve(private),
@@ -60,26 +66,38 @@ Yardstick <- R6::R6Class(
     private = list(
         ## Private Variables
         .threshold = NULL,
+        .transformation_function = NULL,
         .dictionary = data.frame(key = c(".metric", ".estimator", ".estimate"), value = NA_character_, stringsAsFactors = FALSE),
         .data = data.frame(stringsAsFactors = FALSE),
         .truth = character(0),
         .estimate = character(0),
         ## Private Methods
-        call_metric = function(metric) .call_metric(private, metric),
+        call_class_metric = function(metric) .call_class_metric(private, metric),
+        call_numeric_metric = function(metric) .call_numeric_metric(private, metric),
         return = function() invisible(get("self", envir = parent.frame(2)))
     ),
     active = list(
         keys = function() private$.dictionary$key,
-        rmse = function() private$call_metric(metric = "rmse"),
-        mae = function() private$call_metric(metric = "mae"),
-        rsq = function() private$call_metric(metric = "rsq"),
-        ccc = function() private$call_metric(metric = "ccc")
+        # Class metrics (hard predictions)
+        accuracy = function() private$call_class_metric(metric = "accuracy"),
+        # Class probability metrics
+        # Numeric metrics
+        rmse = function() private$call_numeric_metric(metric = "rmse"),
+        mae = function() private$call_numeric_metric(metric = "mae"),
+        rsq = function() private$call_numeric_metric(metric = "rsq"),
+        ccc = function() private$call_numeric_metric(metric = "ccc")
     )
 )
 
 # Public Methods ----------------------------------------------------------
 .set_threshold <- function(value, private){
     private$.threshold <- value
+    private$return()
+}
+
+.set_transformation <- function(fun, private){
+    stopifnot(is.function(fun))
+    private$.transformation_function <- fun
     private$return()
 }
 
@@ -127,11 +145,48 @@ Yardstick <- R6::R6Class(
 }
 
 # Private Methods ---------------------------------------------------------
-.call_metric <- function(private, metric){
+.call_numeric_metric <- function(private, metric){
     dictionary <- private$.dictionary
     data <- private$.data
     truth <- private$.truth
     estimate <- private$.estimate
+
+    command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
+    results <- eval(expr = parse(text = command))
+    results <- results[, colnames(results) %in% dictionary$key]
+
+    for(key in dictionary$key){
+        if(key %in% colnames(results)) {
+            next
+        } else {
+            value <- dictionary %>% dplyr::filter(key == !!key) %>% .$value
+            results <- results %>% tibble::add_column(!!key := value, .before = 0)
+        }# end if-else
+    }# end for loop
+
+    return(results)
+}
+
+.call_class_metric <- function(private, metric){
+    is_not_factor <- function(x) !identical(is.factor(x), TRUE)
+    combine_factors_levels <- function(.data, .truth, .estimate){
+        .data %>%
+            dplyr::mutate(
+                !!.truth := forcats::fct_c(.data[[.truth]], .data[[.estimate]])[1:dplyr::n()],
+                !!.estimate := forcats::fct_c(.data[[.truth]], .data[[.estimate]])[(dplyr::n()+1):(2*dplyr::n())]
+            )
+    }
+
+    transformation_function <- private$.transformation_function
+    dictionary <- private$.dictionary
+    data <- private$.data
+    truth <- private$.truth
+    estimate <- private$.estimate
+
+    if(is_not_factor(data[[estimate]])) data <- data %>% dplyr::mutate(!!estimate := transformation_function(estimate))
+    if(is_not_factor(data[[truth]])) data <- data %>% dplyr::mutate(!!truth := transformation_function(truth))
+
+    data <- combine_factors_levels(data, truth, estimate)
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
     results <- eval(expr = parse(text = command))

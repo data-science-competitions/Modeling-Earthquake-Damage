@@ -1,4 +1,6 @@
 # Expectations -----------------------------------------------------------------
+error_message <- function(title, failed_values = NULL) paste0("Error: ", title, paste0(failed_values, collapse = ", "))
+expect <- function(ok, failure_message, info = NULL, srcref = NULL) testthat::expect(identical(ok, TRUE), failure_message, info, srcref)
 expect_dir_exists_and_not_empty <- function(path){
     expect_dir_exists(path)
     expect_gte(length(list.files(path, pattern = ".*.R$")), 1)
@@ -10,14 +12,14 @@ expect_no_md_files <- function(path) expect_length(list.files(path, recursive = 
 expect_text_appears_in_document <- function(target, text) expect_true(any(grepl(text, readLines(target))))
 expect_subset <- function(x, y) expect_true(.is_subset(x ,y))
 expect_disjoint_sets <- function(x, y) expect_true(.are_disjoint_sets(x, y))
-expect_equal_sets <- function(x, y) expect_true(.are_set_equal(x, y), label = "Sets are not equal")
-expect_class <- function(object, class) expect_true(any(base::class(object) %in% class), label = paste("object is a", base::class(object), "not", class))
+expect_equal_sets <- function(x, y) expect_true(.are_set_equal(x, y), label = "sets are not equal")
+expect_class <- function(object, class) expect(any(base::class(object) %in% class), error_message(paste("object is a", base::class(object), "not", class)))
 expect_no_duplicates <- function(x) expect_true(.has_no_duplicates(x))
-expect_an_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_equal(nrow(x), 0, label = paste("data.frame is not-empty; "))}
-expect_a_non_empty_data.frame <- function(x){expect_class(x, "data.frame"); expect_gt(nrow(x), 0, label = paste("data.frame is empty; "))}
+expect_an_empty_data.frame <- function(x) if("expectation_success" %in% expect_class(x, "data.frame")) expect(nrow(x) == 0, error_message("data.frame is not-empty."))
+expect_a_non_empty_data.frame <- function(x) if("expectation_success" %in% expect_class(x, "data.frame")) expect(nrow(x) > 0, error_message("data.frame is empty."))
 expect_table_has_col_names <- function(object, col_names) expect_subset(col_names, colnames(object))
-expect_not_identical <- function(object, expected) expect_false(identical(object, expected), info  = "Error: objects A and B are identical")
-expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c("tbl", "tbl_df")), label = "Error: Object is not a tbl")
+expect_not_identical <- function(object, expected) expect_false(identical(object, expected), info  = "objects A and B are identical")
+expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c("tbl", "tbl_df")), label = "object is not a tbl")
 
 # Predicates -------------------------------------------------------------------
 .are_set_equal <- function(x, y){
