@@ -1,4 +1,10 @@
 # Helper Functions -------------------------------------------------------------
+as_earthquake_damage <- function(estimate, damage_grades = 1:3){
+    fun <- function(estimate, damage_grades) which.min(abs(estimate - damage_grades))
+    labels <- sapply(estimate, fun, damage_grades = damage_grades)
+    factor(labels, levels = seq_along(damage_grades), labels = damage_grades)
+}
+
 sample_the_data <- function(.data){
     .data %>%
         dplyr::group_by(damage_grade) %>%
@@ -53,15 +59,25 @@ pm$model_predict()
 pm$model_store()
 
 # Evaluate Model ----------------------------------------------------------
-truth <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth" = !!role_target)
-estimate <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate" = "fit")
-data <- dplyr::right_join(truth, estimate, by = role_pk)
-hard_treshold_function <- function(x) factor(round(x), levels = 1:3)
-model_performance <-
+truth.numeric <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth.numeric" = !!role_target)
+estimate.numeric <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate.numeric" = "fit")
+data <-
+    dplyr::right_join(truth.numeric, estimate.numeric, by = role_pk) %>%
+    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
+
+model_class_performance <-
     Yardstick$
-    new(data, truth = "truth", estimate = "estimate")$
+    new(data, truth = "truth.class", estimate = "estimate.class")$
+    delete_label(".estimator")$
+    insert_label(".model", pm$model_name)$
+    all_class_metrics
+
+model_numeric_performance <-
+    Yardstick$
+    new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
     delete_label(".estimator")$
     insert_label(".model", pm$model_name)$
     all_numeric_metrics
-print(model_performance)
 
+model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
+print(model_performance)
