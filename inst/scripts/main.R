@@ -57,12 +57,11 @@ truth <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::renam
 estimate <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate" = "fit")
 data <- dplyr::right_join(truth, estimate, by = role_pk)
 hard_treshold_function <- function(x) factor(round(x), levels = 1:3)
-metrics <-
+model_performance <-
     Yardstick$
     new(data, truth = "truth", estimate = "estimate")$
     delete_label(".estimator")$
     insert_label(".model", pm$model_name)$
-    set_transformation(hard_treshold_function)
-model_performance <- dplyr::bind_rows(metrics$accuracy, metrics$rmse, metrics$mae, metrics$rsq, metrics$ccc)
+    all_numeric_metrics
 print(model_performance)
 

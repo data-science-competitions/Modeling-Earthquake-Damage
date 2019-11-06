@@ -85,7 +85,11 @@ Yardstick <- R6::R6Class(
         call_numeric_metric = function(metric) .call_numeric_metric(private, metric),
         return = function() invisible(get("self", envir = parent.frame(2)))
     ),
-    active = list(keys = function() private$.dictionary$key)
+    active = list(
+        keys = function() private$.dictionary$key,
+        all_class_metrics = function() .calculate_class_metrics(private),
+        all_numeric_metrics = function() .calculate_numeric_metrics(private)
+    )
 )
 
 # Public Methods ----------------------------------------------------------
@@ -138,6 +142,30 @@ Yardstick <- R6::R6Class(
 }
 
 # Private Methods ---------------------------------------------------------
+.calculate_class_metrics <- function(private){
+    entries <- tibble::tibble()
+    metrics <- private$.class_metrics
+
+    for(metric in metrics){
+        new_entry <- .call_class_metric(private, metric)
+        entries <- dplyr::bind_rows(entries, new_entry)
+    }
+
+    return(entries)
+}
+
+.calculate_numeric_metrics <- function(private){
+    entries <- tibble::tibble()
+    metrics <- private$.numeric_metrics
+
+    for(metric in metrics){
+        new_entry <- .call_numeric_metric(private, metric)
+        entries <- dplyr::bind_rows(entries, new_entry)
+    }
+
+    return(entries)
+}
+
 .call_class_metric <- function(private, metric){
     .call_metric(private, metric)
 }

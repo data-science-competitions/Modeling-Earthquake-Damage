@@ -24,22 +24,37 @@ test_that("Yardstick constructor works", {
 })
 
 # known metrics -----------------------------------------------------------
-describe("Yardstick known", {
-    it("class metrics work", {
-        attach(test_env)
+test_that("Yardstick known class metrics work", {
+    attach(test_env)
 
-        expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species"))
-        for(metric in class_metrics)
-            expect_a_non_empty_data.frame(metrics[[metric]])
-    })
+    expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species"))
+    for(metric in class_metrics)
+        expect_a_non_empty_data.frame(metrics[[metric]])
+})
 
-    it("numeric metrics work", {
-        attach(test_env)
+test_that("Yardstick known numeric metrics work", {
+    attach(test_env)
 
-        expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
-        for(metric in numeric_metrics)
-            expect_a_non_empty_data.frame(metrics[[metric]])
-    })
+    expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
+    for(metric in numeric_metrics)
+        expect_a_non_empty_data.frame(metrics[[metric]])
+})
+
+# all known metrics -------------------------------------------------------
+test_that("returns all known class metrics in one command", {
+    attach(test_env)
+
+    expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species"))
+    expect_a_non_empty_data.frame(metrics$all_class_metrics)
+    expect_setequal(metrics$all_class_metrics$.metric, class_metrics)
+})
+
+test_that("returns all known numeric metrics in one command", {
+    attach(test_env)
+
+    expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg"))
+    expect_a_non_empty_data.frame(metrics$all_numeric_metrics)
+    expect_setequal(metrics$all_numeric_metrics$.metric, numeric_metrics)
 })
 
 # unknown metrics ---------------------------------------------------------
