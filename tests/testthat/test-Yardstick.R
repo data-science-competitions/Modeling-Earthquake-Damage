@@ -5,6 +5,10 @@ testthat::setup({
     assign("test_env", testthat::test_env(), envir = parent.frame())
     set.seed(1001)
 
+    test_env$class_metrics <- c("accuracy")
+    test_env$probability_metrics <- c()
+    test_env$numeric_metrics <- c("rmse", "mae", "rsq", "ccc")
+
     mpg_hat <- mtcars$mpg
     test_env$data_reg <- cbind(mpg_hat, mtcars)
 
@@ -20,12 +24,22 @@ test_that("Yardstick constructor works", {
 })
 
 # known metrics -----------------------------------------------------------
-test_that("Yardstick metrics are available", {
-    attach(test_env)
+describe("Yardstick known", {
+    it("class metrics work", {
+        attach(test_env)
 
-    expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
-    for(metric in c("rmse", "mae", "rsq", "ccc"))
-        expect_a_non_empty_data.frame(metrics[[metric]])
+        expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species"))
+        for(metric in class_metrics)
+            expect_a_non_empty_data.frame(metrics[[metric]])
+    })
+
+    it("numeric metrics work", {
+        attach(test_env)
+
+        expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
+        for(metric in numeric_metrics)
+            expect_a_non_empty_data.frame(metrics[[metric]])
+    })
 })
 
 # unknown metrics ---------------------------------------------------------
@@ -148,12 +162,3 @@ test_that("Yardstick plots gain curve when truth is numeric", {
     expect_silent(metrics$set_threshold(value = 0.5))
     expect_class(metrics$plot_gain_curve(), "ggplot")
 })
-
-# ClassMetricsFactory -----------------------------------------------------
-test_that("Yardstick passes all registered functions in ClassMetricsFactory", {
-    attach(test_env)
-
-    expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species"))
-    expect_silent(metrics$accuracy)
-})
-

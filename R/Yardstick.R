@@ -52,6 +52,18 @@ Yardstick <- R6::R6Class(
             private$.data <- data
             private$.truth <- truth
             private$.estimate <- estimate
+
+            # Class metrics
+            for(metric_name in private$.class_metrics){
+                dynamic_function <- function(metric) eval(parse(text = paste0("function() private$call_class_metric(metric = \"", metric_name, "\")")))
+                makeActiveBinding(metric_name, dynamic_function(), self)
+            }
+
+            # Numeric metrics
+            for(metric_name in private$.numeric_metrics){
+                dynamic_function <- function(metric) eval(parse(text = paste0("function() private$call_numeric_metric(metric = \"", metric_name, "\")")))
+                makeActiveBinding(metric_name, dynamic_function(), self)
+            }
         },
         set_threshold = function(value) .set_threshold(value, private),
         insert_label = function(key, value) .insert_label(key, value, private),
@@ -61,25 +73,19 @@ Yardstick <- R6::R6Class(
     ),
     private = list(
         ## Private Variables
+        .class_metrics = c("accuracy"),
+        .numeric_metrics = c("rmse", "mae", "rsq", "ccc"),
         .threshold = NULL,
         .dictionary = data.frame(key = c(".metric", ".estimator", ".estimate"), value = NA_character_, stringsAsFactors = FALSE),
         .data = data.frame(stringsAsFactors = FALSE),
         .truth = character(0),
         .estimate = character(0),
         ## Private Methods
-        call_metric = function(metric) .call_metric(private, metric),
+        call_class_metric = function(metric) .call_class_metric(private, metric),
+        call_numeric_metric = function(metric) .call_numeric_metric(private, metric),
         return = function() invisible(get("self", envir = parent.frame(2)))
     ),
-    active = list(
-        keys = function() private$.dictionary$key,
-        # Class metrics
-        accuracy = function() private$call_metric(metric = "accuracy"),
-        # Numeric metrics
-        rmse = function() private$call_metric(metric = "rmse"),
-        mae = function() private$call_metric(metric = "mae"),
-        rsq = function() private$call_metric(metric = "rsq"),
-        ccc = function() private$call_metric(metric = "ccc")
-    )
+    active = list(keys = function() private$.dictionary$key)
 )
 
 # Public Methods ----------------------------------------------------------
@@ -132,6 +138,14 @@ Yardstick <- R6::R6Class(
 }
 
 # Private Methods ---------------------------------------------------------
+.call_class_metric <- function(private, metric){
+    .call_metric(private, metric)
+}
+
+.call_numeric_metric <- function(private, metric){
+    .call_metric(private, metric)
+}
+
 .call_metric <- function(private, metric){
     dictionary <- private$.dictionary
     data <- private$.data
