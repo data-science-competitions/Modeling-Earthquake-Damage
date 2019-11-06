@@ -26,6 +26,8 @@
 #'
 #' @examples
 #' \dontrun{
+#' ls("package:yardstick")
+#'
 #' mpg_hat <- mtcars$mpg
 #' data <- cbind(mpg_hat, mtcars)
 #'
@@ -70,6 +72,9 @@ Yardstick <- R6::R6Class(
     ),
     active = list(
         keys = function() private$.dictionary$key,
+        # Class metrics
+        accuracy = function() private$call_metric(metric = "accuracy"),
+        # Numeric metrics
         rmse = function() private$call_metric(metric = "rmse"),
         mae = function() private$call_metric(metric = "mae"),
         rsq = function() private$call_metric(metric = "rsq"),

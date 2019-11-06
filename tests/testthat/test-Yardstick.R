@@ -149,3 +149,11 @@ test_that("Yardstick plots gain curve when truth is numeric", {
     expect_class(metrics$plot_gain_curve(), "ggplot")
 })
 
+# ClassMetricsFactory -----------------------------------------------------
+test_that("Yardstick passes all registered functions in ClassMetricsFactory", {
+    attach(test_env)
+
+    expect_silent(metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species"))
+    expect_silent(metrics$accuracy)
+})
+
