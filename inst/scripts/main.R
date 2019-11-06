@@ -65,13 +65,6 @@ data <-
     dplyr::right_join(truth.numeric, estimate.numeric, by = role_pk) %>%
     dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
 
-model_numeric_performance <-
-    Yardstick$
-    new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
-    delete_label(".estimator")$
-    insert_label(".model", pm$model_name)$
-    all_numeric_metrics
-
 model_class_performance <-
     Yardstick$
     new(data, truth = "truth.class", estimate = "estimate.class")$
@@ -79,5 +72,12 @@ model_class_performance <-
     insert_label(".model", pm$model_name)$
     all_class_metrics
 
-print(model_numeric_performance)
-print(model_class_performance)
+model_numeric_performance <-
+    Yardstick$
+    new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
+    delete_label(".estimator")$
+    insert_label(".model", pm$model_name)$
+    all_numeric_metrics
+
+model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
+print(model_performance)
