@@ -176,7 +176,7 @@ Yardstick <- R6::R6Class(
 
 .call_metric <- function(private, metric){
     dictionary <- private$.dictionary
-    data <- private$.data %>% dplyr::add_count(name = ".n") %>% dplyr::group_by(.n, add = TRUE)
+    data <- private$.data %>% dplyr::add_count(name = ".n") %>% dplyr::group_by_at(".n", .add = TRUE)
     truth <- private$.truth
     estimate <- private$.estimate
     grouping_vars <- dplyr::group_vars(data)
