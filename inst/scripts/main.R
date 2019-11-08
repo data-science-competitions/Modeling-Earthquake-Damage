@@ -1,19 +1,9 @@
 # Helper Functions -------------------------------------------------------------
-as_earthquake_damage <- function(estimate, damage_grades = 1:3){
-    fun <- function(estimate, damage_grades) which.min(abs(estimate - damage_grades))
-    labels <- sapply(estimate, fun, damage_grades = damage_grades)
-    factor(labels, levels = seq_along(damage_grades), labels = damage_grades)
-}
-
 sample_the_data <- function(.data){
     .data %>%
         dplyr::group_by(damage_grade) %>%
         dplyr::sample_frac(size = 0.1) %>%
         rsample::initial_split(prop = 0.7, strata = "damage_grade")
-}
-
-matches <- function(.data, match){
-    tidyselect::vars_select(names(.data), dplyr::matches(match))
 }
 
 # Setup ------------------------------------------------------------------------
@@ -34,7 +24,7 @@ set.seed(1936)
 rset_obj <- sample_the_data(historical_data)
 role_pk <- "building_id"
 role_none <- NULL
-role_input <- matches(historical_data, "^geo_|^has_")
+role_input <- match_columns(historical_data, "^geo_|^has_")
 role_target <- "damage_grade"
 
 train_set <-
