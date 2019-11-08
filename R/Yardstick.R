@@ -176,14 +176,14 @@ Yardstick <- R6::R6Class(
 
 .call_metric <- function(private, metric){
     dictionary <- private$.dictionary
-    data <- private$.data
+    data <- private$.data %>% dplyr::add_count(name = ".n") %>% dplyr::group_by(.n, add = TRUE)
     truth <- private$.truth
     estimate <- private$.estimate
     grouping_vars <- dplyr::group_vars(data)
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
     results <- eval(expr = parse(text = command))
-    results <- results[, colnames(results) %in% c(grouping_vars, dictionary$key)]
+    results <- results[, colnames(results) %in% unique(c(grouping_vars, dictionary$key))]
 
     for(key in dictionary$key){
         if(key %in% colnames(results)) {
