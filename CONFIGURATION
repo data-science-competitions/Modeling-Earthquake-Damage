@@ -1,6 +1,7 @@
 default:
   startup:
     - !expr options(tidyverse.quiet = TRUE)
+    - !expr options(scipen = 999)
     - !expr options(repos = "https://mran.microsoft.com/snapshot/2019-04-15")
   paths:
     - !expr options(path_project   = tryCatch(rprojroot::find_rstudio_root_file(), error=function(e) getwd()))

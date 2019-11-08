@@ -85,3 +85,10 @@ model_numeric_performance <-
 
 model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
 print(model_performance)
+
+# Visualisation -----------------------------------------------------------
+accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
+par(pty = "m")
+accuracy %>% .$.estimate %>% density(from = 0, to = 1) %>% plot()
+par(pty = "s")
+accuracy %>% dplyr::select(.n, .estimate) %>% plot(ylim = c(0.5, 1))
