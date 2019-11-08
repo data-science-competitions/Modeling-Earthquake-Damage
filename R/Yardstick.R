@@ -179,10 +179,11 @@ Yardstick <- R6::R6Class(
     data <- private$.data
     truth <- private$.truth
     estimate <- private$.estimate
+    grouping_vars <- dplyr::group_vars(data)
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
     results <- eval(expr = parse(text = command))
-    results <- results[, colnames(results) %in% dictionary$key]
+    results <- results[, colnames(results) %in% c(grouping_vars, dictionary$key)]
 
     for(key in dictionary$key){
         if(key %in% colnames(results)) {
@@ -221,7 +222,7 @@ Yardstick <- R6::R6Class(
     estimate <- private$.estimate
     threshold <- private$.threshold
 
-    ggplot_data <- dplyr::mutate(data, !!truth := factor(truth > threshold) %>% stats::relevel(ref = "TRUE"))
+    ggplot_data <- dplyr::mutate(data, !!truth := factor(truth > threshold, levels = c(FALSE, TRUE)))
 
     return(ggplot_data)
 }
