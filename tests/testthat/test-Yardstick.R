@@ -65,6 +65,16 @@ test_that("Yardstick unknown metrics are return NULL", {
     expect_null(metrics[["unknown_metric"]])
 })
 
+
+# grouping variables ------------------------------------------------------
+test_that("Yardstick groups variables", {
+    attach(test_env)
+    data_reg <- data_reg %>% dplyr::group_by(cyl)
+
+    expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
+    expect_table_has_col_names(metrics$rmse, "cyl")
+})
+
 # add attributes ----------------------------------------------------------
 test_that("Yardstick keys are available", {
     attach(test_env)

@@ -1,5 +1,5 @@
 # Expectations -----------------------------------------------------------------
-error_message <- function(title, failed_values = NULL) paste0("Error: ", title, paste0(failed_values, collapse = ", "))
+error_message <- function(title, failed_values = NULL) paste0("Error! ", title, paste0(failed_values, collapse = ", "))
 expect <- function(ok, failure_message, info = NULL, srcref = NULL){testthat::expect(identical(ok, TRUE), failure_message, info, srcref); invisible()}
 expect_dir_exists_and_not_empty <- function(path){
     expect_dir_exists(path)
@@ -18,7 +18,7 @@ expect_no_duplicates <- function(x) expect_true(.has_no_duplicates(x))
 expect_no_na <- function(x) expect_false(any(is.na(x)), info = "Error: object has NA values")
 expect_an_empty_data.frame <- function(x) if(is.null(expect_class(x, "data.frame"))) expect(nrow(x) == 0, error_message("data.frame is not-empty."))
 expect_a_non_empty_data.frame <- function(x) if(is.null(expect_class(x, "data.frame"))) expect(nrow(x) > 0, error_message("data.frame is empty."))
-expect_table_has_col_names <- function(object, col_names) if(is.null(expect_class(object, "data.frame"))) expect(all(col_names %in% colnames(object)), error_message("missing columns: ", setdiff(col_names, colnames(object))))
+expect_table_has_col_names <- function(object, col_names) if(is.null(expect_class(object, "data.frame"))) expect(all(col_names %in% colnames(object)), error_message("data.frame missing columns: ", setdiff(col_names, colnames(object))))
 expect_has_no_duplicates <- function(x) expect(isFALSE(any(duplicated(x))), failure_message = error_message("Vector contains duplicated values: ", x[duplicated(x)]))
 expect_not_identical <- function(object, expected) expect_false(identical(object, expected), info  = "objects A and B are identical")
 expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c("tbl", "tbl_df")), label = "object is not a tbl")
