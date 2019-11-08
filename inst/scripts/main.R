@@ -59,11 +59,15 @@ pm$model_predict()
 pm$model_store()
 
 # Evaluate Model ----------------------------------------------------------
+metadata <- test_set %>% dplyr::select(role_pk, dplyr::starts_with("geo_"))
 truth.numeric <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth.numeric" = !!role_target)
 estimate.numeric <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate.numeric" = "fit")
 data <-
-    dplyr::right_join(truth.numeric, estimate.numeric, by = role_pk) %>%
+    metadata %>%
+    dplyr::right_join(truth.numeric, by = role_pk) %>%
+    dplyr::right_join(estimate.numeric, by = role_pk) %>%
     dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
+data <- data %>% dplyr::group_by(geo_level_1_id)
 
 model_class_performance <-
     Yardstick$
