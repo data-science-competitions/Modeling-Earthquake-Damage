@@ -1,6 +1,7 @@
 # Files ------------------------------------------------------------------------
-^\.Rprofile$
+.*\.gitkeep$
 .*\.ini$
+^\.Rprofile$
 ^\.gitattributes$
 ^README\.R$
 ^appveyor\.yml$
@@ -22,5 +23,6 @@
 ^data-raw/*
 ^public/*
 ^\.Rproj\.user$
+^inst/archive$
 ^inst/data$
 ^\.binder$
