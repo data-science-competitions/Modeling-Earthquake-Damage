@@ -10,7 +10,7 @@ historical_data <- ds$data_model$historical_data
 
 # Saple the Data ---------------------------------------------------------------
 set.seed(1936)
-K <- 200
+K <- 30
 rset_obj <- historical_data %>% dplyr::sample_n(6e4) %>% rsample::bootstraps(times = K, strata = "damage_grade")
 
 # Formualte the Model ----------------------------------------------------------
