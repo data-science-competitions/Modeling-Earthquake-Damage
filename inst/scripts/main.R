@@ -66,7 +66,6 @@ model_numeric_performance <-
 model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
 print(model_performance)
 
-
 # Visualisation -----------------------------------------------------------
 accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
 grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n)
