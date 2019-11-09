@@ -35,14 +35,19 @@ FeatureStore <- R6::R6Class(
   ),
   private = list(ds = NULL),
   active = list(
-    tidy_data = function() .get_tidy_data(private)
+    tidy_data = function() .craft_tidy_data(private),
+    geo_features = function() .craft_geo_features(private)
   )
 )#end DataStore
 
 # Private Methods ---------------------------------------------------------
-.get_tidy_data <- function(private){
+.craft_tidy_data <- function(private){
   historical_data <- private$ds$data_model$historical_data
   new_data <- private$ds$data_model$new_data
   dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = "source")
+}
+
+.craft_geo_features <- function(private){
+  mtcars
 }
 
