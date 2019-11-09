@@ -2,13 +2,15 @@
 logseq <- function(from, to, ...) 10^(seq(log10(from), log10(to), ...))
 
 # Setup ------------------------------------------------------------------------
-ds <- DataStore$new()
+fs <- FeatureStore$new()
 model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data -----------------------------------------------------------------
-historical_data <- ds$data_model$historical_data
+tidy_data <- fs$tidy_data
+historical_data <- tidy_data %>% dplyr::filter(source %in% "historical_data") %>% dplyr::select(-source)
+new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::select(-source)
 
 # Sample the Data --------------------------------------------------------------
 set.seed(1936)
