@@ -58,4 +58,8 @@ for(k in seq_len(get_rsample_num_of_splits(rset_obj))){
 }
 
 # Visualisation -----------------------------------------------------------
-boxplot(.estimate ~ geo_level_1_id, model_performance %>% as.data.frame())
+boxplot_data <-
+    model_performance %>%
+    dplyr::mutate(geo_level_1_id = forcats::fct_reorder(geo_level_1_id, .estimate, median))
+boxplot(.estimate ~ geo_level_1_id, boxplot_data %>% as.data.frame())
+
