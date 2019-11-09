@@ -25,7 +25,7 @@ test_set <- get_rsample_test_set(rset_obj, split = 1)
 model_performance <- tibble::tibble()
 sample_sizes <- logseq(from = 1000, to = nrow(train_set), length.out = 10) %>% floor()
 for(sample_size in sample_sizes){
-    message("Training model on ", sample_size, "observations")
+    message("Training model on ", sample_size %>% signif(2), " observations")
     pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
     pm$set_historical_data(train_set[1:sample_size, ])
     pm$set_new_data(test_set)

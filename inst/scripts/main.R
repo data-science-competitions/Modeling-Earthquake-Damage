@@ -17,12 +17,12 @@ role_target <- "damage_grade"
 
 train_set <-
     get_rsample_training_set(rset_obj, split = 1) %>%
-    dplyr::sample_n(3e4) %>%
+    dplyr::sample_n(6e4) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 test_set <-
     get_rsample_test_set(rset_obj, split = 1) %>%
-    dplyr::sample_n(3e4) %>%
+    dplyr::sample_n(4e4) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Run model ---------------------------------------------------------------
