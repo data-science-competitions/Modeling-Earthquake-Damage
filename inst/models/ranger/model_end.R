@@ -8,7 +8,7 @@ model_end <- function(){
         model = model_object,
         data = historical_data[, role_input],
         y = historical_data[[role_target]],
-        predict_function = predict_function,
+        predict_function = function(model, data) predict_function(model, data)[["fit"]],
         link = link_function,
         label = model_name,
         verbose = FALSE
