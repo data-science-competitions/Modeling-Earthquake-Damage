@@ -17,7 +17,8 @@ Roxygen: list(markdown = TRUE)
 Language: en-GB
 Remotes: 
     krlmlr/dm@v0.0.1.9002,
-    ModelOriented/DALEX@7e083c18c28d381adcd359b3427cc62a25620750
+    ModelOriented/DALEX@7e083c18c28d381adcd359b3427cc62a25620750,
+    ModelOriented/ingredients@7cc888b3963a146decfc4ff29023b86adae3a0f1
 Depends: 
     R (>= 3.5)
 Imports: 
@@ -29,6 +30,7 @@ Imports:
     dplyr (>= 0.8),
     forcats (>= 0.4.0),
     ggplot2 (>= 3.0.0),
+    ingredients (>= 0.4),
     magrittr (>= 1.5),
     PerformanceAnalytics (>= 1.5.2),
     R6 (>= 2.3.0),
