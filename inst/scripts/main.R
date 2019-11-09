@@ -12,7 +12,7 @@ set.seed(1936)
 rset_obj <- historical_data %>% rsample::initial_split(prop = 0.8, strata = "damage_grade")
 role_pk <- "building_id"
 role_none <- NULL
-role_input <- match_columns(historical_data, "^geo_|^has_")
+role_input <- match_columns(historical_data, "^geo_|^has_superstructure_|^has_secondary_use$")
 role_target <- "damage_grade"
 
 train_set <-
