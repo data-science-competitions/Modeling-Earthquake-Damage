@@ -28,7 +28,21 @@ FeatureStore <- R6::R6Class(
   cloneable = FALSE,
   portable = FALSE,
   lock_objects = TRUE,
-  public = list(),
-  private = list(),
-  active = list()
+  public = list(
+    initialize = function(){
+      private$ds <- DataStore$new()
+    }
+  ),
+  private = list(ds = NULL),
+  active = list(
+    tidy_data = function() .get_tidy_data(private)
+  )
 )#end DataStore
+
+# Private Methods ---------------------------------------------------------
+.get_tidy_data <- function(private){
+  historical_data <- private$ds$data_model$historical_data
+  new_data <- private$ds$data_model$new_data
+  dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = "source")
+}
+

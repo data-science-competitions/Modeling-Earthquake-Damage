@@ -9,14 +9,11 @@ test_that("FeatureStore can be instantiated", {
     expect_class(test_env$obj <- FeatureStore$new(), "FeatureStore")
 })
 
-# test_that("FeatureStore has access to the project datasets", {
-#     attach(test_env)
-#     expect_class(obj$data_model, "dm")
-#
-#     expect_class(obj$data_model$historical_data, "data.frame")
-#     expect_class(obj$data_model$new_data, "data.frame")
-#     expect_class(obj$data_model$submission_format, "data.frame")
-# })
+test_that("FeatureStore has access to the project datasets", {
+    attach(test_env)
+    expect_class(obj$tidy_data, "data.frame")
+    expect_table_has_col_names(obj$tidy_data, c("source", "building_id"))
+})
 
 testthat::teardown(test_env <- NULL)
 
