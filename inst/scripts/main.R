@@ -12,7 +12,7 @@ set.seed(1936)
 rset_obj <- historical_data %>% rsample::initial_split(prop = 0.8, strata = "damage_grade")
 role_pk <- "building_id"
 role_none <- NULL
-role_input <- match_columns(historical_data, "^geo_|^has_")
+role_input <- match_columns(historical_data, "^geo_|^has_superstructure_|^has_secondary_use$")
 role_target <- "damage_grade"
 
 train_set <-
@@ -37,6 +37,7 @@ pm$model_init()
 pm$model_fit()
 pm$model_predict()
 pm$model_store()
+pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
 metadata <- test_set %>% dplyr::select(role_pk, dplyr::starts_with("geo_"))
@@ -68,7 +69,23 @@ print(model_performance)
 
 # Visualisation -----------------------------------------------------------
 accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
+grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n)
+## Metrics Correlation Plot
+model_performance %>%
+    dplyr::mutate(.metric = paste0("metric_", .metric)) %>%
+    tidyr::spread(".metric", ".estimate") %>%
+    dplyr::select(dplyr::starts_with("metric_")) %>%
+    dplyr::rename_all(function(x) stringr::str_remove_all(x, "metric_")) %>%
+    as.matrix() %>%
+    PerformanceAnalytics::chart.Correlation(method = "spearman", histogram = FALSE)
+## Density Plot
 par(pty = "m")
-accuracy %>% .$.estimate %>% density(from = 0, to = 1) %>% plot()
+accuracy %>% .$.estimate %>% density(from = 0, to = 1) %>% plot(main = "")
+title("Accuracy ~ geo_level_1_id Density Plot")
+abline(v = grand_accuracy, lty = 2, col = "gray")
+## Scatter Plot
 par(pty = "s")
-accuracy %>% dplyr::select(.n, .estimate) %>% plot(ylim = c(0.5, 1))
+accuracy %>% dplyr::select(.n, .estimate) %>% plot(ylim = c(0.5, 1), pch = 21, cex = 1, bg = "orange", col = "gray")
+title("Accuracy ~ geo_level_1_id Scatter Plot")
+abline(h = grand_accuracy, lty = 2, col = "gray")
+with(accuracy, text(.estimate ~ .n, labels = geo_level_1_id, pos = 4, cex = 0.5))
