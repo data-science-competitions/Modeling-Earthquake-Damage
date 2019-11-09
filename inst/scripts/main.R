@@ -1,11 +1,3 @@
-# Helper Functions --------------------------------------------------------
-sample_the_data <- function(.data){
-    .data %>%
-        dplyr::group_by(damage_grade) %>%
-        dplyr::sample_frac(size = 0.1) %>%
-        rsample::initial_split(prop = 0.7, strata = "damage_grade")
-}
-
 # Setup -------------------------------------------------------------------
 ds <- DataStore$new()
 model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
@@ -13,15 +5,11 @@ output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-historical_data <-
-    ds$data_model %>%
-    dm::cdm_get_tables() %>%
-    .$historical_data %>%
-    as.data.frame(stringsAsFactors = FALSE)
+historical_data <- ds$data_model$historical_data
 
 # Sample the Data ---------------------------------------------------------
 set.seed(1936)
-rset_obj <- sample_the_data(historical_data)
+rset_obj <- historical_data %>% rsample::initial_split(prop = 0.8, strata = "damage_grade")
 role_pk <- "building_id"
 role_none <- NULL
 role_input <- match_columns(historical_data, "^geo_|^has_")
@@ -29,10 +17,12 @@ role_target <- "damage_grade"
 
 train_set <-
     get_rsample_training_set(rset_obj, split = 1) %>%
+    dplyr::sample_n(3e4) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 test_set <-
     get_rsample_test_set(rset_obj, split = 1) %>%
+    dplyr::sample_n(3e4) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Run model ---------------------------------------------------------------
