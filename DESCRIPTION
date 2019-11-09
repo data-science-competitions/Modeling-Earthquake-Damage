@@ -34,6 +34,7 @@ Imports:
     rsample (>= 0.0.4),
     stringr (>= 1.4.0),
     tibble (>= 2.1.1),
+    tidyselect (>= 0.2.5),
     yaml (>= 2.2.0),
     yardstick (>= 0.0.3),
     zip (>= 2.0.1)
