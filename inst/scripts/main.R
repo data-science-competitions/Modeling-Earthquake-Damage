@@ -5,7 +5,10 @@ output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-tidy_data <- fs$tidy_data
+tidy_data <-
+    fs$tidy_data %>%
+    dplyr::left_join(by = "building_id", fs$geo_features) %>%
+    dplyr::select(-geo_level_1_id_ordered)
 historical_data <- tidy_data %>% dplyr::filter(source %in% "historical_data") %>% dplyr::select(-source)
 new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::select(-source)
 
@@ -14,7 +17,6 @@ set.seed(1936)
 rset_obj <- historical_data %>% rsample::initial_split(prop = 0.8, strata = "damage_grade")
 role_pk <- "building_id"
 role_none <- NULL
-role_input <- match_columns(historical_data, "^geo_|^has_superstructure_|^has_secondary_use$|^age$|_type$")
 role_input <- match_columns(historical_data, "^geo_|^has_superstructure_mud_mortar_stone$|^age$|_type$")
 role_target <- "damage_grade"
 
