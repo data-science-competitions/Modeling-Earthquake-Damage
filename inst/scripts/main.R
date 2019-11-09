@@ -1,4 +1,4 @@
-# Helper Functions -------------------------------------------------------------
+# Helper Functions --------------------------------------------------------
 sample_the_data <- function(.data){
     .data %>%
         dplyr::group_by(damage_grade) %>%
@@ -6,20 +6,20 @@ sample_the_data <- function(.data){
         rsample::initial_split(prop = 0.7, strata = "damage_grade")
 }
 
-# Setup ------------------------------------------------------------------------
+# Setup -------------------------------------------------------------------
 ds <- DataStore$new()
 model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
-# Get the Data -----------------------------------------------------------------
+# Get the Data ------------------------------------------------------------
 historical_data <-
     ds$data_model %>%
     dm::cdm_get_tables() %>%
     .$historical_data %>%
     as.data.frame(stringsAsFactors = FALSE)
 
-# Sample the Data --------------------------------------------------------------
+# Sample the Data ---------------------------------------------------------
 set.seed(1936)
 rset_obj <- sample_the_data(historical_data)
 role_pk <- "building_id"
