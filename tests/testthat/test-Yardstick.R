@@ -65,6 +65,25 @@ test_that("Yardstick unknown metrics are return NULL", {
     expect_null(metrics[["unknown_metric"]])
 })
 
+# grouping variables ------------------------------------------------------
+test_that("Yardstick reports group variables", {
+    attach(test_env)
+    data_reg <- data_reg %>% dplyr::group_by(cyl)
+
+    expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
+    expect_table_has_col_names(metrics$rmse, "cyl")
+})
+
+# sample size -------------------------------------------------------------
+test_that("Yardstick reports sample size", {
+    attach(test_env)
+    data_reg <- data_reg %>% dplyr::group_by(cyl)
+
+    expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
+    expect_table_has_col_names(metrics$rmse, ".n")
+    expect_nrow(metrics$rmse, 3)
+})
+
 # add attributes ----------------------------------------------------------
 test_that("Yardstick keys are available", {
     attach(test_env)
@@ -109,7 +128,7 @@ test_that("Yardstick discards attributes from results", {
     expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
     expect_silent(metrics$delete_label(key = ".metric"))
     expect_a_non_empty_data.frame(results <- metrics[["rmse"]])
-    expect_identical(colnames(results), c(".estimator", ".estimate"))
+    expect_disjoint_sets(colnames(results), c(".metric"))
 })
 
 # set threshold -----------------------------------------------------------
