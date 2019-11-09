@@ -71,6 +71,7 @@ grand_accuracy <-
     dplyr::summarise(.estimate = sum(.estimate) / sum(.n))
 
 boxplot(.estimate ~ geo_level_1_id, boxplot_data %>% as.data.frame())
+title(main = ".estimate ~ geo_level_1_id")
 abline(h = quantile(grand_accuracy$.estimate, probs = c(0.5)))
 
 
