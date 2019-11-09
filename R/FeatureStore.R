@@ -48,6 +48,8 @@ FeatureStore <- R6::R6Class(
 }
 
 .craft_geo_features <- function(private){
-  mtcars
+  geo_features <-
+    .craft_tidy_data(private) %>%
+    dplyr::select(building_id, dplyr::starts_with("geo_"))
 }
 

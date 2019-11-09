@@ -18,6 +18,7 @@ test_that("FeatureStore has access to the project datasets", {
 test_that("FeatureStore has access to the new feature sets", {
     attach(test_env)
     expect_class(obj$geo_features, "data.frame")
+    expect_table_has_col_names(obj$geo_features, c("building_id"))
 })
 
 testthat::teardown(test_env <- NULL)
