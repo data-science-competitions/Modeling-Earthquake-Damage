@@ -1,6 +1,6 @@
 # Setup ------------------------------------------------------------------------
 fs <- FeatureStore$new()
-model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
+model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[1]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -11,7 +11,7 @@ new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::selec
 
 # Saple the Data ---------------------------------------------------------------
 set.seed(1936)
-K <- 30
+K <- 200
 rset_obj <- historical_data %>% dplyr::sample_n(6e4) %>% rsample::bootstraps(times = K, strata = "damage_grade")
 
 # Formualte the Model ----------------------------------------------------------
@@ -62,5 +62,15 @@ for(k in seq_len(get_rsample_num_of_splits(rset_obj))){
 boxplot_data <-
     model_performance %>%
     dplyr::mutate(geo_level_1_id = forcats::fct_reorder(geo_level_1_id, .estimate, median))
+
+grand_accuracy <-
+    boxplot_data %>%
+    dplyr::group_by(.sample, geo_level_1_id) %>%
+    dplyr::mutate(.estimate = .n * .estimate) %>%
+    dplyr::group_by(.sample) %>%
+    dplyr::summarise(.estimate = sum(.estimate) / sum(.n))
+
 boxplot(.estimate ~ geo_level_1_id, boxplot_data %>% as.data.frame())
+abline(h = quantile(grand_accuracy$.estimate, probs = c(0.5)))
+
 
