@@ -11,7 +11,7 @@ new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::selec
 
 # Saple the Data ---------------------------------------------------------------
 set.seed(1936)
-K <- 200
+K <- 10
 rset_obj <- historical_data %>% dplyr::sample_n(6e4) %>% rsample::bootstraps(times = K, strata = "damage_grade")
 
 # Formualte the Model ----------------------------------------------------------
