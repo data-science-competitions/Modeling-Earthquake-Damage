@@ -2,7 +2,6 @@ default:
   startup:
     - !expr options(tidyverse.quiet = TRUE)
     - !expr options(scipen = 999)
-    - !expr options(repos = "https://mran.microsoft.com/snapshot/2019-04-15")
   paths:
     - !expr options(path_project   = tryCatch(rprojroot::find_rstudio_root_file(), error=function(e) getwd()))
     - !expr options(path_inst      = file.path(.Options$path_project, "inst"))
@@ -27,6 +26,9 @@ default:
     - !expr options(dataflows.ingest.concrete = "IngestData")
 
 session:
+  startup:
+    - !expr options(repos = "https://mran.microsoft.com/snapshot/2019-09-15")
+    - !expr message("Default CRAN mirror snapshot taken on ", gsub("^.*/", "", getOption("repos")))
   packages:
     - !expr require(devtools, warn.conflicts = FALSE, quietly = TRUE)
     - !expr require(usethis, warn.conflicts = FALSE, quietly = TRUE)

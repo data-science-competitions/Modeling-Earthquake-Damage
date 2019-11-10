@@ -4,7 +4,7 @@ testthat::setup({
     assign("test_env", testthat::test_env(), envir = parent.frame())
 })
 
-test_that("DataStore implements its interface method signatures", {
+test_that("DataStore can be instantiated", {
     attach(test_env)
     expect_class(test_env$obj <- DataStore$new(), "DataStore")
 })

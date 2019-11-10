@@ -8,14 +8,14 @@
     }
 
     # Main --------------------------------------------------------------------
+    try(config::get(file = file.path(rprojroot::find_rstudio_root_file(), "CONFIGURATION")))
+    try(copy_CONFIGURATION_from_root_to_inst())
     try({ # The expectation is needed when using CI
         sink(tempfile())
         on.exit(sink())
         suppressMessages(devtools::load_all(export_all = FALSE, helpers = FALSE))
+    })
 
-        config::get(file = file.path(rprojroot::find_rstudio_root_file(), "CONFIGURATION"))
-        copy_CONFIGURATION_from_root_to_inst()
-    }, silent = TRUE)
 }
 
 .Last <- function(){

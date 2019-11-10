@@ -1,9 +1,6 @@
-# Helper Functions --------------------------------------------------------
-logseq <- function(from, to, ...) 10^(seq(log10(from), log10(to), ...))
-
 # Setup ------------------------------------------------------------------------
 fs <- FeatureStore$new()
-model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
+model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[1]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -12,24 +9,28 @@ tidy_data <- fs$tidy_data
 historical_data <- tidy_data %>% dplyr::filter(source %in% "historical_data") %>% dplyr::select(-source)
 new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::select(-source)
 
-# Sample the Data --------------------------------------------------------------
+# Saple the Data ---------------------------------------------------------------
 set.seed(1936)
-rset_obj <- historical_data %>% rsample::initial_split(prop = 0.7, strata = "damage_grade")
+K <- 10
+rset_obj <- historical_data %>% dplyr::sample_n(6e4) %>% rsample::bootstraps(times = K, strata = "damage_grade")
+
+# Formualte the Model ----------------------------------------------------------
 role_pk <- "building_id"
 role_none <- NULL
 role_input <- match_columns(historical_data, "^geo_|^has_superstructure_mud_mortar_stone$|^age$|_type$")
 role_target <- "damage_grade"
 
-train_set <- get_rsample_training_set(rset_obj, split = 1)
-test_set <- get_rsample_test_set(rset_obj, split = 1)
-
 # Run model ---------------------------------------------------------------
 model_performance <- tibble::tibble()
-sample_sizes <- logseq(from = 1000, to = nrow(train_set), length.out = 10) %>% floor()
-for(sample_size in sample_sizes){
-    message("Training model on ", sample_size %>% signif(2), " observations")
+pb <- progress::progress_bar$new(total = K, format = "Training Models [:bar] :current/:total (:percent) eta: :eta")
+for(k in seq_len(get_rsample_num_of_splits(rset_obj))){
+    pb$tick()
+
+    train_set <- get_rsample_training_set(rset_obj, split = k)
+    test_set <- get_rsample_test_set(rset_obj, split = k)
+
     pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
-    pm$set_historical_data(train_set[1:sample_size, ])
+    pm$set_historical_data(train_set)
     pm$set_new_data(test_set)
     pm$set_role_pk(role_pk)
     pm$set_role_input(role_input)
@@ -37,8 +38,7 @@ for(sample_size in sample_sizes){
 
     pm$model_init()$model_fit()$model_predict()$model_store()
 
-    # Evaluate Model ----------------------------------------------------------
-    metadata <- test_set %>% dplyr::select(role_pk, dplyr::matches("^geo_"))
+    metadata <- test_set %>% dplyr::select(role_pk, dplyr::starts_with("geo_"))
     truth.numeric <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth.numeric" = !!role_target)
     estimate.numeric <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate.numeric" = "fit")
     data <-
@@ -46,26 +46,32 @@ for(sample_size in sample_sizes){
         dplyr::right_join(truth.numeric, by = role_pk) %>%
         dplyr::right_join(estimate.numeric, by = role_pk) %>%
         dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
+    data <- data %>% dplyr::group_by(geo_level_1_id)
 
     new_entry <-
         Yardstick$
         new(data, truth = "truth.class", estimate = "estimate.class")$
-        delete_label(".estimator")$
-        insert_label(".n_train", sample_size)$
-        insert_label(".model", pm$model_name)$
-        all_class_metrics %>%
-        dplyr::rename(".n_test" = ".n") %>%
-        dplyr::select(dplyr::matches("^.n"), dplyr::everything())
+        # delete_label(".estimator")$
+        insert_label(".sample", k)$
+        all_class_metrics
 
     model_performance <- dplyr::bind_rows(model_performance, new_entry)
 }
 
 # Visualisation -----------------------------------------------------------
-accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
-figure_path <- file.path(getOption("path_archive"), paste0("(sample-size-effect)(",pm$model_name,").jpg"))
-jpeg(figure_path, width = 800, height = 600)
-par(pty = "m")
-accuracy %>% dplyr::select(.n_train, .estimate) %>% plot(type = "b", xaxt = "n")
-title(main = paste0("Sample Size Effect on ", pm$model_name, " Performance"))
-axis(1, at = seq(0, sample_sizes %>% max() %>% signif(2), length.out = 10), las = 2)
-dev.off()
+boxplot_data <-
+    model_performance %>%
+    dplyr::mutate(geo_level_1_id = forcats::fct_reorder(geo_level_1_id, .estimate, median))
+
+grand_accuracy <-
+    boxplot_data %>%
+    dplyr::group_by(.sample, geo_level_1_id) %>%
+    dplyr::mutate(.estimate = .n * .estimate) %>%
+    dplyr::group_by(.sample) %>%
+    dplyr::summarise(.estimate = sum(.estimate) / sum(.n))
+
+boxplot(.estimate ~ geo_level_1_id, boxplot_data %>% as.data.frame())
+title(main = ".estimate ~ geo_level_1_id")
+abline(h = quantile(grand_accuracy$.estimate, probs = c(0.5)))
+
+

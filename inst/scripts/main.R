@@ -1,18 +1,23 @@
 # Setup -------------------------------------------------------------------
-ds <- DataStore$new()
+fs <- FeatureStore$new()
 model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-historical_data <- ds$data_model$historical_data
+tidy_data <-
+    fs$tidy_data %>%
+    dplyr::left_join(by = "building_id", fs$geo_features) %>%
+    dplyr::select(-geo_level_1_id_ordered)
+historical_data <- tidy_data %>% dplyr::filter(source %in% "historical_data") %>% dplyr::select(-source)
+new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::select(-source)
 
 # Sample the Data ---------------------------------------------------------
 set.seed(1936)
 rset_obj <- historical_data %>% rsample::initial_split(prop = 0.8, strata = "damage_grade")
 role_pk <- "building_id"
 role_none <- NULL
-role_input <- match_columns(historical_data, "^geo_|^has_superstructure_|^has_secondary_use$")
+role_input <- match_columns(historical_data, "^geo_|^has_superstructure_mud_mortar_stone$|^age$|_type$")
 role_target <- "damage_grade"
 
 train_set <-
@@ -53,14 +58,13 @@ data <- data %>% dplyr::group_by(geo_level_1_id)
 model_class_performance <-
     Yardstick$
     new(data, truth = "truth.class", estimate = "estimate.class")$
-    delete_label(".estimator")$
+    set_estimator("micro")$
     insert_label(".model", pm$model_name)$
     all_class_metrics
 
 model_numeric_performance <-
     Yardstick$
     new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
-    delete_label(".estimator")$
     insert_label(".model", pm$model_name)$
     all_numeric_metrics
 
@@ -69,9 +73,11 @@ print(model_performance)
 
 # Visualisation -----------------------------------------------------------
 accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
-grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n)
+(grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n))
 ## Metrics Correlation Plot
 model_performance %>%
+    dplyr::select(-.estimator) %>%
+    dplyr::filter(.metric %in% c("accuracy", "mae", "rmse", "rsq")) %>%
     dplyr::mutate(.metric = paste0("metric_", .metric)) %>%
     tidyr::spread(".metric", ".estimate") %>%
     dplyr::select(dplyr::starts_with("metric_")) %>%
