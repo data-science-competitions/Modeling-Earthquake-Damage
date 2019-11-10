@@ -17,7 +17,7 @@ set.seed(1936)
 rset_obj <- historical_data %>% rsample::initial_split(prop = 0.7, strata = "damage_grade")
 role_pk <- "building_id"
 role_none <- NULL
-role_input <- match_columns(historical_data, "^geo_|^has_")
+role_input <- match_columns(historical_data, "^geo_|^has_superstructure_mud_mortar_stone$|^age$|_type$")
 role_target <- "damage_grade"
 
 train_set <- get_rsample_training_set(rset_obj, split = 1)
@@ -62,6 +62,10 @@ for(sample_size in sample_sizes){
 
 # Visualisation -----------------------------------------------------------
 accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
+figure_path <- file.path(getOption("path_archive"), paste0("(sample-size-effect)(",pm$model_name,").jpg"))
+jpeg(figure_path, width = 800, height = 600)
 par(pty = "m")
 accuracy %>% dplyr::select(.n_train, .estimate) %>% plot(type = "b", xaxt = "n")
+title(main = paste0("Sample Size Effect on ", pm$model_name, " Performance"))
 axis(1, at = seq(0, sample_sizes %>% max() %>% signif(2), length.out = 10), las = 2)
+dev.off()
