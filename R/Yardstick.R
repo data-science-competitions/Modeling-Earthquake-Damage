@@ -12,6 +12,8 @@
 #' * \code{estimate} (`character`) The column identifier for the predicted results.
 #'
 #' @section Public Methods:
+#' * \code{set_estimator} One of: "binary", "macro", "macro_weighted", or
+#' "micro" to specify the type of averaging to be done. See \link[yardstick]{bal_accuracy}.
 #' * \code{set_threshold} TRUE if x > threshold; FALSE if x <= threshold.
 #' * \code{insert_label}
 #' * \code{delete_label}
@@ -66,6 +68,7 @@ Yardstick <- R6::R6Class(
             }
         },
         set_threshold = function(value) .set_threshold(value, private),
+        set_estimator = function(value) .set_estimator(value, private),
         insert_label = function(key, value) .insert_label(key, value, private),
         delete_label = function(key) .delete_label(key, private),
         plot_gain_curve = function() .plot_gain_curve(private),
@@ -73,8 +76,9 @@ Yardstick <- R6::R6Class(
     ),
     private = list(
         ## Private Variables
-        .class_metrics = c("accuracy"),
+        .class_metrics = c("accuracy", "bal_accuracy", "f_meas"),
         .numeric_metrics = c("rmse", "mae", "rsq", "ccc"),
+        .estimator = NULL,
         .threshold = NULL,
         .dictionary = data.frame(key = c(".metric", ".estimator", ".estimate"), value = NA_character_, stringsAsFactors = FALSE),
         .data = data.frame(stringsAsFactors = FALSE),
@@ -93,6 +97,11 @@ Yardstick <- R6::R6Class(
 )
 
 # Public Methods ----------------------------------------------------------
+.set_estimator <- function(value, private){
+    private$.estimator <- value
+    private$return()
+}
+
 .set_threshold <- function(value, private){
     private$.threshold <- value
     private$return()
@@ -179,9 +188,10 @@ Yardstick <- R6::R6Class(
     data <- private$.data %>% dplyr::add_count(name = ".n") %>% dplyr::group_by_at(".n", .add = TRUE)
     truth <- private$.truth
     estimate <- private$.estimate
+    estimator <- private$.estimator
     grouping_vars <- dplyr::group_vars(data)
 
-    command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate)")
+    command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate, estimator = estimator)")
     results <- eval(expr = parse(text = command))
     results <- results[, colnames(results) %in% unique(c(grouping_vars, dictionary$key))]
 
