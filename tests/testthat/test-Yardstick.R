@@ -131,6 +131,14 @@ test_that("Yardstick discards attributes from results", {
     expect_disjoint_sets(colnames(results), c(".metric"))
 })
 
+# set estimator -----------------------------------------------------------
+test_that("Yardstick allows to set multiclass estimator", {
+    attach(test_env)
+
+    expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
+    expect_silent(metrics$set_estimator(value = "micro"))
+})
+
 # set threshold -----------------------------------------------------------
 test_that("Yardstick allows to set a threshold value", {
     attach(test_env)

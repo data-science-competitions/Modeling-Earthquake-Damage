@@ -12,6 +12,8 @@
 #' * \code{estimate} (`character`) The column identifier for the predicted results.
 #'
 #' @section Public Methods:
+#' * \code{set_estimator} One of: "binary", "macro", "macro_weighted", or
+#' "micro" to specify the type of averaging to be done. See \link[yardstick]{bal_accuracy}.
 #' * \code{set_threshold} TRUE if x > threshold; FALSE if x <= threshold.
 #' * \code{insert_label}
 #' * \code{delete_label}
@@ -66,6 +68,7 @@ Yardstick <- R6::R6Class(
             }
         },
         set_threshold = function(value) .set_threshold(value, private),
+        set_estimator = function(value) .set_estimator(value, private),
         insert_label = function(key, value) .insert_label(key, value, private),
         delete_label = function(key) .delete_label(key, private),
         plot_gain_curve = function() .plot_gain_curve(private),
@@ -75,6 +78,7 @@ Yardstick <- R6::R6Class(
         ## Private Variables
         .class_metrics = c("accuracy"),
         .numeric_metrics = c("rmse", "mae", "rsq", "ccc"),
+        .estimator = NULL,
         .threshold = NULL,
         .dictionary = data.frame(key = c(".metric", ".estimator", ".estimate"), value = NA_character_, stringsAsFactors = FALSE),
         .data = data.frame(stringsAsFactors = FALSE),
@@ -93,6 +97,11 @@ Yardstick <- R6::R6Class(
 )
 
 # Public Methods ----------------------------------------------------------
+.set_estimator <- function(value, private){
+    private$.estimator <- value
+    private$return()
+}
+
 .set_threshold <- function(value, private){
     private$.threshold <- value
     private$return()

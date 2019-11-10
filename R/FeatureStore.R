@@ -47,6 +47,7 @@ FeatureStore <- R6::R6Class(
   dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = "source")
 }
 
+utils::globalVariables(c("geo_level_1_id_ordered", "geo_level_1_id_integer"))
 .craft_geo_features <- function(private){
   error_median_ranking <- c(9, 28, 27, 8, 11, 26, 2, 3, 13, 19, 20, 1, 10, 21, 24, 15, 12, 23, 7, 22, 6, 16, 14, 5, 0, 30, 18, 25, 4, 17, 29)
 
