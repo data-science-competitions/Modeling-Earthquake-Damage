@@ -58,6 +58,7 @@ data <- data %>% dplyr::group_by(geo_level_1_id)
 model_class_performance <-
     Yardstick$
     new(data, truth = "truth.class", estimate = "estimate.class")$
+    set_estimator("micro")$
     delete_label(".estimator")$
     insert_label(".model", pm$model_name)$
     all_class_metrics
