@@ -76,7 +76,7 @@ Yardstick <- R6::R6Class(
     ),
     private = list(
         ## Private Variables
-        .class_metrics = c("accuracy", "bal_accuracy"),
+        .class_metrics = c("accuracy", "bal_accuracy", "f_meas"),
         .numeric_metrics = c("rmse", "mae", "rsq", "ccc"),
         .estimator = NULL,
         .threshold = NULL,

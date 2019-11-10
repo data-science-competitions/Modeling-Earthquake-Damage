@@ -5,7 +5,7 @@ testthat::setup({
     assign("test_env", testthat::test_env(), envir = parent.frame())
     set.seed(1001)
 
-    test_env$class_metrics <- c("accuracy", "bal_accuracy")
+    test_env$class_metrics <- c("accuracy", "bal_accuracy", "f_meas")
     test_env$probability_metrics <- c()
     test_env$numeric_metrics <- c("rmse", "mae", "rsq", "ccc")
 
