@@ -73,7 +73,7 @@ print(model_performance)
 
 # Visualisation -----------------------------------------------------------
 accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
-grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n)
+(grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n))
 ## Metrics Correlation Plot
 model_performance %>%
     dplyr::mutate(.metric = paste0("metric_", .metric)) %>%
