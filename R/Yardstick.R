@@ -192,7 +192,7 @@ Yardstick <- R6::R6Class(
     grouping_vars <- dplyr::group_vars(data)
 
     command <- paste0("yardstick::", metric, "(data, !!truth, !!estimate, estimator = estimator)")
-    results <- eval(expr = parse(text = command))
+    suppressWarnings(results <- eval(expr = parse(text = command)))
     results <- results[, colnames(results) %in% unique(c(grouping_vars, dictionary$key))]
 
     for(key in dictionary$key){

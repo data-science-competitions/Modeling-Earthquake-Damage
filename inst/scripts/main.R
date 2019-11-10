@@ -59,14 +59,12 @@ model_class_performance <-
     Yardstick$
     new(data, truth = "truth.class", estimate = "estimate.class")$
     set_estimator("micro")$
-    delete_label(".estimator")$
     insert_label(".model", pm$model_name)$
     all_class_metrics
 
 model_numeric_performance <-
     Yardstick$
     new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
-    delete_label(".estimator")$
     insert_label(".model", pm$model_name)$
     all_numeric_metrics
 
