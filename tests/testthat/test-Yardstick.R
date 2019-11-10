@@ -5,7 +5,7 @@ testthat::setup({
     assign("test_env", testthat::test_env(), envir = parent.frame())
     set.seed(1001)
 
-    test_env$class_metrics <- c("accuracy")
+    test_env$class_metrics <- c("accuracy", "bal_accuracy")
     test_env$probability_metrics <- c()
     test_env$numeric_metrics <- c("rmse", "mae", "rsq", "ccc")
 
@@ -72,6 +72,23 @@ test_that("Yardstick reports group variables", {
 
     expect_silent(metrics <- Yardstick$new(data = data_reg, truth = "mpg", estimate = "mpg_hat"))
     expect_table_has_col_names(metrics$rmse, "cyl")
+})
+
+# multiclass estimator ----------------------------------------------------
+test_that("Yardstick allows to set multiclass estimator", {
+    attach(test_env)
+
+    expect_silent({
+        metrics <- Yardstick$new(data = data_cla, truth = "Species", estimate = "Species")
+        results <- metrics$bal_accuracy
+    })
+    expect_true("macro" %in% results$.estimator)
+
+    expect_silent({
+        metrics$set_estimator(value = "micro")
+        results <- metrics$bal_accuracy
+    })
+    expect_true("micro" %in% results$.estimator)
 })
 
 # sample size -------------------------------------------------------------
