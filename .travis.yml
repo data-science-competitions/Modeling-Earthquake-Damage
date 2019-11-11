@@ -2,10 +2,11 @@
 # Default configuration for use with tic package
 # tic documentation to get started: https://ropenscilabs.github.io/tic/
 # Usually you shouldn't need to change the first part of the file
-
+env:
+  - DATE="2019-09-15"
 # DO NOT CHANGE THE CODE BELOW
 before_install:
-  - R -q -e 'update.packages(ask = FALSE, repos = "https://mran.microsoft.com/snapshot/2019-09-15")'
+  - R -q -e 'update.packages(ask = FALSE, repos = "https://mran.microsoft.com/snapshot/'$DATE'")'
   - R -q -e 'if (!"remotes" %in% rownames(installed.packages())) install.packages("remotes")'
   - R -q -e 'try(remotes::install_local(dependencies = TRUE, force = TRUE, upgrade = "never"))'
   - R -q -e 'remotes::install_github("ropenscilabs/tic@v0.2.13.9020", upgrade = "never", dependencies = TRUE); print(tic::dsl_load()); tic::prepare_all_stages()'
