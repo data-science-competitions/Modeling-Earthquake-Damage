@@ -1,6 +1,5 @@
 .First <- function(){
     # Helper Functions --------------------------------------------------------
-    is_integrating <- function() identical(Sys.getenv("CI"), "true")
     copy_CONFIGURATION_from_root_to_inst <- function(){
         source <- "CONFIGURATION"
         target <- file.path("inst", "CONFIGURATION")
@@ -9,7 +8,6 @@
     }
 
     # Main --------------------------------------------------------------------
-    if(is_integrating()) return()
     try(config::get(file = file.path(rprojroot::find_rstudio_root_file(), "CONFIGURATION")))
     try(copy_CONFIGURATION_from_root_to_inst())
     try({ # The expectation is needed when using CI

@@ -5,7 +5,7 @@
 # DO NOT CHANGE THE CODE BELOW
 before_install:
   - R -q -e 'Sys.setenv(DATE = "2019-09-15")'
-  - R -q -e 'update.packages(ask = FALSE, repos = paste0("https://mran.microsoft.com/snapshot/", Sys.getenv("DATE"))'
+  - R -q -e 'update.packages(ask = FALSE, repos = paste0("https://mran.microsoft.com/snapshot/", Sys.getenv("DATE")))'
   - R -q -e 'if (!"remotes" %in% rownames(installed.packages())) install.packages("remotes")'
   - R -q -e 'try(remotes::install_local(dependencies = TRUE, force = TRUE, upgrade = "never"))'
   - R -q -e 'remotes::install_github("ropenscilabs/tic@v0.2.13.9020", upgrade = "never", dependencies = TRUE); print(tic::dsl_load()); tic::prepare_all_stages()'
