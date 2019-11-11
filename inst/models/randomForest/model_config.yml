@@ -1,0 +1,4 @@
+default:
+  params:
+    ntree: 1
+    mtry: 3

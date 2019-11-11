@@ -1,6 +1,6 @@
 # Setup -------------------------------------------------------------------
 fs <- FeatureStore$new()
-model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost")[4]
+model_name <- c("arithmetic-mean", "rpart", "ranger", "catboost", "randomForest")[5]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
