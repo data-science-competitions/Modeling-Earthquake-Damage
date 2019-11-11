@@ -22,8 +22,7 @@ InstallLocal <- R6::R6Class(
                 upgrade = FALSE,
                 force = FALSE,
                 build = FALSE,
-                build_opts = "--no-multiarch --with-keep.source --no-build-vignettes",
-                repos = "https://cloud.r-project.org"
+                build_opts = "--no-multiarch --with-keep.source --no-build-vignettes"
             )
         }
     ),
