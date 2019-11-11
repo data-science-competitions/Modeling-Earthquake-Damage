@@ -3,8 +3,7 @@ Type: Package
 Title: Richter's Predictor: Modeling Earthquake Damage
 URL: https://www.drivendata.org/competitions/57/nepal-earthquake/data/
 BugReports: https://github.com/data-science-competitions/Modeling-Earthquake-Damage/issues
-Version: 0.19.45
-Date: 2019-09-15
+Version: 0.19.46
 Authors@R: person("Harel", "Lustiger", email = "harel.lustiger@gmail.com", role = c("aut", "cre"))
 Maintainer: Harel Lustiger <harel.lustiger@gmail.com>
 Description: Predict the level of damage to buildings that were hit by the 
@@ -16,9 +15,7 @@ RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Language: en-GB
 Remotes: 
-    krlmlr/dm@v0.0.1.9002,
-    ModelOriented/DALEX@7e083c18c28d381adcd359b3427cc62a25620750,
-    ModelOriented/ingredients@7cc888b3963a146decfc4ff29023b86adae3a0f1
+    krlmlr/dm@v0.0.3
 Depends: 
     R (>= 3.5)
 Imports: 

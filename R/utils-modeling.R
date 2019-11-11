@@ -10,6 +10,7 @@
 #' @export
 #'
 as_earthquake_damage <- function(estimate, damage_grades = 1:3){
+    stopifnot(is.vector(estimate))
     fun <- function(estimate, damage_grades) which.min(abs(estimate - damage_grades))
     labels <- sapply(estimate, fun, damage_grades = damage_grades)
     factor(labels, levels = seq_along(damage_grades), labels = damage_grades)

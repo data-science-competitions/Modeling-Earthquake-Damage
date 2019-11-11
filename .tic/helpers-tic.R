@@ -37,11 +37,7 @@ install_package <- function(pkg){
     }
     install_from_CRAN <- function(pkg){
         message("--> Installing {", get_package_name(pkg), "}")
-        utils::install.packages(
-            pkg,
-            repos = getOption("repos", "https://cloud.r-project.org"),
-            dependencies = TRUE
-        )
+        utils::install.packages(pkg, dependencies = TRUE)
     }
 
     # Program Logic ------------------------------------------------------------

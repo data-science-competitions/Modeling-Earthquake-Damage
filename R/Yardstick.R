@@ -176,7 +176,33 @@ Yardstick <- R6::R6Class(
 }
 
 .call_class_metric <- function(private, metric){
-    .call_metric(private, metric)
+    data <- private$.data
+    truth <- private$.truth
+    estimate <- private$.estimate
+
+    classes <- levels(data[[truth]])
+
+    for(k in 1:(length(classes) + 1)){
+        if(k == 1){
+            entries <-
+                .call_metric(private, metric) %>%
+                tibble::add_column(.class = NA_character_, .before = 0)
+        } else {
+            private$.data[, truth] <- data[[truth]] %in% classes[k-1] %>% factor(levels = c(FALSE, TRUE))
+            private$.data[, estimate] <- data[[estimate]] %in% classes[k-1] %>% factor(levels = c(FALSE, TRUE))
+
+            new_entry <-
+                .call_metric(private, metric) %>%
+                dplyr::mutate(.class = classes[[k-1]]) %>%
+                dplyr::mutate(.n = sum(data[[truth]] %in% classes[[k-1]]))
+
+            entries <- dplyr::bind_rows(entries, new_entry)
+
+            private$.data <- data
+        }
+    }
+
+    invisible(entries)
 }
 
 .call_numeric_metric <- function(private, metric){
