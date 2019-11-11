@@ -188,8 +188,8 @@ Yardstick <- R6::R6Class(
                 .call_metric(private, metric) %>%
                 tibble::add_column(.class = NA_character_, .before = 0)
         } else {
-            private$.data[, truth] <- data[[truth]] %in% classes[k-1] %>% factor()
-            private$.data[, estimate] <- data[[estimate]] %in% classes[k-1] %>% factor()
+            private$.data[, truth] <- data[[truth]] %in% classes[k-1] %>% factor(levels = c(FALSE, TRUE))
+            private$.data[, estimate] <- data[[estimate]] %in% classes[k-1] %>% factor(levels = c(FALSE, TRUE))
 
             new_entry <-
                 .call_metric(private, metric) %>%
