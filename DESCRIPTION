@@ -16,9 +16,7 @@ RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Language: en-GB
 Remotes: 
-    krlmlr/dm@v0.0.1.9002,
-    ModelOriented/DALEX@7e083c18c28d381adcd359b3427cc62a25620750,
-    ModelOriented/ingredients@7cc888b3963a146decfc4ff29023b86adae3a0f1
+    krlmlr/dm@v0.0.3
 Depends: 
     R (>= 3.5)
 Imports: 
