@@ -14,10 +14,16 @@ model_end <- function(){
         verbose = FALSE
     )
 
-    ## Visualisation: Variable Importance
+    ## Variable Importance
     figure_path <- file.path(target, "variable-importance.jpg")
     explanation <- ingredients::feature_importance(explainer, type = "difference") %>% plot()
     ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
 
+
+    ## Plot an rpart model
+    figure_path <- file.path(target, "single-tree.jpg")
+    jpeg(figure_path, width = 800, height = 600)
+    rpart.plot::rpart.plot(model_object, type = 2, branch.type = 5, extra = 101, yesno = FALSE)
+    dev.off()
     return(invisible())
 }
