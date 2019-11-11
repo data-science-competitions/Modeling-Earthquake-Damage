@@ -105,7 +105,7 @@ test_that("Yardstick breaks down multiclass target variables", {
     expect_nrow(results, 4)
     expect_subset(results$.class[-1], levels(iris$Species))
     expect_equal(results$.n, c(150, 50, 50, 50))
-    # expect_true(results[1, ".estimate"] != results[2, ".estimate"])
+    expect_true(results[1, ".estimate"] != results[2, ".estimate"])
 
     # truth = "Species"
     # estimate = "Species"
