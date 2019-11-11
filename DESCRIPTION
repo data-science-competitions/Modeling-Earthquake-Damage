@@ -3,8 +3,7 @@ Type: Package
 Title: Richter's Predictor: Modeling Earthquake Damage
 URL: https://www.drivendata.org/competitions/57/nepal-earthquake/data/
 BugReports: https://github.com/data-science-competitions/Modeling-Earthquake-Damage/issues
-Version: 0.19.45
-Date: 2019-09-15
+Version: 0.19.46
 Authors@R: person("Harel", "Lustiger", email = "harel.lustiger@gmail.com", role = c("aut", "cre"))
 Maintainer: Harel Lustiger <harel.lustiger@gmail.com>
 Description: Predict the level of damage to buildings that were hit by the 

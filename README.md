@@ -69,26 +69,22 @@ names(ds$data_model)
 
 <font size="2.5">
 
-    ## -- Table source -----------------------------------------------------------------------------------------------------
-    ## src:  <PrepareData>
-    ## -- Data model -------------------------------------------------------------------------------------------------------
+    ## -- Table source ----------------------------------------------------------------------------------------------
+    ## src:  <environment: R_GlobalEnv>
+    ## -- Data model ------------------------------------------------------------------------------------------------
     ## Data model object:
     ##   3 tables:  historical_data, new_data, submission_format 
     ##   82 columns
     ##   2 primary keys
     ##   1 references
-    ## -- Rows -------------------------------------------------------------------------------------------------------------
-    ## Total: 434337
-    ## historical_data: 260601, new_data: 86868, submission_format: 86868
+    ## -- Filters ---------------------------------------------------------------------------------------------------
+    ## None
 
 </font>
 
 <img src="README_files/figure-gfm/project-data-overview-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Data Glimpse
-
-    ## ---
-    ## historical_data
 
     ## Observations: 260,601
     ## Variables: 40
