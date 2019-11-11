@@ -72,12 +72,12 @@ model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_per
 print(model_performance)
 
 # Visualisation -----------------------------------------------------------
-accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy")
+accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy", is.na(.class))
 (grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n))
 ## Metrics Correlation Plot
 model_performance %>%
+    dplyr::filter(.metric %in% c("accuracy", "mae", "rmse", "rsq"), is.na(.class)) %>%
     dplyr::select(-.estimator) %>%
-    dplyr::filter(.metric %in% c("accuracy", "mae", "rmse", "rsq")) %>%
     dplyr::mutate(.metric = paste0("metric_", .metric)) %>%
     tidyr::spread(".metric", ".estimate") %>%
     dplyr::select(dplyr::starts_with("metric_")) %>%
