@@ -91,6 +91,39 @@ test_that("Yardstick allows to set multiclass estimator", {
     expect_true("micro" %in% results$.estimator)
 })
 
+# multiclass breakdown ----------------------------------------------------
+test_that("Yardstick breaks down multiclass target variables", {
+    attach(test_env)
+    set.seed(2102)
+    data <- iris %>% tibble::add_column(Shuffled_Species = sample(iris$Species))
+    expect_silent({
+        metrics <- Yardstick$new(data = data, truth = "Species", estimate = "Shuffled_Species")
+        results <- metrics$bal_accuracy
+    })
+
+    expect_table_has_col_names(results, ".class")
+    expect_nrow(results, 4)
+    expect_subset(results$.class[-1], levels(iris$Species))
+    expect_equal(results$.n, c(150, 50, 50, 50))
+    # expect_true(results[1, ".estimate"] != results[2, ".estimate"])
+
+    # truth = "Species"
+    # estimate = "Species"
+    # classes = levels(iris[, truth])
+    # k = 1
+    #
+    # iris_copy <- iris
+    # iris_copy[, truth] <- iris[, truth] %in% classes[k] %>% factor()
+    # iris_copy[, estimate] <- iris[, estimate] %in% classes[k] %>% factor()
+    # n_class <- sum(iris_copy[, truth] %in% "TRUE")
+    # yardstick::accuracy(data = iris_copy, truth = "Species", estimate = "Species") %>%
+    #     tibble::add_column(.class = classes[k], .before = 0) %>%
+    #     tibble::add_column(.n = sum(n_class))
+
+
+})
+
+
 # sample size -------------------------------------------------------------
 test_that("Yardstick reports sample size", {
     attach(test_env)
