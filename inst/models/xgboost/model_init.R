@@ -6,8 +6,8 @@ model_init <- function(){
     for(pkg in c("xgboost")) install_non_installed_package(pkg)
 
     predict_function <- function(model_object, new_data){
-        predict(object = model_object, data = new_data, type = "response") %>%
-            ranger::predictions() %>%
+        # see xgboost::predict.xgb.Booster
+        predict(object = model_object, newdata = new_data) %>%
             as.data.frame(stringsAsFactors = FALSE) %>%
             dplyr::rename("fit" = ".")
     }

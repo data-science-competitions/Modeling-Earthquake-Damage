@@ -4,13 +4,13 @@
 #' @return A vector of predictions
 model_predict <- function(new_data, model_object)
 {
-    new_data <-
-        catboost::catboost.load_pool(
-            data = new_data %>% dplyr::select(role_input),
-            label = NULL
-        )
+    new_data.matrix <- as.matrix(new_data)
+    new_data.xgb <- xgboost::xgb.DMatrix(
+        data = new_data.matrix[, role_input],
+        label = new_data.matrix[, role_target]
+    )
 
-    response <- predict_function(model_object, new_data)
+    response <- predict_function(model_object, new_data.xgb)
     response <- apply(response, 2, link_function)
     return(response)
 }
