@@ -1,5 +1,17 @@
 default:
   params:
     num.trees: 50
+    # Number of variables to possibly split at in each node
     mtry: "role_input %>% length() %>% sqrt() %>% round()"
+    # Maximal tree depth where 0 = unlimited depth
+    max.depth: 0
+    # Fraction of observations to sample
+    sample.fraction: 1
+    # Splitting rule, on of "variance" (default), "extratrees" or "maxstat"
+    splitrule: "variance"
+    # For "extratrees" splitrule.: Number of random splits to consider for each
+    # candidate splitting variable.
+    num.random.splits: 5
+    # "ignore" (variance default), "order" or "partition" (extratrees default)
+    respect.unordered.factors: "ignore"
 
