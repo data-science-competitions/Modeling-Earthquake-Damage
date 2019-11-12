@@ -1,0 +1,4 @@
+default:
+  params:
+    nrounds: 10
+    max_depth: 3
