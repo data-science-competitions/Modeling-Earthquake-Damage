@@ -5,17 +5,13 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
-
-    mdl_obj <- ranger::ranger(
-        model_formula,
-        data = historical_data,
-        num.trees = params$num.trees,
-        mtry = eval(parse(text = params$mtry)),
-        max.depth = params$max.depth,
-        sample.fraction = params$sample.fraction,
-        splitrule = params$splitrule,
-        num.random.splits = params$num.random.splits,
-        respect.unordered.factors = params$respect.unordered.factors
+    suppressWarnings(
+        mdl_obj <- randomForest::randomForest(
+            model_formula,
+            data = historical_data,
+            ntree = params$ntree,
+            mtry = params$mtry
+        )
     )
 
     return(mdl_obj)
