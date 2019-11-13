@@ -35,6 +35,9 @@ model_init <- function(){
     model_config <- config::get(file = file.path(model_path, "model_config.yml"), use_parent = FALSE)
 
     list2env(model_config, envir = parent.frame())
+    assign("install_non_installed_package", install_non_installed_package, envir = parent.frame())
+    assign("is_package_not_installed", is_package_not_installed, envir = parent.frame())
+    assign("install_package", install_package, envir = parent.frame())
     assign("preprocessing_function", preprocessing_function, envir = parent.frame())
     assign("predict_function", predict_function, envir = parent.frame())
     assign("link_function", link_function, envir = parent.frame())
