@@ -5,16 +5,9 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
-    historical_data.matrix <- Matrix::sparse.model.matrix(model_formula, data = historical_data)
-
-    historical_data.xgb <- xgboost::xgb.DMatrix(
-        data = historical_data.matrix,
-        label = historical_data[[role_target]]
-    )
-
     mdl_obj <- xgboost::xgb.train(
         params = params,
-        data = historical_data.xgb,
+        data = preprocessing_function(historical_data, model_formula),
         nrounds = params$nrounds
     )
 

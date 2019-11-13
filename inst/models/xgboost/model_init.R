@@ -5,8 +5,17 @@ model_init <- function(){
     install_package <- function(pkg)  utils::install.packages(pkg, repos = getOption("repos", "https://cloud.r-project.org"), dependencies = TRUE)
     for(pkg in c("xgboost")) install_non_installed_package(pkg)
 
+    preprocessing_function <- function(data, model_formula){
+        role_target <- all.vars(update(model_formula, .~0))
+        data.xgb <- xgboost::xgb.DMatrix(
+            data = Matrix::sparse.model.matrix(model_formula, data = data),
+            label = tryCatch(data[[role_target]], error = function(e) invisible())
+        )
+    }
+
     predict_function <- function(model_object, new_data){
         # see xgboost::predict.xgb.Booster
+        new_data <- preprocessing_function(new_data, model_formula)
         predict(object = model_object, newdata = new_data) %>%
             as.data.frame(stringsAsFactors = FALSE) %>%
             dplyr::rename("fit" = ".")
@@ -26,6 +35,7 @@ model_init <- function(){
     model_config <- config::get(file = file.path(model_path, "model_config.yml"), use_parent = FALSE)
 
     list2env(model_config, envir = parent.frame())
+    assign("preprocessing_function", preprocessing_function, envir = parent.frame())
     assign("predict_function", predict_function, envir = parent.frame())
     assign("link_function", link_function, envir = parent.frame())
     return(invisible())
