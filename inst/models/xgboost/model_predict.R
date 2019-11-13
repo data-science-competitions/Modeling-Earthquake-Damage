@@ -4,10 +4,11 @@
 #' @return A vector of predictions
 model_predict <- function(new_data, model_object)
 {
-    new_data.matrix <- as.matrix(new_data)
+    new_data.matrix <- Matrix::sparse.model.matrix(model_formula, data = new_data)
+
     new_data.xgb <- xgboost::xgb.DMatrix(
-        data = new_data.matrix[, role_input],
-        label = new_data.matrix[, role_target]
+        data = new_data.matrix,
+        label = new_data[[role_target]]
     )
 
     response <- predict_function(model_object, new_data.xgb)

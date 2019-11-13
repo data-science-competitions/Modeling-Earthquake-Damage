@@ -5,13 +5,11 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
-    # y <- all.vars(update(model_formula, .~0))
-    # X <- all.vars(update(model_formula, 0~.))
+    historical_data.matrix <- Matrix::sparse.model.matrix(model_formula, data = historical_data)
 
-    historical_data.matrix <- as.matrix(historical_data)
     historical_data.xgb <- xgboost::xgb.DMatrix(
-        data = historical_data.matrix[, role_input],
-        label = historical_data.matrix[, role_target]
+        data = historical_data.matrix,
+        label = historical_data[[role_target]]
     )
 
     mdl_obj <- xgboost::xgb.train(
