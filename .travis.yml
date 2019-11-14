@@ -7,6 +7,7 @@ before_install:
   - R -q -e 'update.packages(ask = FALSE)'
   - R -q -e 'if (!"tidyverse" %in% rownames(installed.packages())) install.packages("tidyverse", dependencies = TRUE)'
   - R -q -e 'if (!"remotes" %in% rownames(installed.packages())) install.packages("remotes")'
+  - R -q -e 'if (!identical(packageVersion("roxygen2") >= "7.0.0", TRUE)) install.packages("roxygen2", repos = "https://cloud.r-project.org")'
   - R -q -e 'try(remotes::install_local(dependencies = TRUE, force = TRUE, upgrade = "never"))'
   - R -q -e 'remotes::install_github("ropenscilabs/tic@v0.2.13.9020", upgrade = "never", dependencies = TRUE); print(tic::dsl_load()); tic::prepare_all_stages()'
   - R -q -e 'tic::before_install()'
