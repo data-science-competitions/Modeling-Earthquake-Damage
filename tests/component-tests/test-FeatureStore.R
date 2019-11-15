@@ -18,9 +18,14 @@ test_that("FeatureStore has access to the project datasets", {
 
 test_that("FeatureStore has access to the new feature sets", {
     attach(test_env)
-    geo_feature_names <- c("building_id", "geo_level_1_id_ordered", "geo_level_1_id_integer")
-    expect_class(obj$geo_features, "data.frame")
-    expect_table_has_col_names(obj$geo_features, c("building_id", geo_feature_names))
+    geo_feature_names <- c(
+        "building_id",
+        "geo_level_1_id_catP", "geo_level_1_id_catN", "geo_level_1_id_catD",
+        "geo_level_2_id_catP", "geo_level_2_id_catN", "geo_level_2_id_catD",
+        "geo_level_3_id_catP", "geo_level_3_id_catN", "geo_level_3_id_catD"
+    )
+    expect_class(geo_features <- obj$geo_features, "data.frame")
+    expect_table_has_col_names(geo_features, c("building_id", geo_feature_names))
 })
 
 testthat::teardown(test_env <- NULL)
