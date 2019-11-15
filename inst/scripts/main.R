@@ -15,8 +15,14 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 tidy_data <-
     fs$tidy_data %>%
     dplyr::left_join(by = "building_id", fs$geo_features)
-historical_data <- tidy_data %>% dplyr::filter(source %in% "historical_data") %>% dplyr::select(-source)
-new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::select(-source)
+historical_data <-
+    tidy_data %>%
+    dplyr::filter(.set_source %in% "historical_data") %>%
+    dplyr::select(dplyr::starts_with("."))
+new_data <-
+    tidy_data %>%
+    dplyr::filter(.set_source %in% "new_data") %>%
+    dplyr::select(dplyr::starts_with("."))
 
 # Sample the Data ---------------------------------------------------------
 set.seed(1936)

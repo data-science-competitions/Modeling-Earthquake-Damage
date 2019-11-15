@@ -44,7 +44,7 @@ FeatureStore <- R6::R6Class(
 .craft_tidy_data <- function(private){
   historical_data <- private$ds$data_model$historical_data
   new_data <- private$ds$data_model$new_data
-  dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = "source")
+  dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = ".set_source")
 }
 
 
@@ -70,11 +70,11 @@ FeatureStore <- R6::R6Class(
 
   tidy_data <-
     .craft_tidy_data(private) %>%
-    dplyr::select(source, building_id, dplyr::starts_with("geo_"), damage_grade)
+    dplyr::select(.set_source, building_id, dplyr::starts_with("geo_"), damage_grade)
 
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
-      dframe = tidy_data %>% dplyr::filter(source %in% "historical_data"),
+      dframe = tidy_data %>% dplyr::filter(.set_source %in% "historical_data"),
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
       ncross = 2^3,
