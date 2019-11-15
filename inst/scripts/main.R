@@ -14,8 +14,7 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 # Get the Data ------------------------------------------------------------
 tidy_data <-
     fs$tidy_data %>%
-    dplyr::left_join(by = "building_id", fs$geo_features) %>%
-    dplyr::select(-geo_level_1_id_ordered)
+    dplyr::left_join(by = "building_id", fs$geo_features)
 historical_data <- tidy_data %>% dplyr::filter(source %in% "historical_data") %>% dplyr::select(-source)
 new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::select(-source)
 

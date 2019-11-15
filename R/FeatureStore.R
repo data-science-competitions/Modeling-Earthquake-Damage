@@ -47,16 +47,50 @@ FeatureStore <- R6::R6Class(
   dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = "source")
 }
 
-utils::globalVariables(c("geo_level_1_id_ordered", "geo_level_1_id_integer"))
-.craft_geo_features <- function(private){
-  error_median_ranking <- c(9, 28, 27, 8, 11, 26, 2, 3, 13, 19, 20, 1, 10, 21, 24, 15, 12, 23, 7, 22, 6, 16, 14, 5, 0, 30, 18, 25, 4, 17, 29)
 
-  .craft_tidy_data(private) %>%
-    dplyr::select(building_id, dplyr::starts_with("geo_")) %>%
-    dplyr::transmute(
-      building_id = building_id,
-      geo_level_1_id_ordered = ordered(geo_level_1_id, levels = error_median_ranking),
-      geo_level_1_id_integer = as.numeric(geo_level_1_id_ordered)
+#' @title Craft Geo Features
+#' @description Treat high cardinality categorical variables.
+#' @param private R6 private component
+#' @details Fields
+#' * **cat_P**: a “prevalence fact” about a categorical level. Tells us if the
+#' original level was rare or common. Probably not good for direct use in a
+#' model, but possibly useful for meta-analysis on the variable.
+#' * **cat_N**: a single variable regression model of the difference in outcome
+#' expectation conditioned on the observed value of the original variable. In
+#' our example: x_catN = E[y|x] - E[y]. This encoding is especially useful for
+#' categorical variables that have a large number of levels, but be aware it can
+#' obscure degrees of freedom if not used properly.
+#' * **cat_D**: a “deviation fact” about a categorical level tells us if 'y' is
+#' concentrated or diffuse when conditioned on the observed level of the
+#' original categorical variable. Probably not good for direct use in a model,
+#' but possibly useful for meta-analysis on the variable.
+#' @return (`data.frame`) A table with treated geo features
+.craft_geo_features <- function(private){
+  set.seed(1949)
+
+  tidy_data <-
+    .craft_tidy_data(private) %>%
+    dplyr::select(source, building_id, dplyr::starts_with("geo_"), damage_grade)
+
+  treat_plan <-
+    vtreat::mkCrossFrameNExperiment(
+      dframe = tidy_data %>% dplyr::filter(source %in% "historical_data"),
+      varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
+      outcome = "damage_grade",
+      ncross = 2^3,
+      verbose = FALSE
     )
+
+  tidy_geo <-
+    vtreat::prepare(treatmentplan = treat_plan$treatments, dframe = tidy_data) %>%
+    tibble::add_column(building_id = tidy_data$building_id, .before = TRUE) %>%
+    dplyr::select(
+      building_id,
+      dplyr::starts_with("geo_level_1_id_cat"),
+      dplyr::starts_with("geo_level_2_id_cat"),
+      dplyr::starts_with("geo_level_3_id_cat")
+    )
+
+  return(tidy_geo)
 }
 
