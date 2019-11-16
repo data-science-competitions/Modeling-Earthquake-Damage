@@ -11,6 +11,7 @@ model_fit <- function(historical_data, model_formula)
             label = historical_data %>% dplyr::select(role_target) %>% unlist()
         )
 
+    params$logging_level = ifelse(getOption("verbose"), "Verbose", "Silent")
     mdl_obj <- catboost::catboost.train(learn_pool = historical_data, params = params)
 
     return(mdl_obj)

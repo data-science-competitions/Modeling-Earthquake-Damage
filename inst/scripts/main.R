@@ -1,4 +1,5 @@
 # Setup -------------------------------------------------------------------
+options(verbose = TRUE)
 fs <- FeatureStore$new()
 model_name <- c(
     "arithmetic-mean", # [1]
@@ -12,28 +13,28 @@ output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-tidy_data <-
-    fs$tidy_data %>%
-    dplyr::left_join(by = "building_id", fs$geo_features)
-historical_data <- tidy_data %>% dplyr::filter(source %in% "historical_data") %>% dplyr::select(-source)
-new_data <- tidy_data %>% dplyr::filter(source %in% "new_data") %>% dplyr::select(-source)
+tidy_data <- fs$tidy_data %>% dplyr::left_join(by = "building_id", fs$geo_features)
+historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
+new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 
 # Sample the Data ---------------------------------------------------------
-set.seed(1936)
-rset_obj <- historical_data %>% rsample::initial_split(prop = 0.8, strata = "damage_grade")
 role_pk <- "building_id"
 role_none <- NULL
-role_input <- match_columns(historical_data, "^geo_|^has_superstructure_mud_mortar_stone$|^age$|_type$")
+role_input_1 <- match_columns(historical_data, "^geo_level_")
+role_input_2 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|^age$|_type$")
+role_input <- c(role_input_1, role_input_2)
 role_target <- "damage_grade"
 
 train_set <-
-    get_rsample_training_set(rset_obj, split = 1) %>%
-    dplyr::sample_n(6e4) %>%
+    historical_data %>%
+    dplyr::filter(.set_role %in% "train") %>%
+    dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 test_set <-
-    get_rsample_test_set(rset_obj, split = 1) %>%
-    dplyr::sample_n(4e4) %>%
+    historical_data %>%
+    dplyr::filter(.set_role %in% "test") %>%
+    dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Run model ---------------------------------------------------------------
