@@ -18,11 +18,11 @@ tidy_data <-
 historical_data <-
     tidy_data %>%
     dplyr::filter(.set_source %in% "historical_data") %>%
-    dplyr::select(dplyr::starts_with("."))
+    dplyr::select(-dplyr::starts_with("."))
 new_data <-
     tidy_data %>%
     dplyr::filter(.set_source %in% "new_data") %>%
-    dplyr::select(dplyr::starts_with("."))
+    dplyr::select(-dplyr::starts_with("."))
 
 # Sample the Data ---------------------------------------------------------
 set.seed(1936)
