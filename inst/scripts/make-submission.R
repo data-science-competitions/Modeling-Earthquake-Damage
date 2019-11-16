@@ -31,7 +31,7 @@ train_set <-
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 test_set <-
-    historical_data %>%
+    new_data %>%
     dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
