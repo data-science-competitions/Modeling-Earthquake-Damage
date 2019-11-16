@@ -5,7 +5,7 @@ model_init <- function(){
     install_package <- function(pkg)  utils::install.packages(pkg, repos = getOption("repos", "https://cloud.r-project.org"), dependencies = TRUE)
     for(pkg in c("xgboost")) install_non_installed_package(pkg)
 
-    preprocessing_function <- function(data, model_formula){
+    preprocessing_function <- function(data){
         stopifnot(exists("role_input"), exists("role_target"))
         matrix_formula <- formula(paste("~", paste(role_input, collapse = " + ")))
         data.xgb <- xgboost::xgb.DMatrix(
