@@ -14,7 +14,7 @@ model_end <- function(){
         },
         link = link_function,
         label = model_name,
-        verbose = getOption("Verbose")
+        verbose = getOption("verbose")
     )
 
     ## Visualisation: Variable Importance
