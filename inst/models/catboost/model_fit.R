@@ -5,6 +5,8 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    set.seed(1451)
+
     historical_data <-
         catboost::catboost.load_pool(
             data = historical_data %>% dplyr::select(role_input),
