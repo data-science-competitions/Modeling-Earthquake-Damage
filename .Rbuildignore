@@ -27,3 +27,4 @@
 ^inst/data$
 ^inst/submissions$
 
+^\.Rproj\.user$
