@@ -42,11 +42,24 @@ FeatureStore <- R6::R6Class(
 
 # Private Methods ---------------------------------------------------------
 .craft_tidy_data <- function(private){
-  historical_data <- private$ds$data_model$historical_data
-  new_data <- private$ds$data_model$new_data
-  dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = ".set_source")
-}
+  set.seed(1313)
 
+  historical_data <-
+    private$ds$data_model$historical_data %>%
+    dplyr::sample_n(dplyr::n()) %>%
+    dplyr::mutate(.set_bucket = dplyr::ntile(1:dplyr::n(), 26))
+
+  new_data <- private$ds$data_model$new_data
+
+  dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = ".set_source") %>%
+    tibble::add_column(".set_role" = NA_character_, .after = 1) %>%
+    dplyr::mutate(
+      .set_role = dplyr::if_else(.set_bucket %in% 1:6, "train", .set_role),
+      .set_role = dplyr::if_else(.set_bucket %in% 7:10, "test", .set_role),
+      .set_role = dplyr::if_else(.set_bucket %in% 11:26, "calibration", .set_role)
+    ) %>%
+    dplyr::select(-.set_bucket)
+}
 
 #' @title Craft Geo Features
 #' @description Treat high cardinality categorical variables.
