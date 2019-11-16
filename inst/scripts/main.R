@@ -1,4 +1,5 @@
 # Setup -------------------------------------------------------------------
+options(verbose = TRUE)
 fs <- FeatureStore$new()
 model_name <- c(
     "arithmetic-mean", # [1]

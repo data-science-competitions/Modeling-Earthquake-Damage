@@ -9,6 +9,7 @@ model_fit <- function(historical_data, model_formula)
     mdl_obj <- ranger::ranger(
         model_formula,
         data = historical_data,
+        verbose = getOption("Verbose"),
         num.trees = params$num.trees,
         mtry = eval(parse(text = params$mtry)),
         max.depth = params$max.depth,

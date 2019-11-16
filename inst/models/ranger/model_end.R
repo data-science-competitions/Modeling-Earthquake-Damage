@@ -11,7 +11,7 @@ model_end <- function(){
         predict_function = function(model, data) predict_function(model, data)[["fit"]],
         link = link_function,
         label = model_name,
-        verbose = FALSE
+        verbose = getOption("Verbose")
     )
 
     ## Visualisation: Variable Importance
