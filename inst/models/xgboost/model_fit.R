@@ -5,6 +5,8 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    set.seed(1451)
+
     mdl_obj <- xgboost::xgb.train(
         params = params,
         data = preprocessing_function(historical_data, model_formula),
