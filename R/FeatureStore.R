@@ -41,6 +41,8 @@ FeatureStore <- R6::R6Class(
 )#end DataStore
 
 # Private Methods ---------------------------------------------------------
+utils::globalVariables(c(".set_bucket", ".set_role"))
+
 .craft_tidy_data <- function(private){
   set.seed(1313)
 
@@ -78,16 +80,17 @@ FeatureStore <- R6::R6Class(
 #' original categorical variable. Probably not good for direct use in a model,
 #' but possibly useful for meta-analysis on the variable.
 #' @return (`data.frame`) A table with treated geo features
+#' @noRd
 .craft_geo_features <- function(private){
   set.seed(1949)
 
   tidy_data <-
     .craft_tidy_data(private) %>%
-    dplyr::select(dplyr::starts_with("."), building_id, dplyr::starts_with("geo_"), damage_grade)
+    dplyr::select(dplyr::starts_with("."), "building_id", dplyr::starts_with("geo_"), "damage_grade")
 
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
-      dframe = tidy_data %>% dplyr::filter(.set_role %in% "calibration"),
+      dframe = tidy_data %>% dplyr::filter_(.set_role %in% "calibration"),
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
       ncross = 2^3,
