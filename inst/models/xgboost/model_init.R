@@ -6,9 +6,10 @@ model_init <- function(){
     for(pkg in c("xgboost")) install_non_installed_package(pkg)
 
     preprocessing_function <- function(data, model_formula){
-        role_target <- all.vars(update(model_formula, .~0))
+        stopifnot(exists("role_input"), exists("role_target"))
+        matrix_formula <- formula(paste("~", paste(role_input, collapse = " + ")))
         data.xgb <- xgboost::xgb.DMatrix(
-            data = Matrix::sparse.model.matrix(model_formula, data = data),
+            data = Matrix::sparse.model.matrix(matrix_formula, data = data),
             label = tryCatch(data[[role_target]], error = function(e) invisible())
         )
     }
