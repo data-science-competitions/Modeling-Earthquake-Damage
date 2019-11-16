@@ -78,7 +78,7 @@ FeatureStore <- R6::R6Class(
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
       ncross = 2^3,
-      verbose = FALSE
+      verbose = getOption("verbose")
     )
 
   tidy_geo <-
