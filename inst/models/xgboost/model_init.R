@@ -16,7 +16,7 @@ model_init <- function(){
 
     predict_function <- function(model_object, new_data){
         # see xgboost::predict.xgb.Booster
-        new_data <- preprocessing_function(new_data, model_formula)
+        new_data <- preprocessing_function(new_data)
         predict(object = model_object, newdata = new_data) %>%
             as.data.frame(stringsAsFactors = FALSE) %>%
             dplyr::rename("fit" = ".")
