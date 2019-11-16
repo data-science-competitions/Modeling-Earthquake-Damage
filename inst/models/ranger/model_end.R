@@ -14,8 +14,8 @@ model_end <- function(){
         verbose = getOption("verbose")
     )
 
-    ## Visualisation: Variable Importance
-    figure_path <- file.path(target, "variable-importance.jpg")
+    ## Visualisation: Agnostic Variable Importance
+    figure_path <- file.path(target, "variable-importance-agnostic.jpg")
     explanation <- ingredients::feature_importance(explainer, type = "difference") %>% plot()
     ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
 
