@@ -6,10 +6,24 @@ model_init <- function(){
     for(pkg in c("ranger")) install_non_installed_package(pkg)
 
     predict_function <- function(model_object, new_data){
-        predict(object = model_object, data = new_data, type = "response") %>%
+        .data <-
+            predict(object = model_object, data = new_data, type = "response",  predict.all = TRUE) %>%
             ranger::predictions() %>%
-            as.data.frame(stringsAsFactors = FALSE) %>%
-            dplyr::rename("fit" = ".")
+            as.data.frame(stringsAsFactors = FALSE)
+
+        if(ncol(.data) == 1){
+            .data <-
+                .data %>%
+                dplyr::rename("fit" = ".")
+        } else {
+            fit_values <- rowMeans(.data)
+            .data <-
+                .data %>%
+                tibble::add_column(fit = fit_values, .before = 0) %>%
+                dplyr::rename_all(function(x) stringr::str_replace_all(x, "V", "tree_"))
+        }
+
+        invisible(.data)
     }
 
     link_function <- function(x){ # 1 <= x <= 3
