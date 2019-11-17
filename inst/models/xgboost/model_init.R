@@ -5,22 +5,39 @@ model_init <- function(){
     install_package <- function(pkg)  utils::install.packages(pkg, repos = getOption("repos", "https://cloud.r-project.org"), dependencies = TRUE)
     for(pkg in c("xgboost")) install_non_installed_package(pkg)
 
-    preprocessing_function <- function(data, model_formula){
+    dynamic_preprocessing_function <- function(){
         stopifnot(exists("role_input"), exists("role_target"))
-        matrix_formula <- formula(paste("~", paste(role_input, collapse = " + ")))
-        data.xgb <- xgboost::xgb.DMatrix(
-            data = Matrix::sparse.model.matrix(matrix_formula, data = data),
-            label = tryCatch(data[[role_target]], error = function(e) invisible())
-        )
-    }
+        `%+%` <- function(a,b) paste0(a,b)
 
-    predict_function <- function(model_object, new_data){
-        # see xgboost::predict.xgb.Booster
-        new_data <- preprocessing_function(new_data, model_formula)
-        predict(object = model_object, newdata = new_data) %>%
-            as.data.frame(stringsAsFactors = FALSE) %>%
-            dplyr::rename("fit" = ".")
+        matrix_formula_sting <- paste("~", paste(role_input, collapse = " + "))
+        command <-
+            "function(data){" %+%
+            "labels = data[[\"" %+% role_target %+% "\"]];" %+%
+            "labels = if(is.null(labels)) numeric(nrow(data)) else labels;" %+%
+            "xgboost::xgb.DMatrix(" %+%
+            "data = Matrix::sparse.model.matrix(formula(" %+% matrix_formula_sting %+% "), data = data)," %+%
+            "label = labels" %+%
+            ")}"
+
+        eval(parse(text = command))
     }
+    preprocessing_function <- get("dynamic_preprocessing_function")()
+
+    dynamic_predict_function <- function(){
+        `%+%` <- function(a,b) paste0(a,b)
+        preprocessing_function <- get("dynamic_preprocessing_function")()
+
+        command <-
+            c("function(model_object, new_data){",
+            "preprocessing_function <- " %+% capture.output(preprocessing_function)[1],
+            "new_data <- preprocessing_function(new_data)",
+            "predict(object = model_object, newdata = new_data) %>%",
+            "as.data.frame(stringsAsFactors = FALSE) %>%",
+            "dplyr::rename('fit' = '.')",
+            "}")
+        eval(parse(text = command))
+    }
+    predict_function <- get("dynamic_predict_function")()
 
     link_function <- function(x){ # 1 <= x <= 3
         minmax <- function(x, a, b) pmin(pmax(x, a), b)

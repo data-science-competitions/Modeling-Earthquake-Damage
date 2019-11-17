@@ -9,7 +9,7 @@ model_fit <- function(historical_data, model_formula)
 
     mdl_obj <- xgboost::xgb.train(
         params = params,
-        data = preprocessing_function(historical_data, model_formula),
+        data = preprocessing_function(historical_data),
         nrounds = params$nrounds,
         verbose = getOption("verbose")
     )
