@@ -16,16 +16,22 @@ test_that("FeatureStore has access to the project datasets", {
     expect_has_no_duplicates(obj$tidy_data$building_id)
 })
 
-test_that("FeatureStore has access to the new feature sets", {
+test_that("FeatureStore has access to the treated geo features", {
     attach(test_env)
     geo_feature_names <- c(
-        "building_id",
         "geo_level_1_id_catP", "geo_level_1_id_catN", "geo_level_1_id_catD",
         "geo_level_2_id_catP", "geo_level_2_id_catN", "geo_level_2_id_catD",
         "geo_level_3_id_catP", "geo_level_3_id_catN", "geo_level_3_id_catD"
     )
     expect_class(geo_features <- obj$geo_features, "data.frame")
     expect_table_has_col_names(geo_features, c("building_id", geo_feature_names))
+})
+
+test_that("FeatureStore has access to the treated age features", {
+    attach(test_env)
+    age_feature_names <- c("treat_age", "treat_age_bad")
+    expect_class(age_features <- obj$age_features, "data.frame")
+    expect_table_has_col_names(age_features, c("building_id", age_feature_names))
 })
 
 testthat::teardown(test_env <- NULL)

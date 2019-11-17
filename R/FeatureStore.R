@@ -36,7 +36,8 @@ FeatureStore <- R6::R6Class(
   private = list(ds = NULL),
   active = list(
     tidy_data = function() .craft_tidy_data(private),
-    geo_features = function() .craft_geo_features(private)
+    geo_features = function() .craft_geo_features(private),
+    age_features = function() .craft_age_features(private)
   )
 )#end DataStore
 
@@ -113,3 +114,22 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
   return(tidy_geo)
 }
 
+.craft_age_features <- function(private){
+  tidy_data <-
+    .craft_tidy_data(private) %>%
+    dplyr::select(building_id, age) %>%
+    dplyr::mutate(age = ifelse(age > 150, NA, age))
+
+  transform <- vtreat::designTreatmentsZ(
+    dframe = tidy_data,
+    varlist = "age",
+    verbose = getOption("verbose")
+  )
+
+  tidy_age <-
+    vtreat::prepare(transform, tidy_data) %>%
+    tibble::add_column(building_id = tidy_data$building_id, .before = TRUE) %>%
+    dplyr::rename("treat_age" = "age", "treat_age_bad" = "age_isBAD")
+
+  return(tidy_age)
+}

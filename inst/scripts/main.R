@@ -13,7 +13,10 @@ output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-tidy_data <- fs$tidy_data %>% dplyr::left_join(by = "building_id", fs$geo_features)
+tidy_data <-
+    fs$tidy_data %>%
+    dplyr::left_join(by = "building_id", fs$geo_features) %>%
+    dplyr::left_join(by = "building_id", fs$age_features)
 historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
 new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 
@@ -21,8 +24,9 @@ new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 role_pk <- "building_id"
 role_none <- NULL
 role_input_1 <- match_columns(historical_data, "^geo_level_")
-role_input_2 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|^age$|_type$")
-role_input <- c(role_input_1, role_input_2)
+role_input_2 <- match_columns(historical_data, "^age$|^treat_age")
+role_input_3 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|_type$")
+role_input <- c(role_input_1, role_input_2, role_input_3)
 role_target <- "damage_grade"
 
 train_set <-
