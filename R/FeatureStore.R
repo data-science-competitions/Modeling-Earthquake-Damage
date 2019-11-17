@@ -87,13 +87,15 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 
   tidy_data <-
     .craft_tidy_data(private) %>%
-    dplyr::select(dplyr::starts_with("."), "building_id", dplyr::starts_with("geo_"), "damage_grade")
+    dplyr::select(dplyr::starts_with("."), "building_id", dplyr::starts_with("geo_"), "damage_grade") %>%
+    dplyr::mutate_if(is.factor, forcats::fct_lump_min, min = 5, other_level = "Rare")
 
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
       dframe = tidy_data %>% dplyr::filter(.set_role %in% "calibration"),
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
+      rareCount = 0,
       ncross = 2^3,
       verbose = getOption("verbose")
     )

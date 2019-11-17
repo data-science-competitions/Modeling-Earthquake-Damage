@@ -14,6 +14,7 @@ model_end <- function(){
         label = model_name,
         verbose = getOption("verbose")
     )
+    print(ExplainerYardstick(explainer)$delete_label(".estimator")$insert_label(".dataset", "historical_data")$all_numeric_metrics)
 
     ## Visualisation: Agnostic Variable Importance
     figure_path <- file.path(target, "variable-importance-agnostic.jpg")
