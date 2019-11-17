@@ -52,16 +52,21 @@ pm$model_store()
 pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
-metadata <- test_set %>% dplyr::select(role_pk, dplyr::starts_with("geo_"))
-truth.numeric <- test_set %>% dplyr::select_at(c(role_pk, role_target)) %>% dplyr::rename("truth.numeric" = !!role_target)
-estimate.numeric <- pm$response %>% dplyr::select(role_pk, fit) %>% dplyr::rename("estimate.numeric" = "fit")
 data <-
-    metadata %>%
-    dplyr::right_join(truth.numeric, by = role_pk) %>%
-    dplyr::right_join(estimate.numeric, by = role_pk) %>%
-    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
-data <- data %>% dplyr::group_by(geo_level_1_id)
+    test_set %>%
+    dplyr::left_join(pm$response, by = role_pk) %>%
+    dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
+    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric)) %>%
+    dplyr::group_by(geo_level_1_id)
 
+## Ungrouped Evaluation (overview)
+Yardstick$
+    new(data %>% dplyr::ungroup(), truth = "truth.class", estimate = "estimate.class")$
+    set_estimator("micro")$
+    insert_label(".model", pm$model_name)$
+    f_meas
+
+## Grouped Evaluation (drill-down)
 model_class_performance <-
     Yardstick$
     new(data, truth = "truth.class", estimate = "estimate.class")$
@@ -77,28 +82,3 @@ model_numeric_performance <-
 
 model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
 print(model_performance)
-
-# Visualisation -----------------------------------------------------------
-accuracy <- model_performance %>% dplyr::filter(.metric %in% "accuracy", is.na(.class))
-(grand_accuracy <- sum(accuracy$.estimate * accuracy$.n) / sum(accuracy$.n))
-## Metrics Correlation Plot
-model_performance %>%
-    dplyr::filter(.metric %in% c("accuracy", "mae", "rmse", "rsq"), is.na(.class)) %>%
-    dplyr::select(-.estimator) %>%
-    dplyr::mutate(.metric = paste0("metric_", .metric)) %>%
-    tidyr::spread(".metric", ".estimate") %>%
-    dplyr::select(dplyr::starts_with("metric_")) %>%
-    dplyr::rename_all(function(x) stringr::str_remove_all(x, "metric_")) %>%
-    as.matrix() %>%
-    PerformanceAnalytics::chart.Correlation(method = "spearman", histogram = FALSE)
-## Density Plot
-par(pty = "m")
-accuracy %>% .$.estimate %>% density(from = 0, to = 1) %>% plot(main = "")
-title("Accuracy ~ geo_level_1_id Density Plot")
-abline(v = grand_accuracy, lty = 2, col = "gray")
-## Scatter Plot
-par(pty = "s")
-accuracy %>% dplyr::select(.n, .estimate) %>% plot(ylim = c(0.5, 1), pch = 21, cex = 1, bg = "orange", col = "gray")
-title("Accuracy ~ geo_level_1_id Scatter Plot")
-abline(h = grand_accuracy, lty = 2, col = "gray")
-with(accuracy, text(.estimate ~ .n, labels = geo_level_1_id, pos = 4, cex = 0.5))
