@@ -3,10 +3,10 @@ options(verbose = FALSE)
 fs <- FeatureStore$new()
 model_name <- c(
     "arithmetic-mean", # [1]
-    "rpart",           # [2]
-    "ranger",          # [3]
-    "catboost",        # [4]
-    "randomForest",    # [5]
+    "catboost",        # [2]
+    "randomForest",    # [3]
+    "ranger",          # [4]
+    "rpart",           # [5]
     "xgboost"          # [6]
     )[6]
 output_dir <- file.path(getOption("path_archive"), model_name)
