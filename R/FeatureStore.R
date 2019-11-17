@@ -41,22 +41,75 @@ FeatureStore <- R6::R6Class(
 )#end DataStore
 
 # Private Methods ---------------------------------------------------------
+utils::globalVariables(c(".set_bucket", ".set_role"))
+
 .craft_tidy_data <- function(private){
-  historical_data <- private$ds$data_model$historical_data
+  set.seed(1313)
+
+  historical_data <-
+    private$ds$data_model$historical_data %>%
+    dplyr::sample_n(dplyr::n()) %>%
+    dplyr::mutate(.set_bucket = dplyr::ntile(1:dplyr::n(), 26))
+
   new_data <- private$ds$data_model$new_data
-  dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = "source")
+
+  dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = ".set_source") %>%
+    tibble::add_column(.set_role = NA_character_, .after = 1) %>%
+    dplyr::mutate(
+      .set_role = dplyr::if_else(.set_bucket %in% 1:6, "train", .set_role),
+      .set_role = dplyr::if_else(.set_bucket %in% 7:10, "test", .set_role),
+      .set_role = dplyr::if_else(.set_bucket %in% 11:26, "calibration", .set_role)
+    ) %>%
+    dplyr::select(-.set_bucket)
 }
 
-utils::globalVariables(c("geo_level_1_id_ordered", "geo_level_1_id_integer"))
+#' @title Craft Geo Features
+#' @description Treat high cardinality categorical variables.
+#' @param private R6 private component
+#' @details Fields
+#' * **cat_P**: a “prevalence fact” about a categorical level. Tells us if the
+#' original level was rare or common. Probably not good for direct use in a
+#' model, but possibly useful for meta-analysis on the variable.
+#' * **cat_N**: a single variable regression model of the difference in outcome
+#' expectation conditioned on the observed value of the original variable. In
+#' our example: x_catN = E[y|x] - E[y]. This encoding is especially useful for
+#' categorical variables that have a large number of levels, but be aware it can
+#' obscure degrees of freedom if not used properly.
+#' * **cat_D**: a “deviation fact” about a categorical level tells us if 'y' is
+#' concentrated or diffuse when conditioned on the observed level of the
+#' original categorical variable. Probably not good for direct use in a model,
+#' but possibly useful for meta-analysis on the variable.
+#' @return (`data.frame`) A table with treated geo features
+#' @keywords internal
+#' @noRd
 .craft_geo_features <- function(private){
-  error_median_ranking <- c(9, 28, 27, 8, 11, 26, 2, 3, 13, 19, 20, 1, 10, 21, 24, 15, 12, 23, 7, 22, 6, 16, 14, 5, 0, 30, 18, 25, 4, 17, 29)
+  set.seed(1949)
 
-  .craft_tidy_data(private) %>%
-    dplyr::select(building_id, dplyr::starts_with("geo_")) %>%
-    dplyr::transmute(
-      building_id = building_id,
-      geo_level_1_id_ordered = ordered(geo_level_1_id, levels = error_median_ranking),
-      geo_level_1_id_integer = as.numeric(geo_level_1_id_ordered)
+  tidy_data <-
+    .craft_tidy_data(private) %>%
+    dplyr::select(dplyr::starts_with("."), "building_id", dplyr::starts_with("geo_"), "damage_grade") %>%
+    dplyr::mutate_if(is.factor, forcats::fct_lump_min, min = 5, other_level = "Rare")
+
+  treat_plan <-
+    vtreat::mkCrossFrameNExperiment(
+      dframe = tidy_data %>% dplyr::filter(.set_role %in% "calibration"),
+      varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
+      outcome = "damage_grade",
+      rareCount = 0,
+      ncross = 2^3,
+      verbose = getOption("verbose")
     )
+
+  tidy_geo <-
+    vtreat::prepare(treatmentplan = treat_plan$treatments, dframe = tidy_data) %>%
+    tibble::add_column(building_id = tidy_data$building_id, .before = TRUE) %>%
+    dplyr::select(
+      building_id,
+      dplyr::starts_with("geo_level_1_id_cat"),
+      dplyr::starts_with("geo_level_2_id_cat"),
+      dplyr::starts_with("geo_level_3_id_cat")
+    )
+
+  return(tidy_geo)
 }
 

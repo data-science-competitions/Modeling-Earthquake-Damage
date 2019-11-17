@@ -18,11 +18,13 @@
 
 # Folders ----------------------------------------------------------------------
 ^\.tic/*
+^\.binder$
 ^\.Rproj\.user/*
 ^temp/*
 ^data-raw/*
 ^public/*
-^\.Rproj\.user$
 ^inst/archive$
 ^inst/data$
-^\.binder$
+^inst/submissions$
+
+^\.Rproj\.user$

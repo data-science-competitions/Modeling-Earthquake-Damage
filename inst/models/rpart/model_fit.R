@@ -5,6 +5,8 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    set.seed(1451)
+
     rpart_control <- rpart::rpart.control(
         maxdepth = params$maxdepth,
         minsplit = params$minsplit,

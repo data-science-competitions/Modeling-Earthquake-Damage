@@ -1,5 +1,5 @@
 # Setup -------------------------------------------------------------------
-options(verbose = FALSE)
+options(verbose = TRUE)
 fs <- FeatureStore$new()
 model_name <- c(
     "arithmetic-mean", # [1]
@@ -27,13 +27,11 @@ role_target <- "damage_grade"
 
 train_set <-
     historical_data %>%
-    dplyr::filter(.set_role %in% "train") %>%
     dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 test_set <-
-    historical_data %>%
-    dplyr::filter(.set_role %in% "test") %>%
+    new_data %>%
     dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
@@ -51,34 +49,11 @@ pm$model_predict()
 pm$model_store()
 pm$model_end()
 
-# Evaluate Model ----------------------------------------------------------
-data <-
-    test_set %>%
-    dplyr::left_join(pm$response, by = role_pk) %>%
-    dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
-    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric)) %>%
-    dplyr::group_by(geo_level_1_id)
-
-## Ungrouped Evaluation (overview)
-Yardstick$
-    new(data %>% dplyr::ungroup(), truth = "truth.class", estimate = "estimate.class")$
-    set_estimator("micro")$
-    insert_label(".model", pm$model_name)$
-    f_meas
-
-## Grouped Evaluation (drill-down)
-model_class_performance <-
-    Yardstick$
-    new(data, truth = "truth.class", estimate = "estimate.class")$
-    set_estimator("micro")$
-    insert_label(".model", pm$model_name)$
-    all_class_metrics
-
-model_numeric_performance <-
-    Yardstick$
-    new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
-    insert_label(".model", pm$model_name)$
-    all_numeric_metrics
-
-model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
-print(model_performance)
+# Create Submission -------------------------------------------------------
+submission_path <- file.path(getOption("path_submissions"), paste0("(",model_name,")(",make.names(Sys.time()),").csv"))
+dir.create(dirname(submission_path), showWarnings = FALSE, recursive = TRUE)
+pm$response %>%
+    dplyr::select(building_id, fit) %>%
+    dplyr::mutate(fit = as_earthquake_damage(fit)) %>%
+    dplyr::rename(damage_grade = fit) %>%
+    readr::write_csv(submission_path)

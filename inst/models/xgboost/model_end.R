@@ -5,8 +5,24 @@ model_end <- function(){
     target <- file.path(getOption("path_archive", default = tempdir()), model_name, "explanations")
     dir.create(target, showWarnings = FALSE, recursive = TRUE)
 
-    ## Visualisation: Variable Importance
-    figure_path <- file.path(target, "variable-importance.jpg")
+    explainer <- DALEX::explain(
+        model = model_object,
+        data = historical_data[, role_input],
+        y = historical_data[[role_target]],
+        predict_function = function(model, data) predict_function(model, data)[["fit"]],
+        link = link_function,
+        label = model_name,
+        verbose = getOption("verbose")
+    )
+    print(ExplainerYardstick(explainer)$delete_label(".estimator")$insert_label(".dataset", "historical_data")$all_numeric_metrics)
+
+    ## Visualisation: Agnostic Variable Importance
+    figure_path <- file.path(target, "variable-importance-agnostic.jpg")
+    explanation <- ingredients::feature_importance(explainer, type = "difference") %>% plot()
+    ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
+
+    ## Visualisation: XGBoost Variable Importance
+    figure_path <- file.path(target, "variable-importance-xgboost.jpg")
     explanation <- xgboost::xgb.importance(model = model_object) %>% xgboost::xgb.ggplot.importance(top_n = 20)
     ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
 

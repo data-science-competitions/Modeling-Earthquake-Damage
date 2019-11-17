@@ -9,6 +9,6 @@ default:
     od_type: 'Iter'
     metric_period: 50
     od_wait: 20
-    use_best_model: yes
+    use_best_model: no
     train_dir: !expr tempfile("train_dir.")
 

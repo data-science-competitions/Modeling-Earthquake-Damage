@@ -198,6 +198,8 @@ PentaModel <- R6::R6Class(
 }
 
 .check_model_predict_output_arguments <- function(private){
+    if("list" %in% class(private$shared_env$response))
+        stop("model_predict produced a list. Make sure the returned object is a data.frame OR a matrix")
     if(any(is.na(private$shared_env$response)))
         stop("model_predict produced NA values.\nSee PentaModelObj$response")
     if(.nrecord(private$shared_env$response) != .nrecord(private$shared_env$new_data))
@@ -216,15 +218,14 @@ PentaModel <- R6::R6Class(
     is_not_a_data_frame <- function(x) isFALSE(is.data.frame(x))
     rename <- function(.data, ...) tryCatch(dplyr::rename(.data, ...), error = function(e) return(.data))
 
-    y_id <- private$shared_env$new_data[[private$shared_env$role_pk]]
+    y_id <- tibble::tibble("rowid" = private$shared_env$new_data[[private$shared_env$role_pk]])
     response <- private$shared_env$response
 
     if(is_not_a_data_frame(response))
         response <- as.data.frame(response, stringsAsFactors = FALSE) %>% rename("fit" = "response")
 
     private$shared_env$response <-
-        response %>%
-        tibble::add_column(rowid = y_id, .before = 0) %>%
+        dplyr::bind_cols(y_id, response) %>%
         dplyr::rename_at("rowid", function(.) private$shared_env$role_pk) %>%
         dplyr::rename_all(function(colname) gsub(".*\\$", "", colname)) %>%
         as.data.frame(stringsAsFactors = FALSE)

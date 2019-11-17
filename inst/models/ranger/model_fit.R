@@ -5,10 +5,12 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    set.seed(1451)
 
     mdl_obj <- ranger::ranger(
         model_formula,
         data = historical_data,
+        verbose = getOption("verbose"),
         num.trees = params$num.trees,
         mtry = eval(parse(text = params$mtry)),
         max.depth = params$max.depth,

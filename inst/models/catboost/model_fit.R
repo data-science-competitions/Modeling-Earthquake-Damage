@@ -5,12 +5,15 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    set.seed(1451)
+
     historical_data <-
         catboost::catboost.load_pool(
             data = historical_data %>% dplyr::select(role_input),
             label = historical_data %>% dplyr::select(role_target) %>% unlist()
         )
 
+    params$logging_level = ifelse(getOption("verbose"), "Verbose", "Silent")
     mdl_obj <- catboost::catboost.train(learn_pool = historical_data, params = params)
 
     return(mdl_obj)

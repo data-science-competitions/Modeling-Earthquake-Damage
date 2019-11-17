@@ -5,10 +5,13 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    set.seed(1451)
+
     mdl_obj <- xgboost::xgb.train(
         params = params,
-        data = preprocessing_function(historical_data, model_formula),
-        nrounds = params$nrounds
+        data = preprocessing_function(historical_data),
+        nrounds = params$nrounds,
+        verbose = getOption("verbose")
     )
 
     return(mdl_obj)
