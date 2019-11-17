@@ -81,7 +81,7 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 #' but possibly useful for meta-analysis on the variable.
 #' @return (`data.frame`) A table with treated geo features
 #' @noRd
-.craft_geo_features <- function(private){
+.craft_geo_features <- function(private){ #nocov start
   set.seed(1949)
 
   tidy_data <-
@@ -108,5 +108,5 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
     )
 
   return(tidy_geo)
-}
+}#nocov end
 
