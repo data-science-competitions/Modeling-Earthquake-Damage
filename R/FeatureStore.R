@@ -54,7 +54,7 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
   new_data <- private$ds$data_model$new_data
 
   dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = ".set_source") %>%
-    tibble::add_column(".set_role" = NA_character_, .after = 1) %>%
+    tibble::add_column(.set_role = NA_character_, .after = 1) %>%
     dplyr::mutate(
       .set_role = dplyr::if_else(.set_bucket %in% 1:6, "train", .set_role),
       .set_role = dplyr::if_else(.set_bucket %in% 7:10, "test", .set_role),
@@ -80,8 +80,9 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 #' original categorical variable. Probably not good for direct use in a model,
 #' but possibly useful for meta-analysis on the variable.
 #' @return (`data.frame`) A table with treated geo features
+#' @keywords internal
 #' @noRd
-.craft_geo_features <- function(private){ #nocov start
+.craft_geo_features <- function(private){
   set.seed(1949)
 
   tidy_data <-
@@ -90,7 +91,7 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
-      dframe = tidy_data %>% dplyr::filter_(.set_role %in% "calibration"),
+      dframe = tidy_data %>% dplyr::filter(.set_role %in% "calibration"),
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
       ncross = 2^3,
@@ -108,5 +109,5 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
     )
 
   return(tidy_geo)
-}#nocov end
+}
 
