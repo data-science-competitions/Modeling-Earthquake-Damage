@@ -32,9 +32,11 @@ test_set <-
     dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Formulate a Fitness Function --------------------------------------------
-eval_function <- function(params_values){
+eval_function <- function(params_values){ #browser()
     stopifnot(exists("train_set"), exists("test_set"))
-    params <- list(params_values)
+    is_whole_number <- function(x) x%%1==0
+
+    params <- list(params_values)[[1]]
     names(params) <- get("names", envir = parent.frame())
     print(params)
 
@@ -46,9 +48,11 @@ eval_function <- function(params_values){
     pm$set_role_target(role_target)
 
     pm$model_init()
-    updated_params <- utils::modifyList(pm$model_environment$params, params)
-    updated_params <- lapply(updated_params, round)
+    integer_params <- purrr::map_lgl(pm$model_environment$params, function(x) x%%1==0)
+    updated_params <- utils::modifyList(pm$model_environment$params, as.list(params))
+    for(k in which(integer_params)) updated_params[[k]] <- round(updated_params[[k]])
     assign("params", updated_params, envir = pm$model_environment)
+
     pm$model_fit()
     pm$model_predict()
 
@@ -70,9 +74,9 @@ eval_function <- function(params_values){
 ga_obj <- GA::ga(
     type = "real-valued",
     fitness = eval_function,
-    lower = c(1L), # minimum values
-    upper = c(10L), # maximum values
-    names = c("max_depth"),
+    lower = c(1, 50), # minimum values
+    upper = c(10, 200), # maximum values
+    names = c("max_depth", "nrounds"),
     popSize = 2^1, # population size
     maxiter = 2^1, # number of iterations
     pmutation = 0.5, # probability of mutation
