@@ -35,10 +35,6 @@ test_set <-
 eval_function <- function(params_values){ #browser()
     stopifnot(exists("train_set"), exists("test_set"))
 
-    params <- list(params_values)[[1]]
-    names(params) <- get("names", envir = parent.frame())
-    print(params)
-
     pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
     pm$set_historical_data(train_set)
     pm$set_new_data(test_set)
@@ -47,9 +43,17 @@ eval_function <- function(params_values){ #browser()
     pm$set_role_target(role_target)
 
     pm$model_init()
-    integer_params <- purrr::map_lgl(pm$model_environment$params, function(x) x%%1==0)
-    updated_params <- utils::modifyList(pm$model_environment$params, as.list(params))
-    for(k in which(integer_params)) updated_params[[k]] <- round(updated_params[[k]])
+
+    params <- list(params_values)[[1]]
+    names(params) <- get("names", envir = parent.frame())
+    print(round(params, 2))
+    current_params <- pm$model_environment$params
+    updated_params <- utils::modifyList(current_params, as.list(params))
+    for(element in names(current_params)){
+        if(!is.numeric(current_params[[element]])) next
+        if(current_params[[element]] %% 1 != 0) next
+        updated_params[[element]] <- updated_params[[element]] %>% round()
+    }
     assign("params", updated_params, envir = pm$model_environment)
 
     pm$model_fit()
@@ -73,15 +77,16 @@ eval_function <- function(params_values){ #browser()
 ga_obj <- GA::ga(
     type = "real-valued",
     fitness = eval_function,
-    lower = c(1, 50), # minimum values
-    upper = c(10, 200), # maximum values
-    names = c("max_depth", "nrounds"),
-    popSize = 2^2, # population size
-    maxiter = 2^3, # number of iterations
-    pmutation = 0.5, # probability of mutation
-    elitism = 0.3, # percentage of elitism (fraction of best current solutions used on next round)
-    # suggestions = starting_point,
-    parallel = FALSE,#detectCores()/2,
+    lower = c(0.001, 0.01, 01, 00, 0.11, 0.11, 0.01, 0.01), # minimum values
+    upper = c(0.999, 10.0, 15, 50, 0.99, 0.99, 9.99, 9.99), # maximum values
+    names = c("eta", "gamma", "max_depth", "min_child_weight", "subsample", "colsample_bytree", "lambda", "alpha"),
+    popSize = 2^4,    # population size
+    maxiter = 2^3,    # number of iterations
+    pcrossover = 0.8, # probability of crossover between pairs of chromosomes
+    pmutation = 0.5,  # probability of mutation
+    elitism = 0.25,   # percentage of elitism (fraction of best current solutions used on next round)
+    suggestions = c(0.1, 0.01, 10, 5, 0.75, 0.75, 1.01, 1.01),
+    parallel = FALSE,
     optim = FALSE,
     keepBest = TRUE,
     monitor = plot,
