@@ -6,7 +6,7 @@ output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-tidy_data <- fs$tidy_data #%>% dplyr::left_join(by = "building_id", fs$geo_features)
+tidy_data <- fs$tidy_data %>% dplyr::left_join(by = "building_id", fs$geo_features)
 historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
 new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 
@@ -34,7 +34,6 @@ test_set <-
 # Formulate a Fitness Function --------------------------------------------
 eval_function <- function(params_values){ #browser()
     stopifnot(exists("train_set"), exists("test_set"))
-    is_whole_number <- function(x) x%%1==0
 
     params <- list(params_values)[[1]]
     names(params) <- get("names", envir = parent.frame())
@@ -77,8 +76,8 @@ ga_obj <- GA::ga(
     lower = c(1, 50), # minimum values
     upper = c(10, 200), # maximum values
     names = c("max_depth", "nrounds"),
-    popSize = 2^1, # population size
-    maxiter = 2^1, # number of iterations
+    popSize = 2^2, # population size
+    maxiter = 2^3, # number of iterations
     pmutation = 0.5, # probability of mutation
     elitism = 0.3, # percentage of elitism (fraction of best current solutions used on next round)
     # suggestions = starting_point,
