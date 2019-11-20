@@ -14,7 +14,7 @@ new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 role_pk <- "building_id"
 role_none <- NULL
 role_input_1 <- match_columns(historical_data, "^geo_level_")
-role_input_2 <- match_columns(historical_data, "^age$|^treat_age")
+role_input_2 <- match_columns(historical_data, "^age")
 role_input_3 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|_type$")
 role_input <- c(role_input_1, role_input_2, role_input_3)
 role_target <- "damage_grade"
@@ -78,14 +78,14 @@ ga_obj <- GA::ga(
     type = "real-valued",
     fitness = eval_function,
     lower = c(0.001, 0.01, 01, 00, 0.11, 0.11, 0.01, 0.01), # minimum values
-    upper = c(0.999, 10.0, 15, 50, 0.99, 0.99, 9.99, 9.99), # maximum values
+    upper = c(0.999, 20.0, 15, 50, 0.99, 0.99, 9.99, 9.99), # maximum values
     names = c("eta", "gamma", "max_depth", "min_child_weight", "subsample", "colsample_bytree", "lambda", "alpha"),
     popSize = 2^4,    # population size
     maxiter = 2^3,    # number of iterations
     pcrossover = 0.8, # probability of crossover between pairs of chromosomes
     pmutation = 0.5,  # probability of mutation
     elitism = 0.25,   # percentage of elitism (fraction of best current solutions used on next round)
-    suggestions = c(0.1, 0.01, 10, 5, 0.75, 0.75, 1.01, 1.01),
+    suggestions = c(0.13, 1.09, 11, 27, 0.70, 0.70, 1.98, 1.64),
     parallel = FALSE,
     optim = FALSE,
     keepBest = TRUE,

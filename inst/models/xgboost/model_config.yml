@@ -7,13 +7,13 @@ default:
     nrounds: 100
     # Parameters for Tree Booster
     eta: 0.1
-    gamma: 0
+    gamma: 1.9
     max_depth: 10
-    min_child_weight: 5
-    subsample: 0.75
-    colsample_bytree: 0.75
-    lambda: 1
-    alpha: 1
+    min_child_weight: 27
+    subsample: 0.7
+    colsample_bytree: 0.7
+    lambda: 2.0
+    alpha: 1.6
     # Learning Task Parameters reg:squarederror
     objective: reg:squarederror
     eval_metric: mae

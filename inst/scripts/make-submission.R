@@ -21,8 +21,9 @@ new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 role_pk <- "building_id"
 role_none <- NULL
 role_input_1 <- match_columns(historical_data, "^geo_level_")
-role_input_2 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|^age$|_type$")
-role_input <- c(role_input_1, role_input_2)
+role_input_2 <- match_columns(historical_data, "^age")
+role_input_3 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|_type$")
+role_input <- c(role_input_1, role_input_2, role_input_3)
 role_target <- "damage_grade"
 
 train_set <-
