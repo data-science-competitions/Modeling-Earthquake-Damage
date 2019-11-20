@@ -115,21 +115,11 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 }
 
 .craft_age_features <- function(private){
-  tidy_data <-
+  tidy_age <-
     .craft_tidy_data(private) %>%
     dplyr::select(building_id, age) %>%
-    dplyr::mutate(age = ifelse(age > 150, NA, age))
-
-  transform <- vtreat::designTreatmentsZ(
-    dframe = tidy_data,
-    varlist = "age",
-    verbose = getOption("verbose")
-  )
-
-  tidy_age <-
-    vtreat::prepare(transform, tidy_data) %>%
-    tibble::add_column(building_id = tidy_data$building_id, .before = TRUE) %>%
-    dplyr::rename("treat_age" = "age", "treat_age_bad" = "age_isBAD")
+    dplyr::mutate(age = ifelse(age > 150, NA, age)) %>%
+    treat_non_finite(replace = list(age = 150))
 
   return(tidy_age)
 }
