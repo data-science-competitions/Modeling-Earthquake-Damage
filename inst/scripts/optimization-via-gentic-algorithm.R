@@ -80,13 +80,13 @@ ga_obj <- GA::ga(
     lower = c(0.001, 0.01, 01, 00, 0.11, 0.11, 0.01, 0.01), # minimum values
     upper = c(0.999, 10.0, 15, 50, 0.99, 0.99, 9.99, 9.99), # maximum values
     names = c("eta", "gamma", "max_depth", "min_child_weight", "subsample", "colsample_bytree", "lambda", "alpha"),
-    popSize = 2^3,    # population size
+    popSize = 2^4,    # population size
     maxiter = 2^3,    # number of iterations
     pcrossover = 0.8, # probability of crossover between pairs of chromosomes
     pmutation = 0.5,  # probability of mutation
     elitism = 0.25,   # percentage of elitism (fraction of best current solutions used on next round)
     suggestions = c(0.1, 0.01, 10, 5, 0.75, 0.75, 1.01, 1.01),
-    parallel = parallel::detectCores(),
+    parallel = FALSE,
     optim = FALSE,
     keepBest = TRUE,
     monitor = plot,
