@@ -77,15 +77,16 @@ eval_function <- function(params_values){ #browser()
 ga_obj <- GA::ga(
     type = "real-valued",
     fitness = eval_function,
-    lower = c(050, 0.001, 0.01, 01, 00, 0.11, 0.10), # minimum values
-    upper = c(200, 0.999, 10.0, 15, 50, 0.99, 0.99), # maximum values
-    names = c("nrounds", "eta", "gamma", "max_depth", "min_child_weight", "subsample", "colsample_bytree"),
-    popSize = 2^2, # population size
-    maxiter = 2^3, # number of iterations
-    pmutation = 0.5, # probability of mutation
-    elitism = 0.3, # percentage of elitism (fraction of best current solutions used on next round)
-    suggestions = c(100, 0.1, 0.01, 10, 5, 0.75, 0.75),
-    parallel = FALSE,#detectCores()/2,
+    lower = c(0.001, 0.01, 01, 00, 0.11, 0.11, 0.01, 0.01), # minimum values
+    upper = c(0.999, 10.0, 15, 50, 0.99, 0.99, 9.99, 9.99), # maximum values
+    names = c("eta", "gamma", "max_depth", "min_child_weight", "subsample", "colsample_bytree", "lambda", "alpha"),
+    popSize = 2^3,    # population size
+    maxiter = 2^3,    # number of iterations
+    pcrossover = 0.8, # probability of crossover between pairs of chromosomes
+    pmutation = 0.5,  # probability of mutation
+    elitism = 0.25,   # percentage of elitism (fraction of best current solutions used on next round)
+    suggestions = c(0.1, 0.01, 10, 5, 0.75, 0.75, 1.01, 1.01),
+    parallel = parallel::detectCores(),
     optim = FALSE,
     keepBest = TRUE,
     monitor = plot,
