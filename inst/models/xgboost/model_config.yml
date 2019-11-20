@@ -14,7 +14,7 @@ default:
     colsample_bytree: 0.75
     lambda: 1
     alpha: 1
-    # Learning Task Parameters
+    # Learning Task Parameters reg:squarederror
     objective: reg:squarederror
     eval_metric: mae
 
