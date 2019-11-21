@@ -1,15 +1,15 @@
 # Setup -------------------------------------------------------------------
 options(verbose = FALSE)
 fs <- FeatureStore$new()
-model_name <- c(
+model_names <- c(
     "arithmetic-mean", # [1]
     "catboost",        # [2]
     "randomForest",    # [3]
     "ranger",          # [4]
     "rpart",           # [5]
     "xgboost"          # [6]
-    )[6]
-output_dir <- file.path(getOption("path_archive"), model_name)
+)[c(2,4,6)]
+output_dir <- file.path(getOption("path_archive"), "ensemble")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
@@ -41,24 +41,36 @@ test_set <-
     dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
-# Run model ---------------------------------------------------------------
-pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
-pm$set_historical_data(train_set)
-pm$set_new_data(test_set)
-pm$set_role_pk(role_pk)
-pm$set_role_input(role_input)
-pm$set_role_target(role_target)
+# Fit models --------------------------------------------------------------
+predictions <- test_set %>% dplyr::select(building_id)
+for(model_name in model_names){
+    message("Fitting ", model_name)
+    pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
+    pm$set_historical_data(train_set)
+    pm$set_new_data(test_set)
+    pm$set_role_pk(role_pk)
+    pm$set_role_input(role_input)
+    pm$set_role_target(role_target)
+    pm$model_init()$model_fit()$model_predict()
+    predictions <- dplyr::left_join(
+        predictions,
+        pm$response %>% dplyr::select(!!role_pk, fit) %>% dplyr::rename(!!model_name := "fit"),
+        by = "building_id"
+    )
+}
 
-pm$model_init()
-pm$model_fit()
-pm$model_predict()
-pm$model_store()
-pm$model_end()
+# Ensemble Models ---------------------------------------------------------
+
+
+# Visualise Results -------------------------------------------------------
+try(PerformanceAnalytics::chart.Correlation(predictions[, -1], histogram=TRUE, pch=19))
+blend <- predictions %>% tibble::add_column(fit = rowMeans(predictions[,-1]))
 
 # Evaluate Model ----------------------------------------------------------
 data <-
-    test_set %>%
+    blend %>%
     dplyr::left_join(pm$response, by = role_pk) %>%
+    dplyr::left_join(blend, by = role_pk) %>%
     dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
     dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric)) %>%
     dplyr::group_by(geo_level_1_id)
