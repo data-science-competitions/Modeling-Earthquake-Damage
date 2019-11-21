@@ -64,12 +64,13 @@ for(model_name in model_names){
 
 # Visualise Results -------------------------------------------------------
 try(PerformanceAnalytics::chart.Correlation(predictions[, -1], histogram=TRUE, pch=19))
-
+blend <- predictions %>% tibble::add_column(fit = rowMeans(predictions[,-1]))
 
 # Evaluate Model ----------------------------------------------------------
 data <-
-    test_set %>%
+    blend %>%
     dplyr::left_join(pm$response, by = role_pk) %>%
+    dplyr::left_join(blend, by = role_pk) %>%
     dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
     dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric)) %>%
     dplyr::group_by(geo_level_1_id)
