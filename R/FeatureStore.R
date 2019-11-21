@@ -58,8 +58,9 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
     tibble::add_column(.set_role = NA_character_, .after = 1) %>%
     dplyr::mutate(
       .set_role = dplyr::if_else(.set_bucket %in% 1:6, "train", .set_role),
-      .set_role = dplyr::if_else(.set_bucket %in% 7:10, "test", .set_role),
-      .set_role = dplyr::if_else(.set_bucket %in% 11:26, "calibration", .set_role)
+      .set_role = dplyr::if_else(.set_bucket %in% 7:10, "validation", .set_role),
+      .set_role = dplyr::if_else(.set_bucket %in% 11:15, "cross-validation", .set_role),
+      .set_role = dplyr::if_else(.set_bucket %in% 16:26, "calibration", .set_role)
     ) %>%
     dplyr::select(-.set_bucket)
 }

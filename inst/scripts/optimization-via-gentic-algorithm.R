@@ -27,7 +27,7 @@ train_set <-
 
 test_set <-
     historical_data %>%
-    dplyr::filter(.set_role %in% "test") %>%
+    dplyr::filter(.set_role %in% "validation") %>%
     dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
