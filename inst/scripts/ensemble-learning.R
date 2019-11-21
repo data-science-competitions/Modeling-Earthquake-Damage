@@ -60,11 +60,19 @@ for(model_name in model_names){
 }
 
 # Ensemble Models ---------------------------------------------------------
-
+blend <- predictions %>% tibble::add_column(fit = rowMeans(predictions[,-1]))
 
 # Visualise Results -------------------------------------------------------
-try(PerformanceAnalytics::chart.Correlation(predictions[, -1], histogram=TRUE, pch=19))
-blend <- predictions %>% tibble::add_column(fit = rowMeans(predictions[,-1]))
+plot_path <- file.path(output_dir, "(correlation plot)(predictions).jpg")
+PerformanceAnalytics::chart.Correlation(predictions[, -1], histogram=TRUE, pch=19)
+title("Prediction Correlation Plot")
+dev.print(jpeg, plot_path, width = 800)
+
+plot_path <- file.path(output_dir, "(correlation plot)(residuals).jpg")
+residuals <- as.matrix(predictions[, -1]) - test_set[[role_target]]
+PerformanceAnalytics::chart.Correlation(residuals, histogram=TRUE, pch=19)
+title("Residuals Correlation Plot")
+dev.print(jpeg, plot_path, width = 800)
 
 # Evaluate Model ----------------------------------------------------------
 data <-
