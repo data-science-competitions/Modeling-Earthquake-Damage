@@ -8,7 +8,7 @@ model_names <- c(
     "ranger",          # [4]
     "rpart",           # [5]
     "xgboost"          # [6]
-    )[c(4,6)]
+)[c(2,4,6)]
 output_dir <- file.path(getOption("path_archive"), "ensemble")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -58,6 +58,13 @@ for(model_name in model_names){
         by = "building_id"
     )
 }
+
+# Ensemble Models ---------------------------------------------------------
+
+
+# Visualise Results -------------------------------------------------------
+try(PerformanceAnalytics::chart.Correlation(predictions[, -1], histogram=TRUE, pch=19))
+
 
 # Evaluate Model ----------------------------------------------------------
 data <-
