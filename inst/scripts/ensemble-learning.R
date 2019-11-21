@@ -41,22 +41,23 @@ test_set <-
     dplyr::select(-dplyr::starts_with(".")) %>%
     dplyr::select(role_pk, role_input, role_target, role_none)
 
-# Run models --------------------------------------------------------------
+# Fit models --------------------------------------------------------------
+predictions <- test_set %>% dplyr::select(building_id)
 for(model_name in model_names){
-
+    message("Fitting ", model_name)
+    pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
+    pm$set_historical_data(train_set)
+    pm$set_new_data(test_set)
+    pm$set_role_pk(role_pk)
+    pm$set_role_input(role_input)
+    pm$set_role_target(role_target)
+    pm$model_init()$model_fit()$model_predict()
+    predictions <- dplyr::left_join(
+        predictions,
+        pm$response %>% dplyr::select(!!role_pk, fit) %>% dplyr::rename(!!model_name := "fit"),
+        by = "building_id"
+    )
 }
-pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
-pm$set_historical_data(train_set)
-pm$set_new_data(test_set)
-pm$set_role_pk(role_pk)
-pm$set_role_input(role_input)
-pm$set_role_target(role_target)
-
-pm$model_init()
-pm$model_fit()
-pm$model_predict()
-pm$model_store()
-pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
 data <-
