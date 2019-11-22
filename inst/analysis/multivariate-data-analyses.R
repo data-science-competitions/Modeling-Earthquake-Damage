@@ -1,9 +1,3 @@
-# Helper Functions --------------------------------------------------------
-column_to_rownames <- function(.data, var){
-    suppressWarnings(rownames(.data) <- .data[[var]])
-    .data %>% dplyr::select(-!!var)
-}
-
 # Setup -------------------------------------------------------------------
 # http://factominer.free.fr/index.html
 # https://github.com/kassambara/factoextra
@@ -15,15 +9,15 @@ library(factoextra) # Extract and Visualize the Results of Multivariate Data Ana
 fs <- FeatureStore$new()
 role_pk <- "building_id"
 set.seed(0856)
-data <- fs$tidy_data %>% 
+data <- fs$tidy_data %>%
     dplyr::select(building_id, dplyr::starts_with("has_")) %>%
-    purrr::modify_if(is.logical, factor, levels = c("FALSE", "TRUE")) %>% 
-    dplyr::sample_n(1e4) %>% 
-    column_to_rownames(role_pk) 
+    purrr::modify_if(is.logical, factor, levels = c("FALSE", "TRUE")) %>%
+    dplyr::sample_n(1e4) %>%
+    column_to_rownames(role_pk)
 
 # Multiple Factor Analysis (MFA) ------------------------------------------
 data_mfa <-
-    data %>% 
+    data %>%
     FactoMineR::MFA(
         group = c(11, 11), # 11 has_superstructure vars and 11 has_secondary_use vars
         type = c("n", "n"), # both groups are categorical variables
@@ -31,19 +25,18 @@ data_mfa <-
         graph = FALSE
     )
 # Extract the results for individuals.
-ind <- factoextra::get_mfa_ind(data_mfa)
-ind_coord <- 
-    tibble::as_tibble(ind$coord, rownames = role_pk) %>% 
+MFA_scores <-
+    tibble::as_tibble(data_mfa$ind$coord, rownames = role_pk) %>%
     dplyr::rename_at(
-        dplyr::vars(dplyr::starts_with("Dim.")), 
-        function(x) paste0("MFA_", stringr::str_remove(x, "Dim."))
+        dplyr::vars(dplyr::starts_with("Dim.")),
+        function(x) paste0("dim_", stringr::str_remove(x, "Dim."))
     )
 
 # Eigenvalues / Variances -------------------------------------------------
 ## Statistics
 eig_val <- factoextra::get_eigenvalue(data_mfa)
 head(eig_val)
-## Scree Plot 
+## Scree Plot
 factoextra::fviz_screeplot(data_mfa, ncp = Inf)
 
 # Graph of Variables ------------------------------------------------------
@@ -59,7 +52,7 @@ factoextra::fviz_contrib(data_mfa, choice, axes = 2, top = 11)
 # Graph of Individuals ----------------------------------------------------
 factoextra::fviz_mfa_ind(
     data_mfa, addEllipses = FALSE, repel = FALSE,
-    col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07") 
+    col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07")
 )
 
 
