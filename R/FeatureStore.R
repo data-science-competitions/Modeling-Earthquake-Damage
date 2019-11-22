@@ -121,7 +121,8 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
     .craft_tidy_data(private) %>%
     dplyr::select(building_id, age) %>%
     dplyr::mutate(age = ifelse(age > 150, NA, age)) %>%
-    treat_non_finite(replace = list(age = 150))
+    treat_non_finite(replace = list(age = 250)) %>%
+    dplyr::rename(treat_age = age, treat_age_NA = age_NA)
 
   return(tidy_age)
 }
