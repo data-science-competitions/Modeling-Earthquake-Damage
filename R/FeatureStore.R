@@ -38,7 +38,7 @@ FeatureStore <- R6::R6Class(
     tidy_data = function() .craft_tidy_data(private),
     geo_features = function() .craft_geo_features(private),
     age_features = function() .craft_age_features(private),
-    has_features = function() .craft_has_features(private)
+    mfa_features = function() .craft_mfa_features(private)
   )
 )#end DataStore
 
@@ -127,19 +127,19 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
   return(tidy_age)
 }
 
-.craft_has_features<- function(private){
+.craft_mfa_features<- function(private){
   tidy_has <-
     .craft_tidy_data(private) %>%
-    dplyr::select(building_id, dplyr::starts_with("has_")) %>%
+    dplyr::select(building_id, dplyr::starts_with("has_"), dplyr::ends_with("_type")) %>%
     purrr::modify_if(is.logical, factor, levels = c("FALSE", "TRUE")) %>%
     column_to_rownames("building_id")
 
   MFA_object <-
     tidy_has %>%
     FactoMineR::MFA(
-      group = c(11, 11), # 11 has_superstructure vars and 11 has_secondary_use vars
-      type = c("n", "n"), # both groups are categorical variables
-      name.group = c("superstructure", "secondary_use"),
+      group = c(11, 11, 4),
+      type = c("n", "n", "n"),
+      name.group = c("superstructure", "secondary_use", "type"),
       graph = FALSE
     )
 
@@ -147,7 +147,7 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
     tibble::as_tibble(MFA_object$ind$coord, rownames = "building_id") %>%
     dplyr::rename_at(
       dplyr::vars(dplyr::starts_with("Dim.")),
-      function(x) paste0("has_dim_", stringr::str_remove(x, "Dim."))
+      function(x) paste0("mfa_dim_", stringr::str_remove(x, "Dim."))
     )
 
   return(MFA_scores)
