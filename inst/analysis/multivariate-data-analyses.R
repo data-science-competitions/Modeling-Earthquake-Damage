@@ -10,7 +10,7 @@ fs <- FeatureStore$new()
 role_pk <- "building_id"
 set.seed(0856)
 data <- fs$tidy_data %>%
-    dplyr::select(building_id, dplyr::starts_with("has_")) %>%
+    dplyr::select(building_id, dplyr::starts_with("has_"), dplyr::ends_with("_type")) %>%
     purrr::modify_if(is.logical, factor, levels = c("FALSE", "TRUE")) %>%
     dplyr::sample_n(1e4) %>%
     column_to_rownames(role_pk)
@@ -19,9 +19,9 @@ data <- fs$tidy_data %>%
 data_mfa <-
     data %>%
     FactoMineR::MFA(
-        group = c(11, 11), # 11 has_superstructure vars and 11 has_secondary_use vars
-        type = c("n", "n"), # both groups are categorical variables
-        name.group = c("superstructure", "secondary_use"),
+        group = c(11, 11, 4),
+        type = c("n", "n", "n"),
+        name.group = c("superstructure", "secondary_use", "type"),
         graph = FALSE
     )
 # Extract the results for individuals.
