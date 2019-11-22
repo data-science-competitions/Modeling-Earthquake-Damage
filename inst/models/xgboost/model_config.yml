@@ -8,7 +8,7 @@ default:
     # Parameters for Tree Booster
     eta: 0.3
     gamma: 0
-    max_depth: 6
+    max_depth: 10
     min_child_weight: 5
     subsample: 0.7
     colsample_bytree: 0.7

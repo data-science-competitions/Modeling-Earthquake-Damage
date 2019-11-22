@@ -29,9 +29,16 @@ test_that("FeatureStore has access to the treated geo features", {
 
 test_that("FeatureStore has access to the treated age features", {
     attach(test_env)
-    age_feature_names <- c("age", "age_NA")
+    age_feature_names <- c("treat_age", "treat_age_NA")
     expect_class(age_features <- obj$age_features, "data.frame")
     expect_table_has_col_names(age_features, c("building_id", age_feature_names))
+})
+
+test_that("FeatureStore has access to the underlying structures of has_ variables", {
+    attach(test_env)
+    has_feature_names <- paste0("has_dim_", 1:5)
+    expect_class(cores <- obj$has_features, "data.frame")
+    expect_table_has_col_names(cores, c("building_id", has_feature_names))
 })
 
 testthat::teardown(test_env <- NULL)

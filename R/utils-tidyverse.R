@@ -1,3 +1,30 @@
+#' @title Add Row Names from a Data Frame
+#'
+#' @description This is the inverse function of
+#'   \link[tibble]{rownames_to_column}.
+#'
+#' @inheritParams tibble::column_to_rownames
+#'
+#' @details Given a data frame \code{.data} and variable name \code{var}, the
+#'   function:
+#' 1. Names the rows of \code{.data} using \code{var}; and
+#' 2. Removed the column \code{var}.
+#'
+#' @family tibble functions
+#' @export
+#'
+#' @seealso \link[tibble]{rownames_to_column}
+#'
+#' @examples
+#' \dontrun{
+#'  mtcars_without_rownames <- mtcars %>% tibble::rownames_to_column("id")
+#'  mtcars_with_rownames <- column_to_rownames(mtcars_without_rownames, "id")
+#' }
+column_to_rownames <- function(.data, var){
+    suppressWarnings(rownames(.data) <- .data[[var]])
+    .data %>% dplyr::select(-!!var)
+}
+
 #' @title Treat Non-Finite Values
 #'
 #' @description Treatment of NA, NaN, -Inf and +Inf through safe replacement

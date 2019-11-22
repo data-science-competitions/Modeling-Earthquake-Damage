@@ -103,3 +103,16 @@ test_that("treat_non_finite refuses to accept invalid replacement values", {
     replace <- list("mpg" = -Inf)
     expect_error(treat_non_finite(mtcars, replace))
 })
+
+# column_to_rownames ------------------------------------------------------
+test_that("column_to_rownames adds row names", {
+    replace <- list("mpg" = NA)
+    data <- mtcars %>% tibble::rownames_to_column("id")
+
+    expect_identical(
+        data %>% column_to_rownames("id") %>% rownames(),
+        mtcars %>% rownames()
+    )
+
+    expect_false("id" %in% (data %>% column_to_rownames("id") %>% colnames()))
+})
