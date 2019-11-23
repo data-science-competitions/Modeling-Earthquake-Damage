@@ -63,6 +63,12 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
       .set_role = dplyr::if_else(.set_bucket %in% 11:15, "cross-validation", .set_role),
       .set_role = dplyr::if_else(.set_bucket %in% 16:26, "calibration", .set_role)
     ) %>%
+    dplyr::rename(
+      land_surface_condition_fct = land_surface_condition,
+      position_fct = position,
+      plan_configuration_fct = plan_configuration,
+      legal_ownership_status_fct = legal_ownership_status
+    ) %>%
     dplyr::select(-.set_bucket)
 }
 
@@ -130,16 +136,21 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 .craft_mfa_features<- function(private){
   tidy_has <-
     .craft_tidy_data(private) %>%
-    dplyr::select(building_id, dplyr::starts_with("has_"), dplyr::ends_with("_type")) %>%
+    dplyr::select(
+      building_id,
+      dplyr::starts_with("has_"),
+      dplyr::ends_with("_type"),
+      dplyr::ends_with("_fct")
+    ) %>%
     purrr::modify_if(is.logical, factor, levels = c("FALSE", "TRUE")) %>%
     column_to_rownames("building_id")
 
   MFA_object <-
     tidy_has %>%
     FactoMineR::MFA(
-      group = c(11, 11, 4),
-      type = c("n", "n", "n"),
-      name.group = c("superstructure", "secondary_use", "type"),
+      group = c(11, 11, 4, 4),
+      type = c("n", "n", "n", "n"),
+      name.group = c("superstructure", "secondary_use", "type", "misc"),
       graph = FALSE
     )
 
