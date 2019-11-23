@@ -3,12 +3,12 @@ options(verbose = FALSE)
 fs <- FeatureStore$new()
 model_name <- c(
     "arithmetic-mean", # [1]
-    "catboost",        # [2]
-    "randomForest",    # [3]
-    "ranger",          # [4]
-    "rpart",           # [5]
+    "rpart",           # [2]
+    "ranger",          # [3]
+    "catboost",        # [4]
+    "randomForest",    # [5]
     "xgboost"          # [6]
-    )[6]
+)[6]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -16,7 +16,7 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 tidy_data <-
     fs$tidy_data %>%
     dplyr::left_join(by = "building_id", fs$geo_features) %>%
-    dplyr::left_join(by = "building_id", fs$has_features) %>%
+    dplyr::left_join(by = "building_id", fs$mfa_features) %>%
     dplyr::left_join(by = "building_id", fs$age_features)
 historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
 new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
@@ -24,11 +24,10 @@ new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 # Sample the Data ---------------------------------------------------------
 role_pk <- "building_id"
 role_none <- NULL
-role_input_1 <- match_columns(historical_data, "^geo_level_")
-role_input_2 <- match_columns(historical_data, "^age|^treat_age")
-role_input_3 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|^has_dim_")
-role_input_4 <- match_columns(historical_data, "_type$")
-role_input <- c(role_input_1, role_input_2, role_input_3, role_input_4)
+role_input_1 <- match_columns(historical_data, "_type$|^has_superstructure_mud_mortar_stone$|_fct$")
+role_input_2 <- match_columns(historical_data, "^geo_level_[1-3]_id|^mfa_dim_")
+role_input_3 <- match_columns(historical_data, "^age$|_percentage$|^count_")
+role_input <- unique(c(role_input_1, role_input_2, role_input_3))
 role_target <- "damage_grade"
 
 train_set <-
@@ -62,8 +61,7 @@ data <-
     test_set %>%
     dplyr::left_join(pm$response, by = role_pk) %>%
     dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
-    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric)) %>%
-    dplyr::group_by(geo_level_1_id)
+    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
 
 ## Ungrouped Evaluation (overview)
 Yardstick$
@@ -71,20 +69,3 @@ Yardstick$
     set_estimator("micro")$
     insert_label(".model", pm$model_name)$
     f_meas
-
-## Grouped Evaluation (drill-down)
-model_class_performance <-
-    Yardstick$
-    new(data, truth = "truth.class", estimate = "estimate.class")$
-    set_estimator("micro")$
-    insert_label(".model", pm$model_name)$
-    all_class_metrics
-
-model_numeric_performance <-
-    Yardstick$
-    new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
-    insert_label(".model", pm$model_name)$
-    all_numeric_metrics
-
-model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
-print(model_performance)

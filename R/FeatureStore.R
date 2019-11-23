@@ -38,7 +38,7 @@ FeatureStore <- R6::R6Class(
     tidy_data = function() .craft_tidy_data(private),
     geo_features = function() .craft_geo_features(private),
     age_features = function() .craft_age_features(private),
-    has_features = function() .craft_has_features(private)
+    mfa_features = function() .craft_mfa_features(private)
   )
 )#end DataStore
 
@@ -62,6 +62,12 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
       .set_role = dplyr::if_else(.set_bucket %in% 7:10, "validation", .set_role),
       .set_role = dplyr::if_else(.set_bucket %in% 11:15, "cross-validation", .set_role),
       .set_role = dplyr::if_else(.set_bucket %in% 16:26, "calibration", .set_role)
+    ) %>%
+    dplyr::rename(
+      land_surface_condition_fct = land_surface_condition,
+      position_fct = position,
+      plan_configuration_fct = plan_configuration,
+      legal_ownership_status_fct = legal_ownership_status
     ) %>%
     dplyr::select(-.set_bucket)
 }
@@ -95,7 +101,7 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
-      dframe = tidy_data %>% dplyr::filter(.set_role %in% "calibration"),
+      dframe = tidy_data %>% dplyr::filter(.set_role %in% c("calibration")),# "validation", "cross-validation")),
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
       rareCount = 0,
@@ -127,19 +133,24 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
   return(tidy_age)
 }
 
-.craft_has_features<- function(private){
+.craft_mfa_features<- function(private){
   tidy_has <-
     .craft_tidy_data(private) %>%
-    dplyr::select(building_id, dplyr::starts_with("has_")) %>%
+    dplyr::select(
+      building_id,
+      dplyr::starts_with("has_"),
+      dplyr::ends_with("_type"),
+      dplyr::ends_with("_fct")
+    ) %>%
     purrr::modify_if(is.logical, factor, levels = c("FALSE", "TRUE")) %>%
     column_to_rownames("building_id")
 
   MFA_object <-
     tidy_has %>%
     FactoMineR::MFA(
-      group = c(11, 11), # 11 has_superstructure vars and 11 has_secondary_use vars
-      type = c("n", "n"), # both groups are categorical variables
-      name.group = c("superstructure", "secondary_use"),
+      group = c(11, 11, 4, 4),
+      type = c("n", "n", "n", "n"),
+      name.group = c("superstructure", "secondary_use", "type", "misc"),
       graph = FALSE
     )
 
@@ -147,7 +158,7 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
     tibble::as_tibble(MFA_object$ind$coord, rownames = "building_id") %>%
     dplyr::rename_at(
       dplyr::vars(dplyr::starts_with("Dim.")),
-      function(x) paste0("has_dim_", stringr::str_remove(x, "Dim."))
+      function(x) paste0("mfa_dim_", stringr::str_remove(x, "Dim."))
     )
 
   return(MFA_scores)
