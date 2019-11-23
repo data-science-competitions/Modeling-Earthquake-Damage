@@ -4,17 +4,14 @@ default:
     # General Parameters
     booster: gbtree
     # Command Line Parameters
-    nrounds: 100
+    nrounds: 1000
     # Parameters for Tree Booster
-    eta: 0.3
+    eta: 0.02
     gamma: 0
     max_depth: 10
     min_child_weight: 5
-    subsample: 0.7
-    colsample_bytree: 0.7
+    subsample: 0.95
+    colsample_bytree: 0.8
     lambda: 1
     alpha: 0
-    # Learning Task Parameters reg:squarederror
-    objective: reg:squarederror
-    eval_metric: mae
 
