@@ -101,7 +101,7 @@ utils::globalVariables(c(".set_bucket", ".set_role"))
 
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
-      dframe = tidy_data %>% dplyr::filter(.set_role %in% "calibration"),
+      dframe = tidy_data %>% dplyr::filter(.set_role %in% c("calibration")),# "validation", "cross-validation")),
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
       rareCount = 0,
