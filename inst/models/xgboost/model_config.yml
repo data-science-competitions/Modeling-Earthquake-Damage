@@ -1,4 +1,17 @@
+# https://xgboost.readthedocs.io/en/latest/parameter.html
 default:
   params:
-    nrounds: 100
+    # General Parameters
+    booster: gbtree
+    # Command Line Parameters
+    nrounds: 1000
+    # Parameters for Tree Booster
+    eta: 0.02
+    gamma: 0
     max_depth: 10
+    min_child_weight: 5
+    subsample: 0.95
+    colsample_bytree: 0.8
+    lambda: 1
+    alpha: 0
+

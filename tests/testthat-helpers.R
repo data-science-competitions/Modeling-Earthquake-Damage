@@ -10,12 +10,13 @@ expect_dir_does_not_exist <- function(path) expect_false(dir.exists(path))
 expect_file_exists <- function(path) expect_true(file.exists(path))
 expect_no_md_files <- function(path) expect_length(list.files(path, recursive = TRUE, all.files = TRUE, pattern = ".*.md"), 0)
 expect_text_appears_in_document <- function(target, text) expect_true(any(grepl(text, readLines(target))))
-expect_subset <- function(x, y) expect(.is_subset(x ,y), error_message("object doesn't have ", setdiff(x, y)))
+expect_subset <- function(x, y) expect(.is_subset(x ,y), error_message("object doesn't have ", setdiff(y, x)))
 expect_disjoint_sets <- function(x, y) expect(length(intersect(x, y)) == 0, error_message("sets have intersecting elements", intersect(x, y)))
 expect_equal_sets <- function(x, y) expect_true(.are_set_equal(x, y), label = "sets are not equal")
 expect_class <- function(object, class) expect(any(base::class(object) %in% class), error_message(paste("object is", base::class(object), "not", class)))
 expect_no_duplicates <- function(x) expect_true(.has_no_duplicates(x))
 expect_no_na <- function(x) expect_false(any(is.na(x)), info = "Error: object has NA values")
+expect_finite <- function(x) expect(all(.is_finite(x)), error_message("The following columns contain non-finite values (-Inf, NA, +Inf): ", names(.is_finite(x))[.is_finite(x) == FALSE]))
 expect_an_empty_data.frame <- function(x) if(is.null(expect_class(x, "data.frame"))) expect(nrow(x) == 0, error_message("data.frame is not-empty."))
 expect_a_non_empty_data.frame <- function(x) if(is.null(expect_class(x, "data.frame"))) expect(nrow(x) > 0, error_message("data.frame is empty."))
 expect_table_has_col_names <- function(object, col_names) if(is.null(expect_class(object, "data.frame"))) expect(all(col_names %in% colnames(object)), error_message("data.frame missing columns: ", setdiff(col_names, colnames(object))))
@@ -24,7 +25,12 @@ expect_has_no_duplicates <- function(x) expect(isFALSE(any(duplicated(x))), fail
 expect_not_identical <- function(object, expected) expect_false(identical(object, expected), info  = "objects A and B are identical")
 expect_not_a_tbl <- function(object) expect_false(any(base::class(object) %in% c("tbl", "tbl_df")), label = "object is not a tbl")
 
+expect_are_in_the_past <- function(x) expect(all(x < Sys.Date()), error_message("Some dates are not in the past: ", x[x >= Sys.Date()]))
 # Predicates -------------------------------------------------------------------
+.is_finite <- function(x){
+    sapply(x, function(x) if(!"numeric" %in% class(x)) TRUE else all(is.finite(x)))
+}
+
 .are_set_equal <- function(x, y){
     return(setequal(x %>% distinct(), y %>% distinct()))
 }
