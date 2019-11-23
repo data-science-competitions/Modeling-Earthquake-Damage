@@ -5,13 +5,20 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
-    set.seed(1451)
+    set.seed(1558)
+    xgb_rsplit <- rsample::initial_split(historical_data, 0.95)
+    xgb_train <- xgb_rsplit %>% get_rsample_training_set(1) %>% preprocessing_function()
+    xgb_test <- xgb_rsplit %>% get_rsample_test_set(1) %>% preprocessing_function()
 
+    set.seed(1451)
     mdl_obj <- xgboost::xgb.train(
         params = params,
-        data = preprocessing_function(historical_data),
+        data = xgb_train,
         nrounds = params$nrounds,
-        verbose = getOption("verbose")
+        watchlist = list(train = xgb_train, test = xgb_test),
+        early_stopping_rounds = 10,
+        print_every_n = 10,
+        verbose = 1#getOption("verbose")
     )
 
     return(mdl_obj)
