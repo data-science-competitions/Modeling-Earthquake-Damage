@@ -38,16 +38,16 @@ log_cosh_obj <- function(preds, dtrain){
     return(list(metric = "mae", grad = grad, hess = hess))
 }
 
-#' @title Accuracy Evaluation Function
+#' @title Micro Averaged F1 score Evaluation Function
 #' @inheritParams fair_obj
 #' @export
 #' @keywords internal
 #' @family xgboost functions
-feval_accuracy <- function(preds, dtrain){
+feval_f1 <- function(preds, dtrain){
     y <- as_earthquake_damage(xgboost::getinfo(dtrain, "label"))
     y_hat <- as_earthquake_damage(preds)
-    accuracy <- yardstick::accuracy_vec(truth = y, estimate = y_hat)
-    return(list(metric = 'accuracy', value = accuracy))
+    f1 <- yardstick::f_meas_vec(truth = y, estimate = y_hat, estimator = "micro")
+    return(list(metric = 'F1', value = f1))
 }
 
 #nocov end
