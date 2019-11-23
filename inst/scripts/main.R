@@ -25,8 +25,8 @@ new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 role_pk <- "building_id"
 role_none <- NULL
 role_input_1 <- match_columns(historical_data, "_type$|^has_superstructure_mud_mortar_stone$|_fct$")
-role_input_2 <- match_columns(historical_data, "^geo_level_|^mfa_dim_")
-role_input_3 <- match_columns(historical_data, "^age$_percentage$|^count_")
+role_input_2 <- match_columns(historical_data, "^geo_level_[1-3]_id|^mfa_dim_")
+role_input_3 <- match_columns(historical_data, "^age$|_percentage$|^count_")
 role_input <- unique(c(role_input_1, role_input_2, role_input_3))
 role_target <- "damage_grade"
 
@@ -61,8 +61,7 @@ data <-
     test_set %>%
     dplyr::left_join(pm$response, by = role_pk) %>%
     dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
-    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric)) %>%
-    dplyr::group_by(geo_level_1_id)
+    dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
 
 ## Ungrouped Evaluation (overview)
 Yardstick$
@@ -70,20 +69,3 @@ Yardstick$
     set_estimator("micro")$
     insert_label(".model", pm$model_name)$
     f_meas
-
-## Grouped Evaluation (drill-down)
-model_class_performance <-
-    Yardstick$
-    new(data, truth = "truth.class", estimate = "estimate.class")$
-    set_estimator("micro")$
-    insert_label(".model", pm$model_name)$
-    all_class_metrics
-
-model_numeric_performance <-
-    Yardstick$
-    new(data, truth = "truth.numeric", estimate = "estimate.numeric")$
-    insert_label(".model", pm$model_name)$
-    all_numeric_metrics
-
-model_performance <- dplyr::bind_rows(model_class_performance, model_numeric_performance)
-print(model_performance)
