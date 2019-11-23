@@ -3,21 +3,21 @@ options(verbose = FALSE)
 fs <- FeatureStore$new()
 model_name <- c(
     "arithmetic-mean", # [1]
-    "catboost",        # [2]
-    "randomForest",    # [3]
-    "ranger",          # [4]
-    "rpart",           # [5]
+    "rpart",           # [2]
+    "ranger",          # [3]
+    "catboost",        # [4]
+    "randomForest",    # [5]
     "xgboost"          # [6]
-    )[6]
+)[6]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Get the Data ------------------------------------------------------------
-# tidy_data <-
-#     fs$tidy_data %>%
-#     dplyr::left_join(by = "building_id", fs$geo_features) %>%
-#     dplyr::left_join(by = "building_id", fs$mfa_features) %>%
-#     dplyr::left_join(by = "building_id", fs$age_features)
+tidy_data <-
+    fs$tidy_data %>%
+    dplyr::left_join(by = "building_id", fs$geo_features) %>%
+    dplyr::left_join(by = "building_id", fs$mfa_features) %>%
+    dplyr::left_join(by = "building_id", fs$age_features)
 historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
 new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 

@@ -8,7 +8,7 @@ model_name <- c(
     "catboost",        # [4]
     "randomForest",    # [5]
     "xgboost"          # [6]
-    )[6]
+)[6]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -16,7 +16,7 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 tidy_data <-
     fs$tidy_data %>%
     dplyr::left_join(by = "building_id", fs$geo_features) %>%
-    dplyr::left_join(by = "building_id", fs$has_features) %>%
+    dplyr::left_join(by = "building_id", fs$mfa_features) %>%
     dplyr::left_join(by = "building_id", fs$age_features)
 historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
 new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
@@ -24,11 +24,10 @@ new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 # Sample the Data ---------------------------------------------------------
 role_pk <- "building_id"
 role_none <- NULL
-role_input_1 <- match_columns(historical_data, "^geo_level_")
-role_input_2 <- match_columns(historical_data, "^age|^treat_age")
-role_input_3 <- match_columns(historical_data, "^has_superstructure_mud_mortar_stone$|^has_dim_")
-role_input_4 <- match_columns(historical_data, "_type$")
-role_input <- c(role_input_1, role_input_2, role_input_3, role_input_4)
+role_input_1 <- match_columns(historical_data, "_type$|^has_superstructure_mud_mortar_stone$|_fct$")
+role_input_2 <- match_columns(historical_data, "^geo_level_[1-3]_id|^mfa_dim_")
+role_input_3 <- match_columns(historical_data, "^age$|_percentage$|^count_")
+role_input <- unique(c(role_input_1, role_input_2, role_input_3))
 role_target <- "damage_grade"
 
 train_set <-
@@ -53,7 +52,6 @@ pm$model_init()
 pm$model_fit()
 pm$model_predict()
 pm$model_store()
-pm$model_end()
 
 # Create Submission -------------------------------------------------------
 submission_path <- file.path(getOption("path_submissions"), paste0("(",model_name,")(",make.names(Sys.time()),").csv"))
