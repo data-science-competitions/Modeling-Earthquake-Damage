@@ -43,7 +43,7 @@ FeatureStore <- R6::R6Class(
 )#end DataStore
 
 # Private Methods ---------------------------------------------------------
-utils::globalVariables(c(".set_bucket", ".set_role"))
+utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
 
 .craft_tidy_data <- function(private){
   set.seed(1313)
