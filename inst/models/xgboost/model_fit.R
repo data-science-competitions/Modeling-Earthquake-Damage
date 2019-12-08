@@ -21,7 +21,7 @@ model_fit <- function(historical_data, model_formula)
         print_every_n = 10,
         early_stopping_rounds = 50,
         maximize = TRUE,
-        verbose = 1#getOption("verbose")
+        verbose = 1
     )
 
     return(mdl_obj)

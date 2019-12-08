@@ -48,20 +48,27 @@ utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
 .craft_tidy_data <- function(private){
   set.seed(1313)
 
+  # Get the Data
+  historical_data <- private$ds$data_model$historical_data %>% tibble::add_column(.set_role = NA_character_, .after = 1)
+  new_data <- private$ds$data_model$new_data %>% tibble::add_column(.set_role = "test", .after = 1)
+
+  # Mark new_data geo_level_3_id in historical_data
   historical_data <-
-    private$ds$data_model$historical_data %>%
+    historical_data %>%
+    dplyr::mutate(.set_role = ifelse(building_id %in% new_data$geo_level_3_id, "calibration", .set_role))
+
+  # Sample observations into buckets
+  historical_data <-
+    historical_data %>%
     dplyr::sample_n(dplyr::n()) %>%
     dplyr::mutate(.set_bucket = dplyr::ntile(1:dplyr::n(), 26))
 
-  new_data <- private$ds$data_model$new_data
-
+  # Allocate observations to sets
   dplyr::bind_rows(historical_data = historical_data, new_data = new_data, .id = ".set_source") %>%
-    tibble::add_column(.set_role = NA_character_, .after = 1) %>%
     dplyr::mutate(
-      .set_role = dplyr::if_else(.set_bucket %in% 1:6, "train", .set_role),
-      .set_role = dplyr::if_else(.set_bucket %in% 7:10, "validation", .set_role),
-      .set_role = dplyr::if_else(.set_bucket %in% 11:15, "cross-validation", .set_role),
-      .set_role = dplyr::if_else(.set_bucket %in% 16:26, "calibration", .set_role)
+      .set_role = dplyr::if_else(is.na(.set_role) & .set_bucket %in% 01:06, "train", .set_role),
+      .set_role = dplyr::if_else(is.na(.set_role) & .set_bucket %in% 07:10, "validation", .set_role),
+      .set_role = dplyr::if_else(is.na(.set_role) & .set_bucket %in% 11:26, "calibration", .set_role)
     ) %>%
     dplyr::rename(
       land_surface_condition_fct = land_surface_condition,
