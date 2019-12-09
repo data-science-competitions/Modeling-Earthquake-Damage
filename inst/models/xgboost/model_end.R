@@ -41,7 +41,7 @@ model_end <- function(){
 
     ## Visualisation: XGBoost Variable Importance
     figure_path <- file.path(target, "(variable-importance)(xgboost).jpg")
-    explanation <- xgboost::xgb.importance(model = model_object) %>% xgboost::xgb.ggplot.importance(top_n = 20)
+    explanation <- xgboost::xgb.importance(model = model_object) %>% xgboost::xgb.ggplot.importance(top_n = NULL)
     ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
 
     # Visualisation: A Singe Tree ---------------------------------------------
