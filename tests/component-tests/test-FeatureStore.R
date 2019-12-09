@@ -12,8 +12,28 @@ test_that("FeatureStore can be instantiated", {
 test_that("FeatureStore has access to the project datasets", {
     attach(test_env)
     expect_class(obj$tidy_data, "data.frame")
-    expect_table_has_col_names(obj$tidy_data, c(".set_source", ".set_role", "building_id"))
+    expect_table_has_col_names(obj$tidy_data, c(".set_source", "building_id"))
     expect_has_no_duplicates(obj$tidy_data$building_id)
+})
+
+test_that("FeatureStore has representative training, validation and calibration sets", {
+    attach(test_env)
+    expect_table_has_col_names(obj$tidy_data, c(".set_role", "building_id"))
+
+    expect_subset(
+        obj$tidy_data %>% dplyr::filter(.set_role %in% "test") %>% .$geo_level_3_id,
+        obj$tidy_data %>% dplyr::filter(.set_role %in% "calibration") %>% .$geo_level_3_id
+    )
+
+    expect_subset(
+        obj$tidy_data %>% dplyr::filter(.set_role %in% "train") %>% .$geo_level_3_id,
+        obj$tidy_data %>% dplyr::filter(.set_role %in% "calibration") %>% .$geo_level_3_id
+    )
+
+    expect_subset(
+        obj$tidy_data %>% dplyr::filter(.set_role %in% "validation") %>% .$geo_level_3_id,
+        obj$tidy_data %>% dplyr::filter(.set_role %in% "calibration") %>% .$geo_level_3_id
+    )
 })
 
 test_that("FeatureStore has access to the treated geo features", {
