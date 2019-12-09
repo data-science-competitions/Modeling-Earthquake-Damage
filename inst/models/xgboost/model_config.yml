@@ -1,17 +1,24 @@
 # https://xgboost.readthedocs.io/en/latest/parameter.html
 default:
   params:
-    # General Parameters
+    # 1) General Parameters
     booster: gbtree
-    # Command Line Parameters
-    nrounds: 1000
-    # Parameters for Tree Booster
     eta: 0.02
-    gamma: 0
-    max_depth: 10
-    min_child_weight: 5
+    # 2) Parameters for Tree Booster
+    ## Number of trees
+    nrounds: 1000
+    ## Tree depth
+    max_depth: 9
+    ## Minimum number of observations in terminal nodes
+    min_child_weight: 15
+    # 3) Stochastic Attributes
     subsample: 0.95
     colsample_bytree: 0.8
-    lambda: 1
+    # 4) Regularization Hyperparameters
+    ## Lagrangian multiplier pseudo-regularization on tree complexity
+    gamma: 0
+    ## L2 regularization term on weights
+    lambda: 0
+    ## L1 regularization term on weights
     alpha: 0
 
