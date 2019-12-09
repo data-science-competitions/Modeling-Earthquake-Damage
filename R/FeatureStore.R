@@ -121,9 +121,8 @@ utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
     tibble::add_column(building_id = tidy_data$building_id, .before = TRUE) %>%
     dplyr::select(
       building_id,
-      dplyr::starts_with("geo_level_1_id_cat"),
-      dplyr::starts_with("geo_level_2_id_cat"),
-      dplyr::starts_with("geo_level_3_id_cat")
+      dplyr::matches("^geo_level_[1-3]_id_cat"),
+      dplyr::matches("^geo_level_[1-3]_id_lev")
     )
 
   return(tidy_geo)
@@ -157,6 +156,7 @@ utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
     FactoMineR::MFA(
       group = c(11, 11, 4, 4),
       type = c("n", "n", "n", "n"),
+      ncp = 10,
       name.group = c("superstructure", "secondary_use", "type", "misc"),
       graph = FALSE
     )
