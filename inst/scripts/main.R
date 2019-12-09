@@ -24,7 +24,7 @@ new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 # Sample the Data ---------------------------------------------------------
 role_pk <- "building_id"
 role_none <- NULL
-role_input_1 <- match_columns(historical_data, "_type$|^has_superstructure_mud_mortar_stone$")
+role_input_1 <- match_columns(historical_data, "_type$|^has_superstructure_")
 role_input_2 <- match_columns(historical_data, "^geo_level_[1]_id$|^geo_level_[1-3]_id_[cat]|^mfa_dim_")
 role_input_3 <- match_columns(historical_data, "^age$|_percentage$|^count_")
 role_input <- unique(c(role_input_1, role_input_2, role_input_3))
