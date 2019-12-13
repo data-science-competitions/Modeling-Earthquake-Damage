@@ -1,3 +1,7 @@
+# Configuration -----------------------------------------------------------
+options(verbose = FALSE)
+enable_parallelism()
+
 # Setup -------------------------------------------------------------------
 fs <- FeatureStore$new()
 model_name <- c(
@@ -10,15 +14,6 @@ model_name <- c(
 )[6]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-
-# Configuration -----------------------------------------------------------
-options(verbose = FALSE)
-if(is.null(getOption("parallel.cluster"))){
-    options(parallel.enable = TRUE)
-    options(parallel.ncores = parallel::detectCores())
-    options(parallel.cluster = parallel::makeCluster(getOption("parallel.ncores")))
-    parallel::setDefaultCluster(cl = getOption("parallel.cluster"))
-}
 
 # Get the Data ------------------------------------------------------------
 tidy_data <-
