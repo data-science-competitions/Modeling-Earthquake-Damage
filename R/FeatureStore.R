@@ -108,12 +108,14 @@ utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
 
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
-      dframe = tidy_data %>% dplyr::filter(.set_role %in% c("calibration")),# "validation", "cross-validation")),
+      dframe = tidy_data %>% dplyr::filter(.set_role %in% c("calibration")),
       varlist = c("geo_level_1_id", "geo_level_2_id", "geo_level_3_id"),
       outcome = "damage_grade",
       rareCount = 0,
       ncross = 2^3,
-      verbose = getOption("verbose")
+      verbose = getOption("verbose"),
+      parallelCluster = getOption("parallel.cluster"),
+      use_parallel = getOption("parallel.enable", FALSE)
     )
 
   tidy_geo <-
