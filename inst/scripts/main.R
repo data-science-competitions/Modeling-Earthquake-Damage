@@ -21,48 +21,61 @@ tidy_data <-
     dplyr::left_join(by = "building_id", fs$geo_features) %>%
     dplyr::left_join(by = "building_id", fs$mfa_features) %>%
     dplyr::left_join(by = "building_id", fs$age_features)
-historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
-new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 
-# Sample the Data ---------------------------------------------------------
+# Features Selection ------------------------------------------------------
 role_pk <- "building_id"
 role_none <- NULL
-role_input_1 <- match_columns(historical_data, "_type$|^has_superstructure_")
-role_input_2 <- match_columns(historical_data, "^geo_level_[1]_id$|^geo_level_[1-3]_id_[cat]|^mfa_dim_")
-role_input_3 <- match_columns(historical_data, "^age$|_percentage$|^count_")
+role_input_1 <- match_columns(tidy_data, "_type$|^has_superstructure_")
+role_input_2 <- match_columns(tidy_data, "^geo_level_[1]_id$|^geo_level_[1-3]_id_[cat]|^mfa_dim_")
+role_input_3 <- match_columns(tidy_data, "^age$|_percentage$|^count_")
 role_input <- unique(c(role_input_1, role_input_2, role_input_3))
 role_target <- "damage_grade"
 
-train_set <-
-    historical_data %>%
-    dplyr::filter(.set_role %in% "train") %>%
-    dplyr::select(-dplyr::starts_with(".")) %>%
-    dplyr::select(role_pk, role_input, role_target, role_none)
-
-test_set <-
-    historical_data %>%
-    dplyr::filter(.set_role %in% "validation") %>%
-    dplyr::select(-dplyr::starts_with(".")) %>%
-    dplyr::select(role_pk, role_input, role_target, role_none)
+# Sample the Data ---------------------------------------------------------
+set.seed(1715)
+rset_obj <-
+    tidy_data %>%
+    dplyr::filter(.set_source %in% "historical_data") %>%
+    dplyr::sample_n(1e5) %>%
+    rsample::initial_split(prop = 6/10)
 
 # Run model ---------------------------------------------------------------
-pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
-pm$set_historical_data(train_set)
-pm$set_new_data(test_set)
-pm$set_role_pk(role_pk)
-pm$set_role_input(role_input)
-pm$set_role_target(role_target)
+response <- tibble::tibble()
+K <- get_rsample_num_of_splits(rset_obj)
+pb <- progress::progress_bar$new(total = K, format = "Training model [:bar] current/:total (:percent) eta: :eta")
+pb$tick(0)
+for(k in seq_len(K)){
+    train_set <-
+        get_rsample_training_set(rset_obj, 1) %>%
+        dplyr::select(-dplyr::starts_with(".")) %>%
+        dplyr::select(role_pk, role_input, role_target, role_none)
 
-pm$model_init()
-pm$model_fit()
-pm$model_predict()
-pm$model_store()
-pm$model_end()
+    test_set <-
+        get_rsample_test_set(rset_obj, 1) %>%
+        dplyr::select(-dplyr::starts_with(".")) %>%
+        dplyr::select(role_pk, role_input, role_target, role_none)
+
+    pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
+    pm$set_historical_data(train_set)
+    pm$set_new_data(test_set)
+    pm$set_role_pk(role_pk)
+    pm$set_role_input(role_input)
+    pm$set_role_target(role_target)
+
+    pm$model_init()
+    pm$model_fit()
+    pm$model_predict()
+    pm$model_store()
+
+    response <- response %>% dplyr::bind_rows(pm$response %>% tibble::add_column(split = k, .before = TRUE))
+    pb$tick()
+}
+# pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
 data <-
     test_set %>%
-    dplyr::left_join(pm$response, by = role_pk) %>%
+    dplyr::left_join(response, by = role_pk) %>%
     dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
     dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
 
