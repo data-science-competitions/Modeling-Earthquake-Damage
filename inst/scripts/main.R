@@ -46,12 +46,12 @@ K <- get_rsample_num_of_splits(rset_obj)
 pb <- progress::progress_bar$new(total = K, format = "Training model [:bar] :current/:total (:percent) eta: :eta")
 for(k in seq_len(K)){
     train_set <-
-        get_rsample_training_set(rset_obj, 1) %>%
+        get_rsample_training_set(rset_obj, k) %>%
         dplyr::select(-dplyr::starts_with(".")) %>%
         dplyr::select(role_pk, role_input, role_target, role_none)
 
     test_set <-
-        get_rsample_test_set(rset_obj, 1) %>%
+        get_rsample_test_set(rset_obj, k) %>%
         dplyr::select(-dplyr::starts_with(".")) %>%
         dplyr::select(role_pk, role_input, role_target, role_none)
 
