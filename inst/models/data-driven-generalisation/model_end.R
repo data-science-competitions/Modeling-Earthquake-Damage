@@ -10,13 +10,9 @@ model_end <- function(){
         data = historical_data[, role_input],
         y = historical_data[[role_target]],
         predict_function = function(model, data) predict_function(model, data)[["fit"]],
-        link = link_function,
         label = model_name,
         verbose = getOption("verbose")
     )
-
-    ## Report: Model Performance
-    print(ExplainerYardstick(explainer)$delete_label(".estimator")$insert_label(".dataset", "historical_data")$all_numeric_metrics)
 
     ## Visualisation: Agnostic Variable Importance
     figure_path <- file.path(target, "(variable-importance)(agnostic).jpg")
@@ -43,12 +39,6 @@ model_end <- function(){
     figure_path <- file.path(target, "(variable-importance)(xgboost).jpg")
     explanation <- xgboost::xgb.importance(model = model_object) %>% xgboost::xgb.ggplot.importance(top_n = NULL)
     ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
-
-    # Visualisation: A Singe Tree ---------------------------------------------
-    # for(pkg in c("DiagrammeR", "DiagrammeRsvg", "rsvg")) install_non_installed_package(pkg)
-    # figure_path <- file.path(target, "single-tree.pdf")
-    # dgr_graph <- xgboost::xgb.plot.tree(model = pm$model_object, trees = 0, render = FALSE)
-    # DiagrammeR::export_graph(dgr_graph, figure_path, width = 2970, height = 2100)
 
     return(invisible())
 }
