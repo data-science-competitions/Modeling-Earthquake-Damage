@@ -12,7 +12,7 @@ test_that("FeatureStore can be instantiated", {
 test_that("FeatureStore has access to the project datasets", {
     attach(test_env)
     expect_class(obj$tidy_data, "data.frame")
-    expect_table_has_col_names(obj$tidy_data, c(".set_source", ".set_role", "building_id"))
+    expect_table_has_col_names(obj$tidy_data, c(".set_source", "building_id"))
     expect_has_no_duplicates(obj$tidy_data$building_id)
 })
 
