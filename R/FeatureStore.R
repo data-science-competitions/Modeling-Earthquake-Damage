@@ -158,7 +158,7 @@ utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
     FactoMineR::MFA(
       group = c(11, 11, 4, 4),
       type = c("n", "n", "n", "n"),
-      ncp = 10,
+      ncp = 4,
       name.group = c("superstructure", "secondary_use", "type", "misc"),
       graph = FALSE
     )

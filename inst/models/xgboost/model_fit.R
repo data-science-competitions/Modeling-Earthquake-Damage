@@ -6,7 +6,7 @@
 model_fit <- function(historical_data, model_formula)
 {
     set.seed(1558)
-    xgb_rsplit <- rsample::initial_split(historical_data, 0.95)
+    xgb_rsplit <- rsample::group_vfold_cv(historical_data, group = "geo_level_3_id", v = 20)
     xgb_train <- xgb_rsplit %>% get_rsample_training_set(1) %>% preprocessing_function()
     xgb_test <- xgb_rsplit %>% get_rsample_test_set(1) %>% preprocessing_function()
 
