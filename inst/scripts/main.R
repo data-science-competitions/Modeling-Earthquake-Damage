@@ -25,10 +25,11 @@ tidy_data <-
 # Features Selection ------------------------------------------------------
 role_pk <- "building_id"
 role_none <- "geo_level_3_id"
-role_input_1 <- match_columns(tidy_data, "_type$|^has_superstructure_")
-role_input_2 <- match_columns(tidy_data, "^geo_level_[1]_id$|^geo_level_[1-3]_id_[cat]|^mfa_dim_")
-role_input_3 <- match_columns(tidy_data, "^age$|_percentage$|^count_")
-role_input <- unique(c(role_input_1, role_input_2, role_input_3))
+role_input_1 <- match_columns(tidy_data, "_type$")
+role_input_2 <- match_columns(tidy_data, "^has_superstructure_mud_mortar_stone$")
+role_input_3 <- match_columns(tidy_data, "^geo_level_[1-3]_id_[cat]|^mfa_dim_")
+role_input_4 <- match_columns(tidy_data, "^age$|_percentage$|^count_")
+role_input <- unique(c(role_input_1, role_input_2, role_input_3, role_input_4))
 role_target <- "damage_grade"
 
 # Sample the Data ---------------------------------------------------------
@@ -69,7 +70,7 @@ for(k in seq_len(K)){
     response <- response %>% dplyr::bind_rows(pm$response %>% tibble::add_column(split = k, .before = TRUE))
     pb$tick()
 }
-# pm$model_end()
+pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
 data <-
