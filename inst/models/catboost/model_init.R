@@ -19,7 +19,8 @@ model_init <- function(){
     predict_function <- function(model_object, new_data){
         catboost::catboost.predict(model = model_object, pool = new_data) %>%
             as.data.frame(stringsAsFactors = FALSE) %>%
-            dplyr::rename("fit" = ".")
+            dplyr::rename("fit" = ".") %>%
+            purrr::map_df(link_function)
     }
 
     link_function <- function(x){ # 1 <= x <= 3

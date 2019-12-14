@@ -18,7 +18,6 @@ model_init <- function(){
             "data = Matrix::sparse.model.matrix(formula(" %+% matrix_formula_sting %+% "), data = data)," %+%
             "label = labels" %+%
             ")}"
-
         eval(parse(text = command))
     }
     preprocessing_function <- get("dynamic_preprocessing_function")()
@@ -33,7 +32,8 @@ model_init <- function(){
             "new_data <- preprocessing_function(new_data)",
             "predict(object = model_object, newdata = new_data) %>%",
             "as.data.frame(stringsAsFactors = FALSE) %>%",
-            "dplyr::rename('fit' = '.')",
+            "dplyr::rename('fit' = '.') %>%",
+            "purrr::map_df(link_function)",
             "}")
         eval(parse(text = command))
     }
