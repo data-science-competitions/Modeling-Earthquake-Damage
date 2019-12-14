@@ -24,7 +24,7 @@ tidy_data <-
 
 # Features Selection ------------------------------------------------------
 role_pk <- "building_id"
-role_none <- NULL
+role_none <- "geo_level_3_id"
 role_input_1 <- match_columns(tidy_data, "_type$|^has_superstructure_")
 role_input_2 <- match_columns(tidy_data, "^geo_level_[1]_id$|^geo_level_[1-3]_id_[cat]|^mfa_dim_")
 role_input_3 <- match_columns(tidy_data, "^age$|_percentage$|^count_")
@@ -37,13 +37,12 @@ rset_obj <-
     tidy_data %>%
     dplyr::filter(.set_source %in% "historical_data") %>%
     dplyr::sample_n(1e5) %>%
-    rsample::initial_split(prop = 6/10)
+    rsample::group_vfold_cv(group = "geo_level_3_id", v = 2)
 
 # Run model ---------------------------------------------------------------
 response <- tibble::tibble()
 K <- get_rsample_num_of_splits(rset_obj)
-pb <- progress::progress_bar$new(total = K, format = "Training model [:bar] current/:total (:percent) eta: :eta")
-pb$tick(0)
+pb <- progress::progress_bar$new(total = K, format = "Training model [:bar] :current/:total (:percent) eta: :eta")
 for(k in seq_len(K)){
     train_set <-
         get_rsample_training_set(rset_obj, 1) %>%
