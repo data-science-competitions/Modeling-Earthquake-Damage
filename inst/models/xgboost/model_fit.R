@@ -5,11 +5,24 @@
 #' @return A model object
 model_fit <- function(historical_data, model_formula)
 {
+    ## Split the Data
     set.seed(1558)
     xgb_rsplit <- rsample::group_vfold_cv(historical_data, group = "geo_level_3_id", v = 20)
-    xgb_train <- xgb_rsplit %>% get_rsample_training_set(1) %>% preprocessing_function()
-    xgb_test <- xgb_rsplit %>% get_rsample_test_set(1) %>% preprocessing_function()
+    xgb_train <- xgb_rsplit %>% get_rsample_training_set(1)
+    xgb_test <- xgb_rsplit %>% get_rsample_test_set(1)
 
+    ## Add Weights
+    weight_observations <- function(y){
+        y * 0 + 1
+    }
+    xgb_train_weights <- xgb_train[[role_target]] %>% weight_observations()
+    xgb_test_weights <- xgb_test[[role_target]] %>% weight_observations()
+
+    ## Preprocess the Data
+    xgb_train <- xgb_train %>% preprocessing_function(weight = xgb_train_weights)
+    xgb_test <- xgb_test %>% preprocessing_function(weight = xgb_test_weights)
+
+    ## Fit Model
     set.seed(1451)
     mdl_obj <- xgboost::xgb.train(
         params = params,
