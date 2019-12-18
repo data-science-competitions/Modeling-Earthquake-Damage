@@ -33,10 +33,12 @@ fair_obj <- function(preds, dtrain){
 #' @keywords internal
 #' @family xgboost functions
 log_cosh_obj <- function(preds, dtrain){
-    label <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
-    x <- as.numeric(preds - label)
-    grad <- tanh(x)
-    hess <- 1 / cosh(x)^2
+    y_hat <- preds
+    y <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
+    w <- eval(parse(text = 'xgboost::getinfo(dtrain, "weight")'))
+    x <- as.numeric(y_hat - y)
+    grad <- w * tanh(x)
+    hess <- w / cosh(x)^2
     return(list(metric = "mae", grad = grad, hess = hess))
 }
 
