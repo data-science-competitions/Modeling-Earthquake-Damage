@@ -37,8 +37,8 @@ log_cosh_obj <- function(preds, dtrain){
     y <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
     w <- eval(parse(text = 'xgboost::getinfo(dtrain, "weight")'))
     x <- as.numeric(y_hat - y)
-    grad <- w * tanh(x)
-    hess <- w / cosh(x)^2
+    grad <- tanh(w * x)
+    hess <- 1 / cosh(w * x)^2
     return(list(metric = "mae", grad = grad, hess = hess))
 }
 
