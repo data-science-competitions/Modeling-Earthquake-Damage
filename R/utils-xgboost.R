@@ -17,7 +17,8 @@
 #' @family xgboost functions
 #'
 fair_obj <- function(preds, dtrain){
-    x <- as.numeric(preds - xgboost::getinfo(dtrain, "label"))
+    label <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
+    x <- as.numeric(preds - label)
     c <- 1
     den <- abs(x)
     grad <- c * x / den
@@ -32,9 +33,12 @@ fair_obj <- function(preds, dtrain){
 #' @keywords internal
 #' @family xgboost functions
 log_cosh_obj <- function(preds, dtrain){
-    x <- as.numeric(preds - xgboost::getinfo(dtrain, "label"))
-    grad <- tanh(x)
-    hess <- 1 / cosh(x)^2
+    y_hat <- preds
+    y <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
+    w <- eval(parse(text = 'xgboost::getinfo(dtrain, "weight")'))
+    x <- as.numeric(y_hat - y)
+    grad <- tanh(w * x)
+    hess <- 1 / cosh(w * x)^2
     return(list(metric = "mae", grad = grad, hess = hess))
 }
 
@@ -44,7 +48,8 @@ log_cosh_obj <- function(preds, dtrain){
 #' @keywords internal
 #' @family xgboost functions
 feval_f1 <- function(preds, dtrain){
-    y <- as_earthquake_damage(xgboost::getinfo(dtrain, "label"))
+    label <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
+    y <- as_earthquake_damage(label)
     y_hat <- as_earthquake_damage(preds)
     f1 <- yardstick::f_meas_vec(truth = y, estimate = y_hat, estimator = "micro")
     return(list(metric = 'F1', value = f1))

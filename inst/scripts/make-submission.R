@@ -1,6 +1,8 @@
-# Setup -------------------------------------------------------------------
+# Configuration -----------------------------------------------------------
 options(verbose = TRUE)
-fs <- FeatureStore$new()
+enable_parallelism()
+
+# Setup -------------------------------------------------------------------
 model_name <- c(
     "arithmetic-mean", # [1]
     "rpart",           # [2]
@@ -18,18 +20,22 @@ tidy_data <-
     dplyr::left_join(by = "building_id", fs$geo_features) %>%
     dplyr::left_join(by = "building_id", fs$mfa_features) %>%
     dplyr::left_join(by = "building_id", fs$age_features)
+
+# Features Selection ------------------------------------------------------
+role_pk <- "building_id"
+role_none <- match_columns(tidy_data, "^geo_level_3_id$")
+role_input_1 <- match_columns(tidy_data, "_type$")
+role_input_2 <- match_columns(tidy_data, "^has_superstructure_mud_mortar_stone$")
+role_input_3 <- match_columns(tidy_data, "^geo_level_[1-3]_id_[cat]|^mfa_dim_")
+role_input_4 <- match_columns(tidy_data, "^age$|_percentage$|^count_")
+role_input <- unique(c(role_input_1, role_input_2, role_input_3, role_input_4))
+role_target <- "damage_grade"
+
+# Split the Data ----------------------------------------------------------
 historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
 new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
 
 # Sample the Data ---------------------------------------------------------
-role_pk <- "building_id"
-role_none <- NULL
-role_input_1 <- match_columns(historical_data, "_type$|^has_superstructure_mud_mortar_stone$|_fct$")
-role_input_2 <- match_columns(historical_data, "^geo_level_[1-3]_id|^mfa_dim_")
-role_input_3 <- match_columns(historical_data, "^age$|_percentage$|^count_")
-role_input <- unique(c(role_input_1, role_input_2, role_input_3))
-role_target <- "damage_grade"
-
 train_set <-
     historical_data %>%
     dplyr::select(-dplyr::starts_with(".")) %>%

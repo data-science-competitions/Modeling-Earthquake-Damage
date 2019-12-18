@@ -3,12 +3,12 @@ default:
   params:
     # 1) General Parameters
     booster: gbtree
-    eta: 0.02
+    eta: 0.1
     # 2) Parameters for Tree Booster
     ## Number of trees
     nrounds: 1000
     ## Tree depth
-    max_depth: 6
+    max_depth: 9
     ## Minimum number of observations in terminal nodes
     min_child_weight: 15
     # 3) Stochastic Attributes

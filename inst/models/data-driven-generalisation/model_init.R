@@ -11,13 +11,14 @@ model_init <- function(){
 
         matrix_formula_sting <- paste("~", paste(role_input, collapse = " + "))
         command <-
-            "function(data, weight = rep(1,nrow(data))){" %+%
+            "function(data){" %+%
             "labels = data[[\"" %+% role_target %+% "\"]];" %+%
             "labels = if(is.null(labels)) numeric(nrow(data)) else labels;" %+%
             "xgboost::xgb.DMatrix(" %+%
             "data = Matrix::sparse.model.matrix(formula(" %+% matrix_formula_sting %+% "), data = data)," %+%
-            "weight = weight, label = labels" %+%
+            "label = labels" %+%
             ")}"
+
         eval(parse(text = command))
     }
     preprocessing_function <- get("dynamic_preprocessing_function")()
@@ -39,14 +40,8 @@ model_init <- function(){
     }
     predict_function <- get("dynamic_predict_function")()
 
-    link_function <- function(x){ # 1 <= x <= 3
-        minmax <- function(x, a, b) pmin(pmax(x, a), b)
-        normalize <- function(x) if(max(x) == min(x)) x else (x - min(x)) / (max(x) - min(x))
-        scale <- function(x) if(isTRUE(x %>% sd() > 0)) base::scale(x) else base::scale(x, TRUE, FALSE)
-
-        y <- x %>% minmax(1, 3) %>% scale() %>% normalize()
-        y <- y * 2 + 1
-
+    link_function <- function(x){ # 0 <= x <= 1
+        y <- pmin(pmax(x, 0), 1)
         as.vector(y)
     }
 

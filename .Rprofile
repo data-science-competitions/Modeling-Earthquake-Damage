@@ -26,6 +26,7 @@
     }
 
     # Main --------------------------------------------------------------------
+    closeAllConnections()
     if(is_integrating()) return()
     try(arrange_DESCRIPTION_requirements_alphabetically(), silent = TRUE)
 }

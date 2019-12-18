@@ -7,7 +7,7 @@ model_init <- function(){
 
     predict_function <- function(model_object, new_data){
         .data <-
-            predict(object = model_object, data = new_data, type = "response",  predict.all = TRUE) %>%
+            predict(object = model_object, data = new_data, type = "response",  predict.all = !TRUE) %>%
             ranger::predictions() %>%
             as.data.frame(stringsAsFactors = FALSE)
 
@@ -23,7 +23,7 @@ model_init <- function(){
                 dplyr::rename_all(function(x) stringr::str_replace_all(x, "V", "tree_"))
         }
 
-        invisible(.data)
+        invisible(.data %>% purrr::map_df(link_function))
     }
 
     link_function <- function(x){ # 1 <= x <= 3
