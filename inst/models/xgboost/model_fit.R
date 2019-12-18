@@ -13,7 +13,11 @@ model_fit <- function(historical_data, model_formula)
 
     ## Add Weights
     weight_observations <- function(y){
-        y * 0 + 1
+        w <- rep(1, length(y))
+        w[y == 1] <- 1
+        w[y == 2] <- 1
+        w[y == 3] <- 1
+        return(w)
     }
     xgb_train_weights <- xgb_train[[role_target]] %>% weight_observations()
     xgb_test_weights <- xgb_test[[role_target]] %>% weight_observations()
@@ -31,9 +35,9 @@ model_fit <- function(historical_data, model_formula)
         watchlist = list(train = xgb_train, test = xgb_test),
         obj = log_cosh_obj,
         feval = feval_f1,
+        maximize = TRUE,
         print_every_n = 10,
         early_stopping_rounds = 50,
-        maximize = TRUE,
         verbose = 2
     )
 
