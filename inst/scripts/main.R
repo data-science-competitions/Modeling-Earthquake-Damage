@@ -24,7 +24,7 @@ tidy_data <-
 
 # Features Selection ------------------------------------------------------
 role_pk <- "building_id"
-role_none <- match_columns(tidy_data, "^geo_level_3_id$")
+role_none <- match_columns(tidy_data, "^geo_level_3_id$|^geo_level_3_id_in_")
 role_input_1 <- match_columns(tidy_data, "_type$")
 role_input_2 <- match_columns(tidy_data, "^has_superstructure_mud_mortar_stone$")
 role_input_3 <- match_columns(tidy_data, "^geo_level_[1-3]_id_[cat]|^mfa_dim_")
