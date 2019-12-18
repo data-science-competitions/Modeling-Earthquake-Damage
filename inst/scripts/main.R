@@ -33,49 +33,40 @@ role_input <- unique(c(role_input_1, role_input_2, role_input_3, role_input_4))
 role_target <- "damage_grade"
 
 # Sample the Data ---------------------------------------------------------
-set.seed(1715)
-rset_obj <-
-    tidy_data %>%
-    dplyr::filter(.set_source %in% "historical_data") %>%
-    dplyr::sample_n(1e5) %>%
-    rsample::group_vfold_cv(group = "geo_level_3_id", v = 2)
+historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
+new_data <- tidy_data %>% dplyr::filter(.set_source %in% "new_data")
+
+# Split the Data ----------------------------------------------------------
+train_set <-
+    historical_data %>%
+    dplyr::filter(.set_role %in% "train") %>%
+    dplyr::select(-dplyr::starts_with(".")) %>%
+    dplyr::select(role_pk, role_input, role_target, role_none)
+
+test_set <-
+    historical_data %>%
+    dplyr::filter(.set_role %in% "validation") %>%
+    dplyr::select(-dplyr::starts_with(".")) %>%
+    dplyr::select(role_pk, role_input, role_target, role_none)
 
 # Run model ---------------------------------------------------------------
-response <- tibble::tibble()
-K <- get_rsample_num_of_splits(rset_obj)
-pb <- progress::progress_bar$new(total = K, format = "Training model [:bar] :current/:total (:percent) eta: :eta")
-for(k in seq_len(K)){
-    train_set <-
-        get_rsample_training_set(rset_obj, 1) %>%
-        dplyr::select(-dplyr::starts_with(".")) %>%
-        dplyr::select(role_pk, role_input, role_target, role_none)
+pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
+pm$set_historical_data(train_set)
+pm$set_new_data(test_set)
+pm$set_role_pk(role_pk)
+pm$set_role_input(role_input)
+pm$set_role_target(role_target)
 
-    test_set <-
-        get_rsample_test_set(rset_obj, 1) %>%
-        dplyr::select(-dplyr::starts_with(".")) %>%
-        dplyr::select(role_pk, role_input, role_target, role_none)
-
-    pm <- PentaModel$new(path = file.path(.Options$path_models, model_name))
-    pm$set_historical_data(train_set)
-    pm$set_new_data(test_set)
-    pm$set_role_pk(role_pk)
-    pm$set_role_input(role_input)
-    pm$set_role_target(role_target)
-
-    pm$model_init()
-    pm$model_fit()
-    pm$model_predict()
-    pm$model_store()
-
-    response <- response %>% dplyr::bind_rows(pm$response %>% tibble::add_column(split = k, .before = TRUE))
-    pb$tick()
-}
-pm$model_end()
+pm$model_init()
+pm$model_fit()
+pm$model_predict()
+pm$model_store()
+# pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
 data <-
     test_set %>%
-    dplyr::left_join(response, by = role_pk) %>%
+    dplyr::left_join(pm$response, by = role_pk) %>%
     dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
     dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
 
