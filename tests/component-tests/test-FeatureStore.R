@@ -36,7 +36,7 @@ test_that("FeatureStore has access to the treated age features", {
 
 test_that("FeatureStore has access to the underlying structures of factor variables", {
     attach(test_env)
-    mfa_feature_names <- paste0("mfa_dim_", 1:5)
+    mfa_feature_names <- paste0("mfa_dim_", 1:3)
     expect_class(cores <- obj$mfa_features, "data.frame")
     expect_table_has_col_names(cores, c("building_id", mfa_feature_names))
 })
