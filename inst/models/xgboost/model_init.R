@@ -11,12 +11,12 @@ model_init <- function(){
 
         matrix_formula_sting <- paste("~", paste(role_input, collapse = " + "))
         command <-
-            "function(data){" %+%
+            "function(data, weight = rep(1,nrow(data))){" %+%
             "labels = data[[\"" %+% role_target %+% "\"]];" %+%
             "labels = if(is.null(labels)) numeric(nrow(data)) else labels;" %+%
             "xgboost::xgb.DMatrix(" %+%
             "data = Matrix::sparse.model.matrix(formula(" %+% matrix_formula_sting %+% "), data = data)," %+%
-            "label = labels" %+%
+            "weight = weight, label = labels" %+%
             ")}"
         eval(parse(text = command))
     }
