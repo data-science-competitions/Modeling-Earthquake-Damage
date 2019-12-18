@@ -15,8 +15,8 @@ model_fit <- function(historical_data, model_formula)
     weight_observations <- function(y){
         w <- rep(1, length(y))
         w[y == 1] <- 1
-        w[y == 2] <- 1
-        w[y == 3] <- 1
+        w[y == 2] <- 0.707
+        w[y == 3] <- 0.95
         return(w)
     }
     xgb_train_weights <- xgb_train[[role_target]] %>% weight_observations()

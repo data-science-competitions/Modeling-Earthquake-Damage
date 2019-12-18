@@ -8,7 +8,7 @@ default:
     ## Number of trees
     nrounds: 1000
     ## Tree depth
-    max_depth: 9
+    max_depth: 6
     ## Minimum number of observations in terminal nodes
     min_child_weight: 15
     # 3) Stochastic Attributes
