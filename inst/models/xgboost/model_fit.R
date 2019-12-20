@@ -7,20 +7,18 @@ model_fit <- function(historical_data, model_formula)
 {
     ## Split the Data
     set.seed(1558)
-    xgb_rsplit <- rsample::group_vfold_cv(historical_data, group = "geo_level_3_id", v = 20)
-    xgb_train <- xgb_rsplit %>% get_rsample_training_set(1)
-    xgb_test <- xgb_rsplit %>% get_rsample_test_set(1)
+    n <- nrow(historical_data)
+    train_index <- sample(n, n - 1e3)
+    xgb_train <- historical_data[+train_index, ]
+    xgb_test <- historical_data[-train_index, ]
 
     ## Add Weights
-    weight_observations <- function(y){
-        w <- rep(1, length(y))
-        w[y == 1] <- 1
-        w[y == 2] <- 0.707
-        w[y == 3] <- 0.95
+    weight_observations <- function(.data){
+        w <- ifelse(.data$geo_level_3_id_in_test, 1, 0.707)
         return(w)
     }
-    xgb_train_weights <- xgb_train[[role_target]] %>% weight_observations()
-    xgb_test_weights <- xgb_test[[role_target]] %>% weight_observations()
+    xgb_train_weights <- xgb_train %>% weight_observations()
+    xgb_test_weights <- xgb_test %>% weight_observations()
 
     ## Preprocess the Data
     xgb_train <- xgb_train %>% preprocessing_function(weight = xgb_train_weights)
