@@ -5,6 +5,5 @@
 model_predict <- function(new_data, model_object)
 {
     response <- predict_function(model_object, new_data)
-    response <- purrr::map_df(response, link_function)
     return(response)
 }
