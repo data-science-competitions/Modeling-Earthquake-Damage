@@ -61,7 +61,7 @@ pm$model_init()
 pm$model_fit()
 pm$model_predict()
 pm$model_store()
-# pm$model_end()
+pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
 data <-
