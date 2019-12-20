@@ -12,7 +12,7 @@ model_name <- c(
     "randomForest",           # [5]
     "xgboost-regression",     # [6]
     "xgboost-classification"  # [7]
-)[6]
+)[7]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -77,3 +77,8 @@ Yardstick$
     set_estimator("micro")$
     insert_label(".model", pm$model_name)$
     f_meas
+
+## Confusion Matrix
+new_conf_mat <- yardstick::conf_mat(data, truth = truth.class, estimate = estimate.class)
+print(new_conf_mat)
+ggplot2::autoplot(new_conf_mat, type = c("heatmap", "mosaic")[1]) + ggplot2::coord_fixed(ratio = 1)
