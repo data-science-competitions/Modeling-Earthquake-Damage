@@ -5,12 +5,13 @@ enable_parallelism()
 # Setup -------------------------------------------------------------------
 fs <- FeatureStore$new()
 model_name <- c(
-    "arithmetic-mean", # [1]
-    "rpart",           # [2]
-    "ranger",          # [3]
-    "catboost",        # [4]
-    "randomForest",    # [5]
-    "xgboost"          # [6]
+    "arithmetic-mean",        # [1]
+    "rpart",                  # [2]
+    "ranger",                 # [3]
+    "catboost",               # [4]
+    "randomForest",           # [5]
+    "xgboost-regression",     # [6]
+    "xgboost-classification"  # [7]
 )[6]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
