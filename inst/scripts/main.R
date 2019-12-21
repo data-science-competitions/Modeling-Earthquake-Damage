@@ -5,13 +5,14 @@ enable_parallelism()
 # Setup -------------------------------------------------------------------
 fs <- FeatureStore$new()
 model_name <- c(
-    "arithmetic-mean", # [1]
-    "rpart",           # [2]
-    "ranger",          # [3]
-    "catboost",        # [4]
-    "randomForest",    # [5]
-    "xgboost"          # [6]
-)[6]
+    "arithmetic-mean",        # [1]
+    "rpart",                  # [2]
+    "ranger",                 # [3]
+    "catboost",               # [4]
+    "randomForest",           # [5]
+    "xgboost-regression",     # [6]
+    "xgboost-classification"  # [7]
+)[7]
 output_dir <- file.path(getOption("path_archive"), model_name)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -22,15 +23,10 @@ tidy_data <-
     dplyr::left_join(by = "building_id", fs$mfa_features) %>%
     dplyr::left_join(by = "building_id", fs$age_features)
 
-# Features Selection ------------------------------------------------------
-role_pk <- "building_id"
-role_none <- match_columns(tidy_data, "^geo_level_3_id$|^geo_level_3_id_in_")
-role_input_1 <- match_columns(tidy_data, "_type$")
-role_input_2 <- match_columns(tidy_data, "^has_superstructure_mud_mortar_stone$")
-role_input_3 <- match_columns(tidy_data, "^geo_level_[1-3]_id_[cat]|^mfa_dim_")
-role_input_4 <- match_columns(tidy_data, "^age$|_percentage$|^count_")
-role_input <- unique(c(role_input_1, role_input_2, role_input_3, role_input_4))
-role_target <- "damage_grade"
+# Get Variables Names -----------------------------------------------------
+yaml_path <- file.path(getOption("path_models"), "model-variables.yml")
+yaml_list <- yaml::read_yaml(yaml_path, eval.expr = TRUE)
+list2env(yaml_list$default %>% lapply(merge_elements), envir = globalenv())
 
 # Sample the Data ---------------------------------------------------------
 historical_data <- tidy_data %>% dplyr::filter(.set_source %in% "historical_data")
@@ -76,3 +72,8 @@ Yardstick$
     set_estimator("micro")$
     insert_label(".model", pm$model_name)$
     f_meas
+
+## Confusion Matrix
+new_conf_mat <- yardstick::conf_mat(data, truth = truth.class, estimate = estimate.class)
+print(new_conf_mat)
+ggplot2::autoplot(new_conf_mat, type = c("heatmap", "mosaic")[1]) + ggplot2::coord_fixed(ratio = 1)
