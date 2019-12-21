@@ -17,7 +17,12 @@ model_fit <- function(historical_data, model_formula)
     xgb_test <- historical_data[-train_index, ]
 
     ## Add Weights
-    weight_observations <- function(.data){rep(1, nrow(.data))}
+    weight_observations <- function(.data){
+        y <- .data[[role_target]]
+        w <- rep(1, nrow(.data))
+        # w[y == 2] <- 0.707
+        return(w)
+    }
     xgb_train_weights <- xgb_train %>% weight_observations()
     xgb_test_weights <- xgb_test %>% weight_observations()
 
