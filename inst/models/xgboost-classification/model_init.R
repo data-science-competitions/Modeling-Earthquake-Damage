@@ -12,8 +12,8 @@ model_init <- function(){
         matrix_formula_sting <- paste("~", paste(role_input, collapse = " + "))
         command <-
             "function(data, weight = rep(1,nrow(data))){" %+%
-            "labels = data[[\"" %+% role_target %+% "\"]] - 1;" %+%
-            "labels = if(is.null(labels)) numeric(nrow(data)) else labels;" %+%
+            "labels = data[[\"" %+% role_target %+% "\"]];" %+%
+            "labels = if(is.null(labels)) numeric(nrow(data)) else labels - 1;" %+%
             "xgboost::xgb.DMatrix(" %+%
             "data = Matrix::sparse.model.matrix(formula(" %+% matrix_formula_sting %+% "), data = data)," %+%
             "weight = weight, label = labels" %+%
@@ -39,7 +39,7 @@ model_init <- function(){
     }
     predict_function <- get("dynamic_predict_function")()
 
-    link_function <- function(x) x + 1
+    link_function <- function(x) as.vector(x + 1)
 
     model_config <- config::get(file = file.path(model_path, "model_config.yml"), use_parent = FALSE)
 

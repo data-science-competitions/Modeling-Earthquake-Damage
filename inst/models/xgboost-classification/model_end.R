@@ -10,7 +10,6 @@ model_end <- function(){
         data = historical_data[, role_input],
         y = historical_data[[role_target]],
         predict_function = function(model, data) predict_function(model, data)[["fit"]],
-        link = link_function,
         label = model_name,
         verbose = getOption("verbose")
     )
@@ -37,9 +36,11 @@ model_end <- function(){
     }
 
     ## Visualisation: XGBoost Variable Importance
-    figure_path <- file.path(target, "(variable-importance)(xgboost).jpg")
-    explanation <- xgboost::xgb.importance(model = model_object) %>% xgboost::xgb.ggplot.importance(top_n = NULL)
-    ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
+    for(n in c(30, Inf)){
+        figure_path <- file.path(target, paste0("(variable-importance)(xgboost)(", n,").jpg"))
+        explanation <- xgboost::xgb.importance(model = model_object) %>% xgboost::xgb.ggplot.importance(top_n = n)
+        ggplot2::ggsave(figure_path, explanation, "jpeg", width = 297, height = 210, units = "mm")
+    }
 
     # Visualisation: A Singe Tree ---------------------------------------------
     # for(pkg in c("DiagrammeR", "DiagrammeRsvg", "rsvg")) install_non_installed_package(pkg)
