@@ -106,6 +106,31 @@ utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
     dplyr::select(dplyr::starts_with("."), "building_id", dplyr::starts_with("geo_"), "damage_grade") %>%
     dplyr::mutate_if(is.factor, forcats::fct_lump_min, min = 5, other_level = "Rare")
 
+  tidy_data <-
+    tidy_data %>%
+    dplyr::group_by(geo_level_3_id) %>%
+    dplyr::arrange(.by_group = TRUE) %>%
+    dplyr::mutate(
+      geo_level_3_id_in_train = ifelse(.set_role %in% "train", TRUE, NA),
+      geo_level_3_id_in_validation = ifelse(.set_role %in% "validation", TRUE, NA),
+      geo_level_3_id_in_calibration = ifelse(.set_role %in% "calibration", TRUE, NA),
+      geo_level_3_id_in_test = ifelse(.set_role %in% "test", TRUE, NA)
+    ) %>%
+    tidyr::fill(
+      geo_level_3_id_in_train,
+      geo_level_3_id_in_validation,
+      geo_level_3_id_in_calibration,
+      geo_level_3_id_in_test,
+      .direction = "updown"
+    ) %>%
+    tidyr::replace_na(list(
+      geo_level_3_id_in_train = FALSE,
+      geo_level_3_id_in_validation = FALSE,
+      geo_level_3_id_in_calibration = FALSE,
+      geo_level_3_id_in_test = FALSE
+    )) %>%
+    dplyr::ungroup()
+
   treat_plan <-
     vtreat::mkCrossFrameNExperiment(
       dframe = tidy_data %>% dplyr::filter(.set_source %in% "historical_data"),
@@ -118,11 +143,12 @@ utils::globalVariables(c(".set_bucket", ".set_role", "age_NA"))
       use_parallel = getOption("parallel.enable", FALSE)
     )
 
+  tidy_geo <- vtreat::prepare(treatmentplan = treat_plan$treatments, dframe = tidy_data)
   tidy_geo <-
-    vtreat::prepare(treatmentplan = treat_plan$treatments, dframe = tidy_data) %>%
-    tibble::add_column(building_id = tidy_data$building_id, .before = TRUE) %>%
+    dplyr::bind_cols(tidy_data, tidy_geo) %>%
     dplyr::select(
       building_id,
+      dplyr::matches("^geo_level_[1-3]_id_in_"),
       dplyr::matches("^geo_level_[1-3]_id_cat"),
       dplyr::matches("^geo_level_[1-3]_id_lev")
     )

@@ -42,7 +42,8 @@ log_cosh_obj <- function(preds, dtrain){
     return(list(metric = "mae", grad = grad, hess = hess))
 }
 
-#' @title Micro Averaged F1 score Evaluation Function
+#' @title Micro Averaged F1 Score Evaluation Function
+#' @description Converts numeric to class
 #' @inheritParams fair_obj
 #' @export
 #' @keywords internal
@@ -51,6 +52,23 @@ feval_f1 <- function(preds, dtrain){
     label <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
     y <- as_earthquake_damage(label)
     y_hat <- as_earthquake_damage(preds)
+    f1 <- yardstick::f_meas_vec(truth = y, estimate = y_hat, estimator = "micro")
+    return(list(metric = 'F1', value = f1))
+}
+
+#' @title Micro Averaged F1 score Evaluation Function
+#' @inheritParams fair_obj
+#' @export
+#' @keywords internal
+#' @family xgboost functions
+feval_f1_micro <- function(preds, dtrain){
+    y <- eval(parse(text = 'xgboost::getinfo(dtrain, "label")'))
+    y_hat <- preds
+
+    num_class <- y %>% unique() %>% length()
+    y <- ordered(y, levels = 0:(num_class-1), labels = 1:num_class)
+    y_hat <- ordered(y_hat, levels = 0:(num_class-1), labels = 1:num_class)
+
     f1 <- yardstick::f_meas_vec(truth = y, estimate = y_hat, estimator = "micro")
     return(list(metric = 'F1', value = f1))
 }

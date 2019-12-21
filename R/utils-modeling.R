@@ -28,4 +28,24 @@ match_columns <- function(.data, pattern){
     tidyselect::vars_select(names(.data), dplyr::matches(pattern))
 }
 
+#' @title Merge YAML List Elements at 2nd Depth Level
+#'
+#' @param x (`list`) YAML list.
+#'
+#' @return (`list`) The YAML list with 1 Depth Level
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'  x <- list(a = list(2, 4, 6), b = 50)
+#'  y <- list(a = c(2, 4, 6), b = 50)
+#'  identical(lapply(x, merge_elements), y)
+#' }
+merge_elements <- function(x){
+    if(!is.list(x)) return(x)
+    elements <- vector()
+    for(element in x) elements <- c(elements, element)
+    return(elements)
+}
 #nocov end
