@@ -12,8 +12,8 @@ default:
     ## Minimum number of observations in terminal nodes
     min_child_weight: 15
     # 3) Stochastic Attributes
-    subsample: 0.95
-    colsample_bytree: 0.8
+    subsample: 0.65
+    colsample_bytree: 0.65
     # 4) Regularization Hyperparameters
     ## Lagrangian multiplier pseudo-regularization on tree complexity
     gamma: 0

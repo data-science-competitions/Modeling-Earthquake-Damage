@@ -60,20 +60,33 @@ pm$model_store()
 pm$model_end()
 
 # Evaluate Model ----------------------------------------------------------
+pm$set_new_data(train_set)
+response_train <- pm$model_predict()$response
+pm$set_new_data(test_set)
+response_test <- pm$model_predict()$response
 data <-
-    test_set %>%
-    dplyr::left_join(pm$response, by = role_pk) %>%
+    dplyr::bind_rows(train = response_train, test = response_test, .id = ".set") %>%
+    dplyr::left_join(historical_data, by = role_pk) %>%
     dplyr::rename("truth.numeric" = !!role_target, "estimate.numeric" = "fit") %>%
     dplyr::mutate(truth.class = as_earthquake_damage(truth.numeric), estimate.class = as_earthquake_damage(estimate.numeric))
-
 ## Ungrouped Evaluation (overview)
 Yardstick$
-    new(data %>% dplyr::ungroup(), truth = "truth.class", estimate = "estimate.class")$
+    new(data %>% dplyr::group_by(.set), truth = "truth.class", estimate = "estimate.class")$
     set_estimator("micro")$
     insert_label(".model", pm$model_name)$
-    f_meas
+    f_meas %>% dplyr::arrange(.set)
 
 ## Confusion Matrix
-new_conf_mat <- yardstick::conf_mat(data, truth = truth.class, estimate = estimate.class)
-print(new_conf_mat)
-ggplot2::autoplot(new_conf_mat, type = c("heatmap", "mosaic")[1]) + ggplot2::coord_fixed(ratio = 1)
+confusion_matrices <- yardstick::conf_mat(data %>% dplyr::group_by(.set), truth = truth.class, estimate = estimate.class)
+gg_objects <- list()
+for(l in seq_along(confusion_matrices$conf_mat)){
+    set_name <- confusion_matrices[[".set"]][[l]]
+    confusion_matrix <- confusion_matrices$conf_mat[[l]]
+
+    gg_objects[[l]] <-
+        confusion_matrix %>%
+        ggplot2::autoplot(type = "heatmap") +
+        ggplot2::ggtitle(set_name) +
+        ggplot2::coord_fixed(ratio = 1)
+}
+do.call(gridExtra::grid.arrange, c(gg_objects, ncol = 2, nrow = 1, as.table = FALSE))

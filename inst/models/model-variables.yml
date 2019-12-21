@@ -7,3 +7,15 @@ default:
    - !expr match_columns(tidy_data, "^geo_level_[1-3]_id_[cat]|^mfa_dim_")
    - !expr match_columns(tidy_data, "^age$|_percentage$|^count_")
  role_target: "damage_grade"
+
+original:
+ role_pk: "building_id"
+ role_none: null
+ role_input:
+   - !expr match_columns(tidy_data, "^geo_level_[1-3]_id$")
+   - !expr match_columns(tidy_data, "^count_[families|floors_pre_eq]$|^age$")
+   - !expr match_columns(tidy_data, "^[area|height]_percentage$")
+   - !expr match_columns(tidy_data, "^land_surface_condition$|^position$|^plan_configuration$|^legal_ownership_status$")
+   - !expr match_columns(tidy_data, "^[foundation|roof|ground_floor|other_floor]_type$")
+   - !expr match_columns(tidy_data, "^has_secondary_use|^has_superstructure")
+ role_target: "damage_grade"

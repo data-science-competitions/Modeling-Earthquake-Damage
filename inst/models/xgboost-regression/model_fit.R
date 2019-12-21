@@ -14,7 +14,8 @@ model_fit <- function(historical_data, model_formula)
 
     ## Add Weights
     weight_observations <- function(.data){
-        w <- ifelse(.data$geo_level_3_id_in_test, 1, 0.707)
+        w <- rep(1, nrow(.data))
+        # w <- ifelse(.data$geo_level_3_id_in_test, 1, 0.707)
         return(w)
     }
     xgb_train_weights <- xgb_train %>% weight_observations()
