@@ -15,9 +15,6 @@ model_end <- function(){
         verbose = getOption("verbose")
     )
 
-    ## Report: Model Performance
-    print(ExplainerYardstick(explainer)$delete_label(".estimator")$insert_label(".dataset", "historical_data")$all_numeric_metrics)
-
     ## Visualisation: Agnostic Variable Importance
     figure_path <- file.path(target, "(variable-importance)(agnostic).jpg")
     fi <- ingredients::feature_importance(explainer, type = "difference")
