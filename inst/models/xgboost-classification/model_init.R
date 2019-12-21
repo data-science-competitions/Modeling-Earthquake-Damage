@@ -32,11 +32,14 @@ model_init <- function(){
             "new_data <- preprocessing_function(new_data)",
             "predict(object = model_object, newdata = new_data) %>%",
             "as.data.frame(stringsAsFactors = FALSE) %>%",
-            "dplyr::rename('fit' = '.')",
+            "dplyr::rename('fit' = '.') %>%",
+            "purrr::map_df(link_function)",
             "}")
         eval(parse(text = command))
     }
     predict_function <- get("dynamic_predict_function")()
+
+    link_function <- function(x) x + 1
 
     model_config <- config::get(file = file.path(model_path, "model_config.yml"), use_parent = FALSE)
 

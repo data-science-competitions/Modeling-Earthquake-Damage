@@ -32,7 +32,7 @@ model_fit <- function(historical_data, model_formula)
         data = xgb_train,
         nrounds = params$nrounds,
         watchlist = list(train = xgb_train, test = xgb_test),
-        feval = feval_f1,
+        feval = feval_f1_micro,
         maximize = TRUE,
         print_every_n = 10,
         early_stopping_rounds = 50,
