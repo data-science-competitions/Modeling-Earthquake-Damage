@@ -7,7 +7,7 @@ before_install:
   - R -q -e 'if (!require(remotes, quietly = TRUE)) utils::install.packages("remotes")'
   - R -q -e 'if (!require(desc, quietly = TRUE)) utils::install.packages("desc")'
   - R -q -e 'try(options(repos = paste0("https://mran.microsoft.com/snapshot/", desc::description$new()$get_field("Date")))); remotes::install_deps(dependencies = TRUE)'
-  - R -q -e 'remotes::install_github("ropenscilabs/tic@v0.3.0"); print(tic::dsl_load()); tic::prepare_all_stages()'
+  - R -q -e 'remotes::install_github("ropenscilabs/tic@v0.3.0", dependencies = TRUE); print(tic::dsl_load()); tic::prepare_all_stages()'
   - R -q -e 'tic::before_install()'
 install: R -q -e 'tic::install()'
 after_install: R -q -e 'tic::after_install()'
