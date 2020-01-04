@@ -7,6 +7,7 @@ source("README.R", TRUE)
 knitr::opts_chunk$set(
   echo = TRUE, 
   message = FALSE,
+  warning = FALSE,
   fig.align = "center", 
   out.width = "100%"
 )
@@ -110,11 +111,9 @@ names(ds$data_model)
 
 ### Data Overview
 
-<font size="2.5">
 ```{r data-model, echo = FALSE}
 ds$data_model
 ```
-</font>
 
 ```{r project-data-overview, out.width = "100%", fig.height=0.5, echo = FALSE, message=FALSE}
 remove_all_keys <- function(.data_model){
