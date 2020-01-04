@@ -16,14 +16,14 @@ RoxygenNote: 7.0.0
 Roxygen: list(markdown = TRUE, r6 = FALSE)
 Language: en-GB
 Remotes: 
-    krlmlr/dm@v0.0.3
+    krlmlr/dm@v0.0.6
 Depends: 
-    R (>= 3.5)
+    R (>= 3.6)
 Imports: 
     config (>= 0.3),
     conflicted (>= 1.0.2),
     DALEX (>= 0.4.7),
-    dm (>= 0.0.1),
+    dm (>= 0.0.6),
     dplyr (>= 0.8),
     FactoMineR (>= 1.42),
     forcats (>= 0.4.0),

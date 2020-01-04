@@ -28,7 +28,7 @@ default:
 
 session:
   startup:
-    - !expr options(repos = "https://mran.microsoft.com/snapshot/2019-09-15")
+    - !expr options(repos = "https://mran.microsoft.com/snapshot/2020-01-01")
     - !expr message("Default CRAN mirror snapshot taken on ", gsub("^.*/", "", getOption("repos")))
   packages:
     - !expr require(devtools, warn.conflicts = FALSE, quietly = TRUE)
